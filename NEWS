@@ -1,0 +1,44 @@
+2004-12-19  Release 1.19
+
+    * Added support for PCRE "named subpatterns" (thanks to Nick Gammon).
+
+    * Several minor improvements.
+
+2004-08-25  Release 1.18
+
+    * New lua function 'r:exec'.
+
+    * New lua function 'r:__tostring'.
+
+    * A table returned by r:match() as its 3rd result has no "n" index
+      set anymore. Use table.getn instead.
+
+    * Fixed the bug preventing compilation with the "basic" POSIX
+      regexp library.
+
+    * Makefile improved.
+
+    * Added file gsub.lua containing function 'generic_gsub'.
+
+2004-07-16  Release 17
+    
+    * New lua functions 'flagsPOSIX', 'flagsPCRE', 'versionPCRE'.
+    
+    * Lua functions 'newPCRE' and 'newPOSIX' accept an optional
+      2nd argument ("compilation flags").
+    
+    * Lua function 'newPCRE' accepts an optional 3rd argument
+      ("locale").
+    
+    * Lua function 'r:match' accepts optional 2nd and 3rd
+      arguments ("startoffset" and "execution flags").
+    
+    * Lua function 'r:gmatch' accepts an optional 2nd argument
+      ("execution flags").
+    
+    * If a user-defined function passed to r:gmatch() as its
+      2nd parameter returns true value, then r:gmatch() returns.
+    
+    * The table of substring matches contains false in the positions
+      correspondent to non-matched subpatterns.
+

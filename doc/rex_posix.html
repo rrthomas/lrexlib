@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.4: http://docutils.sourceforge.net/" />
+<title>Lua rexlib release 1.20</title>
+<link rel="stylesheet" href="lrexlib.css" type="text/css" />
+</head>
+<body>
+<div class="document" id="lua-rexlib-release-1-20">
+<h1 class="title">Lua rexlib release 1.20</h1>
+<blockquote>
+<div class="line-block">
+<div class="line">by Shmuel Zeigerman (shmuz at actcom co il) [maintainer]</div>
+<div class="line">and Reuben Thomas (rrt at sc3d org)</div>
+</div>
+</blockquote>
+<div class="contents topic">
+<p class="topic-title first"><a id="table-of-contents" name="table-of-contents">Table of Contents</a></p>
+<ul class="simple">
+<li><a class="reference" href="#synopsis" id="id2" name="id2">Synopsis</a><ul>
+<li><a class="reference" href="#rex-posix-new" id="id3" name="id3">rex_posix.new</a></li>
+<li><a class="reference" href="#rex-posix-flags" id="id4" name="id4">rex_posix.flags</a></li>
+<li><a class="reference" href="#r-match" id="id5" name="id5">r:match</a></li>
+<li><a class="reference" href="#r-exec" id="id6" name="id6">r:exec</a></li>
+<li><a class="reference" href="#r-gmatch" id="id7" name="id7">r:gmatch</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#notes" id="id8" name="id8">Notes</a></li>
+<li><a class="reference" href="#hint" id="id9" name="id9">Hint</a></li>
+</ul>
+</div>
+<div class="section">
+<h2><a class="toc-backref" href="#id2" id="synopsis" name="synopsis">Synopsis</a></h2>
+<p>The initialisation function (for use with <cite>loadlib</cite>) is <cite>luaopen_rex_posix</cite>.
+The library provides POSIX regular expression matching:</p>
+<hr class="docutils" />
+<div class="section">
+<h3><a class="toc-backref" href="#id3" id="rex-posix-new" name="rex-posix-new">rex_posix.new</a></h3>
+<dl class="docutils">
+<dt><tt class="funcdef docutils literal"><span class="pre">rex_posix.new(p[,</span> <span class="pre">cf])</span></tt></dt>
+<dd>returns a POSIX regular expression object for the pattern <cite>p</cite>,
+subject to compilation flags <cite>cf</cite> (a number).</dd>
+</dl>
+</div>
+<hr class="docutils" />
+<div class="section">
+<h3><a class="toc-backref" href="#id4" id="rex-posix-flags" name="rex-posix-flags">rex_posix.flags</a></h3>
+<dl class="docutils">
+<dt><tt class="funcdef docutils literal"><span class="pre">rex_posix.flags([t])</span></tt></dt>
+<dd>fills the table <em>t</em> with all available POSIX flags (numbers)
+keyed by their names (strings). If the parameter <em>t</em> is missing,
+then a new table <em>t</em> is first created. Returns <em>t</em>.</dd>
+</dl>
+</div>
+<hr class="docutils" />
+<div class="section">
+<h3><a class="toc-backref" href="#id5" id="r-match" name="r-match">r:match</a></h3>
+<dl class="docutils" id="id1">
+<dt><tt class="funcdef docutils literal"><span class="pre">r:match(s[,</span> <span class="pre">st[,</span> <span class="pre">ef]])</span></tt></dt>
+<dd><p class="first">Returns (when there is a match):</p>
+<ul class="simple">
+<li>1-st and 2-nd results: the start and end point of the first
+match of the compiled regexp <cite>r</cite> in the string <cite>s</cite>, starting
+from offset <cite>st</cite> (a number), subject to execution flags <cite>ef</cite>
+(a number);</li>
+<li>3-rd result: a table of substring matches (&quot;captures&quot; in Lua
+terminology). This table contains <cite>false</cite> in the positions
+where the corresponding sub-pattern did not match.</li>
+<li>4-th result: return value of the underlying <em>regexec()</em>
+call (a number).</li>
+</ul>
+<p>OR (no match or failure):</p>
+<ul class="last simple">
+<li>1-st result: nil</li>
+<li>2-nd result: return value of the underlying <em>regexec()</em> call
+(a number)</li>
+</ul>
+</dd>
+</dl>
+</div>
+<hr class="docutils" />
+<div class="section">
+<h3><a class="toc-backref" href="#id6" id="r-exec" name="r-exec">r:exec</a></h3>
+<dl class="docutils">
+<dt><tt class="funcdef docutils literal"><span class="pre">r:exec(s[,</span> <span class="pre">st[,</span> <span class="pre">ef]])</span></tt></dt>
+<dd><p class="first">This function is like <a class="reference" href="#id1">r:match</a> except that a table returned
+as a third result contains offsets of substring matches
+rather than substring matches themselves.</p>
+<p class="last">For example, if the whole match is at offsets 10,20 and
+substring matches are at offsets 12,14 and 16,19 then the
+function returns the following: 10, 20, { 12,14,16,19 }, 0.</p>
+</dd>
+</dl>
+</div>
+<hr class="docutils" />
+<div class="section">
+<h3><a class="toc-backref" href="#id7" id="r-gmatch" name="r-gmatch">r:gmatch</a></h3>
+<dl class="docutils">
+<dt><tt class="funcdef docutils literal"><span class="pre">r:gmatch(s,</span> <span class="pre">f[,</span> <span class="pre">n[,</span> <span class="pre">ef]])</span></tt></dt>
+<dd><p class="first">Tries to match the regex <cite>r</cite> against <cite>s</cite> up to <cite>n</cite> times (or as
+many as possible if <cite>n</cite> is either not given or is not a
+positive number), subject to execution flags <cite>ef</cite>;</p>
+<p>Each time there is a match, <cite>f</cite> is called as <cite>f(m, t)</cite>, where <cite>m</cite>
+is the matched string and <cite>t</cite> is a table of substring matches
+(this table contains <cite>false</cite> in the positions where the
+corresponding sub-pattern did not match.);</p>
+<p class="last">If <cite>f</cite> returns a true value, then <cite>gmatch</cite> immediately returns;
+<cite>gmatch</cite> returns the number of matches made.</p>
+</dd>
+</dl>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section">
+<h2><a class="toc-backref" href="#id8" id="notes" name="notes">Notes</a></h2>
+<p>Optional arguments supplied as <cite>nil</cite> are treated as if they had been
+omitted. Regular expression objects are automatically garbage
+collected.</p>
+<p>If the library is compiled against Henry Spencer's regex library, then
+regular expressions and the strings to match them against may contain
+NULs.</p>
+</div>
+<div class="section">
+<h2><a class="toc-backref" href="#id9" id="hint" name="hint">Hint</a></h2>
+<p>It may be useful to define:</p>
+<pre class="literal-block">
+-- Default constructor
+setmetatable(rex, {__call =
+               function (self, p, cf)
+                 return self.new(p, cf)
+               end})
+
+-- partial string.find equivalent
+function rex.find(s, p, st)
+  return rex(p):match(s, st)
+end
+
+-- partial string.gsub equivalent
+function rex.gsub(s, p, f, n)
+  return rex(p):gmatch(s, f, n)
+end
+</pre>
+</div>
+</div>
+<div class="footer">
+<hr class="footer" />
+Generated on: 2006-01-10 08:58 UTC.
+Generated by <a class="reference" href="http://docutils.sourceforge.net/">Docutils</a> from <a class="reference" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a> source.
+
+</div>
+</body>
+</html>
