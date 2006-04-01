@@ -333,4 +333,3 @@ REX_LIB_API int REX_OPENLIB(lua_State *L)
   REX_REGISTER(L, REX_LIBNAME, rexlib);
   return 1;
 }
-

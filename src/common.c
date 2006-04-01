@@ -83,4 +83,3 @@ void createmeta(lua_State *L, const char *name)
   lua_pushvalue(L, -2);         /* push metatable */
   lua_rawset(L, -3);            /* metatable.__index = metatable */
 }
-
