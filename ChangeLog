@@ -1,13 +1,16 @@
 2005-11-28  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
 	* common.h (REXLIB_API): macro renamed into REX_LIB_API.
 	* lposix.c (LREXLIB_POSIX_EXT): macro renamed into REX_POSIX_EXT.
 
 2005-11-26  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
 	* common.h (LUAL_REGISTER): macro renamed into REX_REGISTER.
 	* lpcre.c (LUAOPEN_LIB): macro renamed into REX_OPENLIB.
 	* lpcre.c (LIBNAME): macro renamed into REX_LIBNAME.
 
 2005-11-15  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
 	* common.c, common.h, lposix.c, lpcre.c: new files (lrexlib.c was
 		  splitted); POSIX and PCRE parts now live in their own
 		  separate files.
@@ -25,9 +28,11 @@
 	* lpcre.c (Lpcre_vers): function renamed into Lpcre_version.
 
 2005-11-12  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
 	* lrexlib.c (LUAL_REGISTER): new macro.
 
 2005-11-10  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
 	* lrexlib.c (posix_match_generic): return (on Lua-side) an
 		  additional value (the return code of regexec).
 	* lrexlib.c (Lpcre_match_generic): return (on Lua-side) an
@@ -36,6 +41,7 @@
 		  value (the return code of pcre_dfa_exec).
 
 2005-10-29  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
 	* lrexlib.c (get_flags): the function now accepts one parameter
 		  from the Lua stack (a table). Was: no parameters. (This
 		  affects the Lua-side functions: flagsPOSIX and
@@ -50,6 +56,7 @@
 		  version 4.
 
 2005-10-25  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
 	* lrexlib.c (DIM): new macro.
 	* lrexlib.c (pcre2): renamed into TPcre.
 	* lrexlib.c (TPcreExecParam): new struct.
@@ -58,6 +65,7 @@
 	* lrexlib.c (Lpcre_dfa_restart): new function. Lua-side: dfa_restart.
 
 2005-10-23  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
 	* lrexlib.c (TPcreCalloutData): new struct.
 	* lrexlib.c (Lpcre_callout): new function.
 	* lrexlib.c (Lpcre_match_generic): PCRE callout support added.
@@ -65,129 +73,106 @@
 	* lrexlib.c (put_number): new helper function.
 
 2005-05-27  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
 	* lrexlib.c: updated to work with Compat-5.1.
 
 2004-12-18  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
 	* lrexlib.c (regex_tostring): error handling added.
-
 	* lrexlib.c (regex_tostring): renamed into udata_tostring.
-
 	* lrexlib.c (regex_get_flags): renamed into get_flags.
-
 	* lrexlib.c (Lpcre_comp): pattern offset included in error message.
-
 	* lrexlib.c (Lpcre_comp): error check added after pcre_study call.
-
 	* lrexlib.c (Lpcre_push_substrings): eliminated inserting nil
 		  values into the matches table (not a bug, redundancy).
-
 	* lrexlib.c (Lpcre_push_substrings): lua_rawset call instead of
 		  lua_settable.
-
 	* lrexlib.c: all stack buffers used for message formatting changed
 		  in size from 128 to 256 bytes.
 
 2004-11-17  Nick Gammon  <nick@gammon.com.au>
+
 	* lrexlib.c (pcre2): new member pcre2.extra.
-
 	* lrexlib.c (Lpcre_comp): pcre_study call added.
-
 	* lrexlib.c (Lpcre_push_matches, Lpcre_push_substrings,
 		  Lpcre_push_offsets): function signatures changed.
-
 	* lrexlib.c (Lpcre_push_substrings): added support for "named
 		  subpatterns".
 
 2004-09-15  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
 	* gsub.lua (is_odd): Function removed; math.mod used instead.
 
 2004-08-24  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
 	* ChangeLog: File added.
 	* NEWS: File added.
 
 2004-08-12  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
 	* lrexlib.c (posix_exec, Lpcre_exec): New C functions, that
 		  correspond to the new lua function 'r:exec'.
-
 	* lrexlib.c (posix_tostring, Lpcre_tostring): New C functions,
 		  that correspond to the new lua function 'r:__tostring'.
-
 	* lrexlib.c: A table returned by r:match() as its 3rd result has
 		  no "n" index set anymore.
-
 	* lrexlib.c (LREXLIB_POSIX_EXT): New macro.
-
 	* lrexlib.c (PCRE_LOCALE_SUPPORT): Macro removed.
-
 	* lrexlib.c (posix_push_matches, Lpcre_push_matches): Functions
 		  became typedef's.
 	* lrexlib.c (posix_match_generic, Lpcre_match_generic)
 		  (posix_push_substrings, Lpcre_push_substrings)
 		  (posix_push_offsets, Lpcre_push_offsets): New functions.
-
 	* gsub.lua: File added.
 
 2004-08-11  Reuben Thomas  <rrt@sc3d.org>
+
 	* config: Many changes.
 	* Makefile: Many changes.
 
 2004-08-11  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
 	* config: File added + many changes.
 	* Makefile: Many changes.
 
 2004-07-15  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
 	* lrexlib.c (posix_get_flags, Lpcre_get_flags, Lpcre_vers): New C
 		  functions, that correspond to new lua functions
 		  'flagsPOSIX', 'flagsPCRE', 'versionPCRE'.
-
 	* lrexlib.c: Lua functions 'newPCRE' and 'newPOSIX' accept an
 		  optional 2nd argument ("compilation flags").
-
 	* lrexlib.c: Lua function 'newPCRE' accepts an optional 3rd
 		  argument ("locale") - but only if the macro
 		  PCRE_LOCALE_SUPPORT was defined at the compilation time.
-
 	* lrexlib.c: Lua function 'r:match' accepts optional 2nd and 3rd
 		  arguments ("startoffset" and "execution flags").
-
 	* lrexlib.c: Lua function 'r:gmatch' accepts an optional 2nd
 		  argument ("execution flags").
-
 	* lrexlib.c (posix_gmatch, Lpcre_gmatch): If a user-defined lua
 		  function passed as the 2nd parameter returns true value,
 		  then lua function 'r:gmatch' returns.
-
 	* lrexlib.c (posix_push_matches, Lpcre_push_matches): The table of
 		  substring matches contains false in the positions
 		  correspondent to non-matched subpatterns.
-
 	* lrexlib.c: Static functions that began with 'pcre' were renamed
 		  to begin with 'Lpcre'.
-
 	* lrexlib.c (posix_getargs, Lpcre_getargs):
 		  Fixed - allocated memory was not freed.
 		  Fixed - removed redundant calls of lua_checkstack.
-
 	* lrexlib.c: Allocation/freeing memory moved from matching
 		  operations to pattern-compiling and garbage-collecting
 		  ones.
-
 	* lrexlib.c (posix_match, posix_gmatch, Lpcre_match, Lpcre_gmatch):
 		  luaL_checkudata is used in checking of userdata-type
 		  parameter.
-
 	* lrexlib.c: Removed conditional compilation controlled by the
 		  macro REG_BASIC.
-
 	* lrexlib.c (posix_comp): The following invalid ANSI C89 code:
 		  size_t sz = <expression>; char errbuf[sz];
 		  made valid with the use of malloc/free.
-
 	* lrexlib.c (Lpcre_gmatch): Keeping 'subject' and 'length'
 		  unchanged while updating 'startoffset'.
-
 	* lbitlib.c: File removed.
-
 	* Makefile: Removed parts related to lbitlib.c.
-
 	* make_bcc.mak: File added.
