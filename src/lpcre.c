@@ -327,7 +327,7 @@ static int Lpcre_gmatch(lua_State *L)
 {
   int res;
   size_t len;
-  int nmatch = 0, limit = 0;
+  int nmatch = 0;
   const char *text;
   TPcre *ud;
   int maxmatch = luaL_optint(L, 4, 0);
@@ -336,10 +336,7 @@ static int Lpcre_gmatch(lua_State *L)
   Lpcre_getargs(L, &ud, &text, &len);
   luaL_checktype(L, 3, LUA_TFUNCTION);
 
-  if(maxmatch > 0) /* this must be stated in the docs */
-    limit = 1;
-
-  while (!limit || nmatch < maxmatch) {
+  while (maxmatch <= 0 || nmatch < maxmatch) {
     res = pcre_exec(ud->pr, ud->extra, text, (int)len, startoffset, eflags,
                     ud->match, (ud->ncapt + 1) * 3);
     if (res >= 0) {
@@ -525,4 +522,3 @@ REX_LIB_API int REX_OPENLIB(lua_State *L)
   REX_REGISTER(L, REX_LIBNAME, rexlib);
   return 1;
 }
-
