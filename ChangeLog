@@ -15,12 +15,10 @@
 		  splitted); POSIX and PCRE parts now live in their own
 		  separate files.
 	* common.h (REXLIB_API): new macro.
-
 	* lposix.c (LREXLIB_POSIX): macro removed.
 	* lposix.c (LUAOPEN_LIB, LIBNAME): new macros.
 	* lposix.c (rexlib): Lua-side functions flagsPOSIX and newPOSIX
 		  now have aliases (flags and new, correspondently).
-
 	* lpcre.c (LREXLIB_PCRE): macro removed.
 	* lpcre.c (LUAOPEN_LIB, LIBNAME): new macros.
 	* lpcre.c (rexlib): Lua-side functions flagsPCRE and newPCRE now
