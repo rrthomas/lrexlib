@@ -1,7 +1,7 @@
 /* lposix.c - POSIX regular expression library */
 /* POSIX regexs can use Spencer extensions for matching NULs if available */
-/* Reuben Thomas   nov00-18dec04 */
-/* Shmuel Zeigerman   may04-18dec04 */
+/* (c) Reuben Thomas 2000-2004 */
+/* (c) Shmuel Zeigerman 2004-2005 */
 
 #include <stdio.h>
 #include <stdlib.h>

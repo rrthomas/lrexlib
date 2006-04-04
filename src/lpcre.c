@@ -1,6 +1,6 @@
 /* lpcre.c - PCRE regular expression library */
-/* Reuben Thomas   nov00-18dec04 */
-/* Shmuel Zeigerman   may04-18dec04 */
+/* (c) Reuben Thomas 2000-2006 */
+/* (c) Shmuel Zeigerman 2004-2005 */
 
 #include <stdio.h>
 #include <stdlib.h>

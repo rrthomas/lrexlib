@@ -1,6 +1,6 @@
 /* common.c */
-/* Reuben Thomas   nov00-18dec04 */
-/* Shmuel Zeigerman   may04-18dec04 */
+/* (c) Reuben Thomas 2000-2006 */
+/* (c) Shmuel Zeigerman 2004-2005 */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -81,5 +81,5 @@ void createmeta(lua_State *L, const char *name)
   luaL_newmetatable(L, name);   /* create new metatable */
   lua_pushliteral(L, "__index");
   lua_pushvalue(L, -2);         /* push metatable */
-  lua_rawset(L, -3);            /* metatable.__index = metatable */
+  lua_rawset(L, -3);            /* metatable.__index = metatable, for OO-style use */
 }
