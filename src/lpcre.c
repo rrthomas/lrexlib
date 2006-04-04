@@ -5,10 +5,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <lua.h>
-#include <lauxlib.h>
 #include <locale.h>
 #include <pcre.h>
+
+#include "lua.h"
+#include "lauxlib.h"
+
 #include "common.h"
 
 /* Lua version control */

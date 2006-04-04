@@ -4,8 +4,10 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <lua.h>
-#include <lauxlib.h>
+
+#include "lua.h"
+#include "lauxlib.h"
+
 #include "common.h"
 
 void L_lua_error(lua_State *L, const char *message)

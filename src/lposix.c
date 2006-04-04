@@ -6,9 +6,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <lua.h>
-#include <lauxlib.h>
 #include <regex.h>
+
+#include "lua.h"
+#include "lauxlib.h"
+
 #include "common.h"
 
 /* Lua version control */
