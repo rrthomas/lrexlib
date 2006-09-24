@@ -1,25 +1,25 @@
-                       Lua rexlib release 1.19
-                       -----------------------
+                           Lua rexlib 1.20
+                           ---------------
 
         by Shmuel Zeigerman (shmuz@actcom.co.il) [maintainer]
                    and Reuben Thomas (rrt@sc3d.org)
 
 
 This archive contains the lrexlib regular expression library for Lua
-5.0. The Makefile provided builds it into shared libraries called
-libluarex_posix.so and libluarex_pcre.so, which can be used with
+5.x. The Makefile provided builds it into shared libraries called
+rex_posix.so and rex_pcre.so, which can be used with require or
 loadlib.
 
-Lrexlib is copyright Reuben Thomas 2000-2004 and copyright Shmuel
-Zeigerman 2004, and is released under the MIT license, like Lua (see
-http://www.lua.org/copyright.html for the full license; it's basically
-the same as the BSD license). There is no warranty.
+Lrexlib is copyright Reuben Thomas 2000-2006 and copyright Shmuel
+Zeigerman 2004-2005, and is released under the MIT license, like Lua
+(see http://www.lua.org/copyright.html for the full license; it's
+basically the same as the BSD license). There is no warranty.
 
 Please report bugs and make suggestions to Shmuel, who is the current
 maintainer.
 
-Thanks to Thatcher Ulrich for bug and warning fixes.
-Thanks to Nick Gammon for adding support for PCRE named subpatterns.
+Thanks to Thatcher Ulrich for bug and warning fixes, and to Nick
+Gammon for adding support for PCRE named subpatterns.
 
 
 Synopsis
@@ -107,22 +107,3 @@ If the library is compiled against Henry Spencer's regex library, then
 regular expressions and the strings to match them against may contain
 NULs. (For PCRE, strings to be matched may contain NULs but patterns
 may not.)
-
-
-It may be useful to define:
-
--- Default constructor (use PCREs)
-setmetatable(rex, {__call =
-               function (self, p, cf, lo)
-                 return self.newPCRE(p, cf, lo)
-               end})
-
--- partial string.find equivalent
-function rex.find(s, p, st)
-  return rex(p):match(s, st)
-end
-
--- partial string.gsub equivalent
-function rex.gsub(s, p, f, n)
-  return rex(p):gmatch(s, f, n)
-end
