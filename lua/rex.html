@@ -1,0 +1,74 @@
+<html><head></head><body>
+<p>
+<h1>rex<br></h1>
+Regular expressions library<br>
+</p><hr>
+<p>
+The rex module provides an interface to the lrexlib POSIX and PCRE<br>
+regular expression support that mimics the standard string library.<br>
+It provides find, gmatch and gsub functions, which as far as<br>
+possible are compatible with their string library equivalents. It<br>
+also adds a gmatch metamethod for regex objects (this allows gmatch<br>
+to be used without constructing the regex object each time).<br>
+</p><hr>
+<p>
+TODO: Allow a default regex library to be installed (Lua, POSIX or PCRE)<br>
+</p><hr>
+<p>
+Default constructor (use PCREs)<br>
+</p><hr>
+<p>
+<strong>find:</strong> <em>string.find for rex library<br></em>
+&nbsp;&nbsp;<strong>s</strong>: string to search<br>
+&nbsp;&nbsp;<strong>p</strong>: pattern to find<br>
+&nbsp;&nbsp;<strong>[st]</strong>: start position for match<br>
+&nbsp;&nbsp;<strong>[cf]</strong>: compile-time flags for the regex<br>
+&nbsp;&nbsp;<strong>[lo]</strong>: locale for the regex<br>
+&nbsp;&nbsp;<strong>[ef]</strong>: execution flags for the regex<br>
+<strong>returns</strong><br>
+&nbsp;&nbsp;<strong>from, to</strong>: start and end points of match, or nil<br>
+&nbsp;&nbsp;<strong>[match, ...]</strong>: substring matches<br>
+</p><hr>
+<p>
+<strong>rex.gmatch:</strong> <em>rex:gmatch in Lua<br></em>
+&nbsp;&nbsp;<strong>self</strong>: compiled regex<br>
+&nbsp;&nbsp;<strong>s</strong>: string to search<br>
+&nbsp;&nbsp;<strong>f</strong>: function to call for each match<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>m</strong>: matched string<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>t</strong>: table of captures<br>
+&nbsp;&nbsp;<strong>returns</strong><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>quit</strong>: true to stop gmatch immediately<br>
+&nbsp;&nbsp;<strong>[n]</strong>: maximum number of replacements [all]<br>
+&nbsp;&nbsp;<strong>[ef]</strong>: execution flags for the regex<br>
+<strong>returns</strong><br>
+&nbsp;&nbsp;<strong>reps</strong>: number of replacements made<br>
+</p><hr>
+<p>
+<strong>gsub:</strong> <em>string.gsub for rex<br></em>
+&nbsp;&nbsp;<strong>s</strong>: string to search<br>
+&nbsp;&nbsp;<strong>p</strong>: pattern to find<br>
+&nbsp;&nbsp;<strong>f</strong>: replacement function or string<br>
+&nbsp;&nbsp;<strong>[n]</strong>: maximum number of replacements [all]<br>
+&nbsp;&nbsp;<strong>[cf]</strong>: compile-time flags for the regex<br>
+&nbsp;&nbsp;<strong>[lo]</strong>: locale for the regex<br>
+&nbsp;&nbsp;<strong>[ef]</strong>: execution flags for the regex<br>
+<strong>returns</strong><br>
+&nbsp;&nbsp;<strong>r</strong>: string with replacements<br>
+&nbsp;&nbsp;<strong>reps</strong>: number of replacements made<br>
+</p><hr>
+<p>
+Tests<br>
+</p><hr>
+<p>
+TODO: <strong>string.checkRegex:</strong> <em>check regex is valid<br></em>
+&nbsp;&nbsp;<strong>p</strong>: regex pattern<br>
+<strong>returns</strong><br>
+&nbsp;&nbsp;<strong>f</strong>: true if regex is valid, or nil otherwise<br>
+</p><hr>
+<p>
+TODO: <strong>rex.check{Posix,PCRE}Regex:</strong> <em>check POSIX regex is valid<br></em>
+&nbsp;&nbsp;<strong>p</strong>: POSIX regex pattern<br>
+<strong>returns</strong><br>
+&nbsp;&nbsp;<strong>f</strong>: true if regex is valid, or nil otherwise<br>
+</p><hr>
+</body></html>
