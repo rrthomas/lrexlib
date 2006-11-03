@@ -6,7 +6,7 @@
 
 
 This archive contains the lrexlib regular expression library for Lua
-5.x. The Makefile provided builds it into shared libraries called
+5.1. The Makefile provided builds it into shared libraries called
 rex_posix.so and rex_pcre.so, which can be used with require or
 loadlib.
 
@@ -107,3 +107,6 @@ If the library is compiled against Henry Spencer's regex library, then
 regular expressions and the strings to match them against may contain
 NULs. (For PCRE, strings to be matched may contain NULs but patterns
 may not.)
+
+Easy loading and extra functionality is provided by lua/rex.lua (see
+lua/rex.html for documentation).
