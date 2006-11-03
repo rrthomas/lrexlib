@@ -40,7 +40,7 @@ function rex.find (s, p, st, cf, lo, ef)
   return from, to
 end
 
--- @func rex.gmatch: rex:gmatch in Lua
+-- @func gmatch: rex:gmatch in Lua
 --   @param self: compiled regex
 --   @param s: string to search
 --   @param f: function to call for each match
@@ -48,16 +48,16 @@ end
 --     @param t: table of captures
 --   @returns
 --     @param quit: true to stop gmatch immediately
---   @param [n]: maximum number of replacements [all]
+--   @param [n]: maximum number of matches [all]
 --   @param [ef]: execution flags for the regex
 -- @returns
---   @param reps: number of replacements made
+--   @param matches: number of matches made
 function rex.gmatch (self, s, f, n, ef)
-  local reps, st = 0, 1
-  while (not n) or reps < n do
+  local matches, st = 0, 1
+  while (not n) or matches < n do
     local from, to, cap = self:match (s, st, ef)
     if from then
-      reps = reps + 1
+      matches = matches + 1
       if f (string.sub (s, from, to), cap) then
         break
       end
@@ -66,7 +66,7 @@ function rex.gmatch (self, s, f, n, ef)
       break
     end
   end
-  return reps
+  return matches
 end
 getmetatable (rex ("")).gmatch = rex.gmatch
 
@@ -505,12 +505,7 @@ if type (_DEBUG) == "table" and _DEBUG.std then
 end
 
 
--- TODO: @func string.checkRegex: check regex is valid
---   @param p: regex pattern
--- @returns
---   @param f: true if regex is valid, or nil otherwise
-
--- TODO: @func rex.check{Posix,PCRE}Regex: check POSIX regex is valid
+-- TODO: @func check{Posix,PCRE}Regex: check POSIX regex is valid
 --   @param p: POSIX regex pattern
 -- @returns
 --   @param f: true if regex is valid, or nil otherwise
