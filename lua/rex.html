@@ -1,7 +1,7 @@
-<html><head></head><body>
+<html><head><title>Regular expressions library</title></head><body>
 <p>
-<h1>rex<br></h1>
-Regular expressions library<br>
+<h1>rex</h1>
+Regular expressions library
 </p><hr>
 <p>
 The rex module provides an interface to the lrexlib POSIX and PCRE<br>
@@ -10,9 +10,6 @@ It provides find, gmatch and gsub functions, which as far as<br>
 possible are compatible with their string library equivalents. It<br>
 also adds a gmatch metamethod for regex objects (this allows gmatch<br>
 to be used without constructing the regex object each time).<br>
-</p><hr>
-<p>
-TODO: Allow a default regex library to be installed (Lua, POSIX or PCRE)<br>
 </p><hr>
 <p>
 Default constructor (use PCREs)<br>
@@ -58,17 +55,5 @@ Default constructor (use PCREs)<br>
 </p><hr>
 <p>
 Tests<br>
-</p><hr>
-<p>
-TODO: <strong>string.checkRegex:</strong> <em>check regex is valid<br></em>
-&nbsp;&nbsp;<strong>p</strong>: regex pattern<br>
-<strong>returns</strong><br>
-&nbsp;&nbsp;<strong>f</strong>: true if regex is valid, or nil otherwise<br>
-</p><hr>
-<p>
-TODO: <strong>rex.check{Posix,PCRE}Regex:</strong> <em>check POSIX regex is valid<br></em>
-&nbsp;&nbsp;<strong>p</strong>: POSIX regex pattern<br>
-<strong>returns</strong><br>
-&nbsp;&nbsp;<strong>f</strong>: true if regex is valid, or nil otherwise<br>
 </p><hr>
 </body></html>
