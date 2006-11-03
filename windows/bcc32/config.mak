@@ -8,18 +8,13 @@
 
 #  Definitions common for all the targets
 #==========================================================================
-!ifdef LUA51
-  DIR_LUA    = \progr\lib\lua\lua_5.1
-  LIB_LUA    = lua51.lib
-!else
-  DIR_LUA    = \progr\lib\lua\lua_5.0
-  LIB_LUA    = lua50.lib
-!endif
-DIR_BCB      = "E:\Program Files\Borland\CBuilder5"
+DIR_LUA      = \progr\lib\lua\lua_5.1
+LIB_LUA      = lua5.1.lib
+DIR_BCB      = "C:\Program Files\Borland\CBuilder5"
 
 #  1. PCRE
 #==========================================================================
-DIR_PCRE     = \progr\lib\pcre\pcre_6.4
+DIR_PCRE     = \progr\lib\pcre\pcre_6.7
 LIB_PCRE     = pcre.lib
 TARG_PCRE    = rex_pcre
 

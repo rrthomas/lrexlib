@@ -1,8 +1,8 @@
-=======================
-Lua rexlib release 1.20
-=======================
-    | by Shmuel Zeigerman (shmuz at actcom co il) [maintainer]
-    | and Reuben Thomas (rrt at sc3d org)
+===============
+Lua rexlib 1.20
+===============
+    | by Reuben Thomas (rrt at sc3d org)
+    | and Shmuel Zeigerman (shmuz at actcom co il) [maintainer]
 
 .. contents:: Table of Contents
 
@@ -10,7 +10,7 @@ Introduction
 ------------
 
 `This archive`_ contains the **lrexlib** regular expression library for Lua_
-5.0 and 5.1. The Makefile provided builds it into shared libraries called
+5.1. The Makefile provided builds it into shared libraries called
 rex_posix.so and rex_pcre.so, which can be used with `require`.
 
 **Lrexlib** is copyright Reuben Thomas 2000-2006

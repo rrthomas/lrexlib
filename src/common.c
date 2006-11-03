@@ -1,6 +1,6 @@
 /* common.c */
 /* (c) Reuben Thomas 2000-2006 */
-/* (c) Shmuel Zeigerman 2004-2005 */
+/* (c) Shmuel Zeigerman 2004-2006 */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -10,17 +10,11 @@
 
 #include "common.h"
 
-void L_lua_error(lua_State *L, const char *message)
-{
-  lua_pushstring(L, message);
-  lua_error(L);
-}
-
 void *Lmalloc(lua_State *L, size_t size)
 {
   void *p = malloc(size);
   if(p == NULL)
-    L_lua_error(L, "malloc failed");
+    luaL_error(L, "malloc failed");
   return p;
 }
 
@@ -56,9 +50,9 @@ int udata_tostring(lua_State *L, const char* type_handle, const char* type_name)
    The table can be passed as the 1-st lua-function parameter,
    otherwise it is created. The return value is the filled table.
 */
-int get_flags (lua_State *L, const flags_pair *arr)
+int get_flags (lua_State *L, const flag_pair *arr)
 {
-  const flags_pair *p;
+  const flag_pair *p;
   int nparams = lua_gettop(L);
 
   if(nparams == 0)
@@ -72,7 +66,7 @@ int get_flags (lua_State *L, const flags_pair *arr)
 
   for(p=arr; p->key != NULL; p++) {
     lua_pushstring(L, p->key);
-    lua_pushnumber(L, p->val);
+    lua_pushinteger(L, p->val);
     lua_rawset(L, -3);
   }
   return 1;

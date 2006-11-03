@@ -19,7 +19,3 @@ Build instructions
                  for example:    make.exe -fmake_bcc.mak posix1 pcre
          -- to build only specified targets.
 
-  3. By default, the targets are built for work with Lua 5.0.
-     To build them for Lua 5.1, add "-DLUA51" on the make command line.
-
-  

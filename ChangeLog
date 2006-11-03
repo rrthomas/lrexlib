@@ -1,7 +1,60 @@
+2006-10-18  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
+	* [Windows] DLL builds need lua5.1.dll rather than lua51.dll.
+
+2006-10-02  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
+	* Support of Lua 5.0 was dropped.
+
+2006-09-03  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
+	* common.h (REX_LIB_API): renamed into REX_API.
+	* common.h (flags_pair): renamed into flag_pair.
+	* common.h, lpcre.h, lposix.h (REX_REGISTER): renamed into rex_register.
+	* lpcre.h (luaopen_rex_pcre): error message text changed.
+	* lposix.c (posix_handle, posix_typename):
+	    string literals are prefixed by $(REX_LIBNAME).
+	    [ This makes possible using multiple rex_posix libraries
+	      at a time by one lua_State. ]
+	* lpcre.c (pcre_handle, pcre_typename):
+	    string literals are prefixed by $(REX_LIBNAME).
+	    [ This makes possible using multiple rex_pcre libraries
+	      at a time by one lua_State. ]
+	* added directory test/Spencer (containing test.lua).
+	* test/Spencer/test.lua: file returns a function.
+
+2006-08-27  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
+	* (local) merge with the version put into CVS by R.Thomas.
+	* common.h: added conditional #define's for lua_pushinteger and
+	    lua_tointeger (needed to compile with Lua 5.0).
+
+2006-08-18  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
+	* common.c, lpcre.c, lposix.c: lua_pushnumber replaced with
+	    lua_pushinteger where appropriate (in many places).
+	* lpcre.c (put_number): function renamed into put_integer.
+
+2006-06-17  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
+	* lpcre.c (TPcreExecParam): `use_callout' struct member was eliminated.
+	    Instead, a special value of function reference (LUA_NOREF) is used.
+
 2006-04-01  Reuben Thomas  <rrt@sc3d.org>
 
 	* lpcre.c, common.c: Remove trailing whitespace.
 	* lpcre.c (Lpcre_gmatch): Remove unnecessary limit variable.
+
+2006-02-17  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
+	* common.c, common.h (L_lua_error): function deleted.
+	* common.c, lpcre.c, lposix.c: luaL_error used in place of L_lua_error.
+	* lposix.c (posix2): struct renamed into TPosix.
+	* lposix.c (posix_comp): lua_newuserdata() used instead of Lmalloc().
+
+2005-12-26  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
+	* Separate makefiles for POSIX and PCRE. No config file.
 
 2005-11-28  Shmuel Zeigerman  <shmuz@actcom.co.il>
 

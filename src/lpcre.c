@@ -1,8 +1,7 @@
 /* lpcre.c - PCRE regular expression library */
 /* (c) Reuben Thomas 2000-2006 */
-/* (c) Shmuel Zeigerman 2004-2005 */
+/* (c) Shmuel Zeigerman 2004-2006 */
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <locale.h>
@@ -10,18 +9,7 @@
 
 #include "lua.h"
 #include "lauxlib.h"
-
 #include "common.h"
-
-/* Lua version control */
-#if defined(LUA_VERSION_NUM) && (LUA_VERSION_NUM >= 501)
-  #define REX_REGISTER luaL_register
-#else
-  #ifdef COMPAT51
-    #include "compat-5.1.c"
-  #endif
-  #define REX_REGISTER(a,b,c) luaL_openlib((a),(b),(c),0)
-#endif
 
 /* These 2 settings may be redefined from the command-line or the makefile.
  * They should be kept in sync between themselves and with the target name.
@@ -36,8 +24,8 @@
 /* helper macro */
 #define DIM(array) (sizeof(array)/sizeof(array[0]))
 
-const char pcre_handle[] = "pcre_regex_handle";
-const char pcre_typename[] = "pcre_regex";
+const char pcre_handle[] = REX_LIBNAME"?regex_handle";
+const char pcre_typename[] = REX_LIBNAME"_regex";
 
 typedef struct {
   pcre *pr;
@@ -55,7 +43,7 @@ static const unsigned char *Lpcre_maketables(lua_State *L, int stackpos)
 
   strcpy(old_locale, setlocale(LC_CTYPE, NULL)); /* store the locale */
   if(NULL == setlocale(LC_CTYPE, locale))        /* set new locale */
-    L_lua_error(L, "cannot set locale");
+    luaL_error(L, "cannot set locale");
   tables = pcre_maketables();              /* make tables with new locale */
   setlocale(LC_CTYPE, old_locale);         /* restore the old locale */
   return tables;
@@ -63,7 +51,6 @@ static const unsigned char *Lpcre_maketables(lua_State *L, int stackpos)
 
 static int Lpcre_comp(lua_State *L)
 {
-  char buf[256];
   const char *error;
   int erroffset;
   TPcre *ud;
@@ -84,13 +71,12 @@ static int Lpcre_comp(lua_State *L)
 
   ud->pr = pcre_compile(pattern, cflags, &error, &erroffset, tables);
   if(!ud->pr) {
-    sprintf(buf, "%s (pattern offset: %d)", error, erroffset+1);
-                     /* show offset 1-based as it's common in Lua */
-    L_lua_error(L, buf);
+    return luaL_error(L, "%s (pattern offset: %d)", error, erroffset+1);
+                          /* show offset 1-based as it's common in Lua */
   }
 
   ud->extra = pcre_study(ud->pr, 0, &error);
-  if(error) L_lua_error(L, error);
+  if(error) return luaL_error(L, "%s", error);
 
   pcre_fullinfo(ud->pr, ud->extra, PCRE_INFO_CAPTURECOUNT, &ud->ncapt);
   /* need (2 ints per capture, plus one for substring match) * 3/2 */
@@ -159,9 +145,9 @@ static void Lpcre_push_offsets (lua_State *L, const char *text, TPcre *ud)
   for (i=1, j=1; i <= ud->ncapt; i++) {
     k = i * 2;
     if (ud->match[k] >= 0) {
-      lua_pushnumber(L, ud->match[k] + 1);
+      lua_pushinteger(L, ud->match[k] + 1);
       lua_rawseti(L, -2, j++);
-      lua_pushnumber(L, ud->match[k+1]);
+      lua_pushinteger(L, ud->match[k+1]);
       lua_rawseti(L, -2, j++);
     }
     else {
@@ -178,11 +164,11 @@ typedef struct {
   int func_ref;   /* function reference in the registry */
 } TPcreCalloutData;
 
-static void put_number(lua_State *L, const char *key, int value)
+static void put_integer(lua_State *L, const char *key, int value)
 {
-  lua_pushstring(L, key);
-  lua_pushnumber(L, value);
-  lua_rawset(L, -3);
+  lua_pushstring (L, key);
+  lua_pushinteger (L, value);
+  lua_rawset (L, -3);
 }
 
 static int Lpcre_callout (pcre_callout_block *block)
@@ -190,29 +176,29 @@ static int Lpcre_callout (pcre_callout_block *block)
   TPcreCalloutData *data;
   lua_State *L;
 
-  if(!block || !block->callout_data)
+  if (!block || !block->callout_data)
     return 0;
 
   data = (TPcreCalloutData*) block->callout_data;
   L = data->L;
 
-  lua_rawgeti(L, LUA_REGISTRYINDEX, data->func_ref);
-  lua_newtable(L);
+  lua_rawgeti (L, LUA_REGISTRYINDEX, data->func_ref);
+  lua_newtable (L);
 
-  put_number(L, "version",           block->version);
-  put_number(L, "callout_number",    block->callout_number);
-  put_number(L, "subject_length",    block->subject_length);
-  put_number(L, "start_match",       block->start_match);
-  put_number(L, "current_position",  block->current_position);
-  put_number(L, "capture_top",       block->capture_top);
-  put_number(L, "capture_last",      block->capture_last);
+  put_integer (L, "version",           block->version);
+  put_integer (L, "callout_number",    block->callout_number);
+  put_integer (L, "subject_length",    block->subject_length);
+  put_integer (L, "start_match",       block->start_match);
+  put_integer (L, "current_position",  block->current_position);
+  put_integer (L, "capture_top",       block->capture_top);
+  put_integer (L, "capture_last",      block->capture_last);
 #if PCRE_MAJOR >= 5
-  put_number(L, "pattern_position",  block->pattern_position);
-  put_number(L, "next_item_length",  block->next_item_length);
+  put_integer (L, "pattern_position",  block->pattern_position);
+  put_integer (L, "next_item_length",  block->next_item_length);
 #endif
 
-  lua_call(L, 1, 1);
-  return (int)lua_tonumber(L, -1);
+  lua_call (L, 1, 1);
+  return lua_tointeger (L, -1);
 }
 
 typedef struct {
@@ -224,7 +210,6 @@ typedef struct {
   pcre_extra  own_extra;          /*  own pcre_extra block              */
   pcre_extra  *ptr_extra;         /*  pointer to used pcre_extra block  */
   TPcreCalloutData callout_data;  /*  keep the reference of the user function */
-  int         use_callout;        /*  boolean (0 or 1)   */
 } TPcreExecParam;
 
 static void LpcreProcessExecParams (lua_State *L, TPcreExecParam *p)
@@ -234,11 +219,10 @@ static void LpcreProcessExecParams (lua_State *L, TPcreExecParam *p)
   p->eflags = luaL_optint(L, 4, 0);                   /* get 4th param */
 
   /* check callout and initialize if required */
-  p->use_callout = 0;
+  p->callout_data.func_ref = LUA_NOREF;
   p->ptr_extra = p->ud->extra;
   if((lua_gettop(L) >= 5) && lua_toboolean(L,5)) {
     luaL_checktype(L, 5, LUA_TFUNCTION);
-    p->use_callout = 1;
     if(p->ptr_extra == NULL) {
       /* set up our own pcre_extra block */
       memset(&p->own_extra, 0, sizeof(pcre_extra));
@@ -265,19 +249,19 @@ static int Lpcre_match_generic(lua_State *L, Lpcre_push_matches push_matches)
   res = pcre_exec(P.ud->pr, P.ptr_extra, P.text, (int)P.textlen, P.startoffset,
                   P.eflags, P.ud->match, (P.ud->ncapt + 1) * 3);
 
-  if(P.use_callout) {
+  if(P.callout_data.func_ref != LUA_NOREF) {
     luaL_unref(L, LUA_REGISTRYINDEX, P.callout_data.func_ref);
   }
 
   if (res >= 0) {
-    lua_pushnumber(L, P.ud->match[0] + 1);
-    lua_pushnumber(L, P.ud->match[1]);
+    lua_pushinteger(L, P.ud->match[0] + 1);
+    lua_pushinteger(L, P.ud->match[1]);
     (*push_matches)(L, P.text, P.ud);
-    lua_pushnumber(L, res);
+    lua_pushinteger(L, res);
     return 4;
   }
   lua_pushnil(L);
-  lua_pushnumber(L, res);
+  lua_pushinteger(L, res);
   return 2;
 }
 
@@ -293,24 +277,24 @@ static int Lpcre_dfa_exec(lua_State *L)
   res = pcre_dfa_exec(P.ud->pr, P.ptr_extra, P.text, (int)P.textlen, P.startoffset,
                       P.eflags, ovector, DIM(ovector), wspace, DIM(wspace));
 
-  if(P.use_callout) {
+  if(P.callout_data.func_ref != LUA_NOREF) {
     luaL_unref(L, LUA_REGISTRYINDEX, P.callout_data.func_ref);
   }
 
   if (res >= 0 || res == PCRE_ERROR_PARTIAL) {
     int i;
     int max = (res>0) ? res : (res==0) ? (int)DIM(ovector)/2 : 1;
-    lua_pushnumber(L, ovector[0] + 1);          /* 1-st return value */
+    lua_pushinteger(L, ovector[0] + 1);         /* 1-st return value */
     lua_newtable(L);                            /* 2-nd return value */
     for(i=0; i<max; i++) {
-      lua_pushnumber(L, ovector[i+i+1]);
+      lua_pushinteger(L, ovector[i+i+1]);
       lua_rawseti(L, -2, i+1);
     }
-    lua_pushnumber(L, res);                     /* 3-rd return value */
+    lua_pushinteger(L, res);                    /* 3-rd return value */
     return 3;
   }
   lua_pushnil(L);
-  lua_pushnumber(L, res);
+  lua_pushinteger(L, res);
   return 2;
 }
 #endif /* #if PCRE_MAJOR >= 6 */
@@ -354,7 +338,7 @@ static int Lpcre_gmatch(lua_State *L)
     } else
       break;
   }
-  lua_pushnumber(L, nmatch);
+  lua_pushinteger(L, nmatch);
   return 1;
 }
 
@@ -380,7 +364,7 @@ static int Lpcre_version (lua_State *L)
   return 1;
 }
 
-static flags_pair pcre_flags[] =
+static flag_pair pcre_flags[] =
 {
   { "MAJOR",                         PCRE_MAJOR },
   { "MINOR",                         PCRE_MINOR },
@@ -510,17 +494,16 @@ static const luaL_reg rexlib[] = {
   {NULL, NULL}
 };
 
-REX_LIB_API int REX_OPENLIB(lua_State *L)
+REX_API int REX_OPENLIB (lua_State *L)
 {
   if (PCRE_MAJOR != atoi(pcre_version())) {
-    L_lua_error(L,
-      REX_LIBNAME": bad build. Versions of pcre.h and pcre library differ.");
-    return 0;
+    return luaL_error(L, "%s requires version %d of PCRE library",
+      REX_LIBNAME, (int)PCRE_MAJOR);
   }
   createmeta(L, pcre_handle);
-  REX_REGISTER(L, NULL, pcremeta);
+  luaL_register(L, NULL, pcremeta);
   lua_pop(L, 1);
   pcre_callout = Lpcre_callout;
-  REX_REGISTER(L, REX_LIBNAME, rexlib);
+  luaL_register(L, REX_LIBNAME, rexlib);
   return 1;
 }

@@ -28,11 +28,6 @@ LIB_POSIX =
 #INC_POSIX = -I/usr/include/rxspencer
 #LIB_POSIX = -lrxspencer
 
-# Uncomment this if you wish to use Compat-5.1:
-#   * copy compat-5.1.c and compat-5.1.h into this directory
-#   * only has effect when building for Lua 5.0.
-#COMPAT51 = -DCOMPAT51
-
 # Common settings
 CFLAGS = -W -Wall -O2 $(INC_LUA) $(INC_POSIX) $(COMPAT51)
 AR = ar rcu

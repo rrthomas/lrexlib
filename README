@@ -1,8 +1,8 @@
-                           Lua rexlib 1.20
-                           ---------------
+                            Lua rexlib 1.20
+                            ---------------
 
-        by Shmuel Zeigerman (shmuz@actcom.co.il) [maintainer]
-                   and Reuben Thomas (rrt@sc3d.org)
+                    by Reuben Thomas (rrt@sc3d.org)
+        and Shmuel Zeigerman (shmuz@actcom.co.il) [maintainer]
 
 
 This archive contains the lrexlib regular expression library for Lua
@@ -11,7 +11,7 @@ rex_posix.so and rex_pcre.so, which can be used with require or
 loadlib.
 
 Lrexlib is copyright Reuben Thomas 2000-2006 and copyright Shmuel
-Zeigerman 2004-2005, and is released under the MIT license, like Lua
+Zeigerman 2004-2006, and is released under the MIT license, like Lua
 (see http://www.lua.org/copyright.html for the full license; it's
 basically the same as the BSD license). There is no warranty.
 
