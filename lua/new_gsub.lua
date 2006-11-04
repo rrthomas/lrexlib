@@ -1,18 +1,18 @@
 rex = require "rex_pcre" -- global
-setmetatable(rex, {__call =
-               function (self, p, cf, lo)
-                 return self.newPCRE(p, cf, lo)
-               end})
 
 rex:flags() -- add all flags to rex namespace; works with Lrexlib v1.20 or higher
 
 -- Bitwise OR emulation
 -- (TODO: should be done from the C-part of the library)
-local function add_flag (flags, f)
-  return (math.floor (flags / f) % 2 == 1) and flags or (flags + f)
+local function bor (...)
+  local res, tb = 0, {...}
+  for _, v in ipairs(tb) do
+    res = (math.floor (res / v) % 2 == 1) and res or (res + v)
+  end
+  return res
 end
 
--- @function rex.gsub: string.gsub for rex
+-- @func gsub: string.gsub for rex
 --   @param s: string to search
 --   @param p: pattern to find
 --   @param f: replacement function or string
@@ -49,28 +49,32 @@ function rex.gsub (s, p, f, n, cf, lo, ef)
           return rep[s]
         end
   end
-  local reg = rex (p, cf, lo)
+  local reg = rex.new (p, cf, lo)
   local st = 1
   local r, reps = {}, 0
-  local retry, efr
-  efr = add_flag (ef or 0, rex.NOTEMPTY)
-  efr = add_flag (efr, rex.ANCHORED)
+  local efr = bor (ef or 0, rex.NOTEMPTY, rex.ANCHORED)
+  local retry
   while (not n) or reps < n do
     local from, to, cap = reg:match (s, st, retry and efr or ef)
-    retry = false
     if from then
       table.insert (r, string.sub (s, st, from - 1))
       if #cap == 0 then
         cap[1] = string.sub (s, from, to)
       end
-      local rep = f (unpack (cap)) or string.sub (s, from, to)
-      local reptype = type (rep)
-      if reptype ~= "string" and reptype ~= "number" then
-        error ("invalid replacement value (a " .. reptype .. ")")
+      local rep = f (unpack (cap))
+      if rep then
+        local reptype = type (rep)
+        if reptype == "string" or reptype == "number" then
+          table.insert (r, rep)
+          reps = reps + 1
+        else
+          error ("invalid replacement value (a " .. reptype .. ")")
+        end
+      else
+        table.insert (r, string.sub (s, from, to))
       end
-      table.insert (r, rep)
-      reps = reps + 1
       if from <= to then
+        retry = false
         st = to + 1
       elseif st <= #s then -- retry from the matching point
         retry = true
@@ -82,6 +86,7 @@ function rex.gsub (s, p, f, n, cf, lo, ef)
       if retry and st <= #s then -- advance by 1 char (not replaced)
         table.insert (r, string.sub (s, st, st))
         st = st + 1
+        retry = false
       else
         break
       end

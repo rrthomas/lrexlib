@@ -8,19 +8,12 @@
 -- also adds a gmatch metamethod for regex objects (this allows gmatch
 -- to be used without constructing the regex object each time).
 
+-- TODO: Allow a default regex library to be installed (Lua, POSIX or PCRE)
+rex = require "rex_pcre" -- global
+
 module ("rex", package.seeall)
 
--- TODO: Allow a default regex library to be installed (Lua, POSIX or PCRE)
-require "rex_pcre" -- global
-_G.rex = rex_pcre
-
--- Default constructor (use PCREs)
-setmetatable (rex, {__call =
-                function (self, p, cf, lo)
-                  return self.newPCRE (p, cf, lo)
-                end})
-
-rex:flags() -- add flags to rex namespace
+_M:flags() -- add flags to rex namespace
 
 -- @func find: string.find for rex library
 --   @param s: string to search
@@ -32,8 +25,8 @@ rex:flags() -- add flags to rex namespace
 -- @returns
 --   @param from, to: start and end points of match, or nil
 --   @param [match, ...]: substring matches
-function rex.find (s, p, st, cf, lo, ef)
-  local from, to, cap = rex (p, cf, lo):match (s, st, ef)
+function find (s, p, st, cf, lo, ef)
+  local from, to, cap = new (p, cf, lo):match (s, st, ef)
   if from and cap[1] ~= nil then
     return from, to, unpack (cap)
   end
@@ -52,7 +45,7 @@ end
 --   @param [ef]: execution flags for the regex
 -- @returns
 --   @param matches: number of matches made
-function rex.gmatch (self, s, f, n, ef)
+function gmatch (self, s, f, n, ef)
   local matches, st = 0, 1
   while (not n) or matches < n do
     local from, to, cap = self:match (s, st, ef)
@@ -68,7 +61,7 @@ function rex.gmatch (self, s, f, n, ef)
   end
   return matches
 end
-getmetatable (rex ("")).gmatch = rex.gmatch
+getmetatable (new ("")).gmatch = gmatch
 
 -- @func gsub: string.gsub for rex
 --   @param s: string to search
@@ -81,7 +74,7 @@ getmetatable (rex ("")).gmatch = rex.gmatch
 -- @returns
 --   @param r: string with replacements
 --   @param reps: number of replacements made
-function rex.gsub (s, p, f, n, cf, lo, ef)
+function gsub (s, p, f, n, cf, lo, ef)
   if type (f) == "string" then
     local rep = f
     f = function (...)
@@ -107,27 +100,32 @@ function rex.gsub (s, p, f, n, cf, lo, ef)
           return rep[s]
         end
   end
-  local reg = rex (p, cf, lo)
+  local reg = new (p, cf, lo)
   local st = 1
   local r, reps = {}, 0
-  local efr = bit.bor (ef or 0, rex.NOTEMPTY, rex.ANCHORED)
+  local efr = bit.bor (ef or 0, NOTEMPTY, ANCHORED)
   local retry
   while (not n) or reps < n do
     local from, to, cap = reg:match (s, st, retry and efr or ef)
-    retry = false
     if from then
       table.insert (r, string.sub (s, st, from - 1))
       if #cap == 0 then
         cap[1] = string.sub (s, from, to)
       end
-      local rep = f (unpack (cap)) or string.sub (s, from, to)
-      local reptype = type (rep)
-      if reptype ~= "string" and reptype ~= "number" then
-        error ("invalid replacement value (a " .. reptype .. ")")
+      local rep = f (unpack (cap))
+      if rep then
+        local reptype = type (rep)
+        if reptype == "string" or reptype == "number" then
+          table.insert (r, rep)
+          reps = reps + 1
+        else
+          error ("invalid replacement value (a " .. reptype .. ")")
+        end
+      else
+        table.insert (r, string.sub (s, from, to))
       end
-      table.insert (r, rep)
-      reps = reps + 1
       if from <= to then
+        retry = false
         st = to + 1
       elseif st <= #s then -- retry from the matching point
         retry = true
@@ -139,6 +137,7 @@ function rex.gsub (s, p, f, n, cf, lo, ef)
       if retry and st <= #s then -- advance by 1 char (not replaced)
         table.insert (r, string.sub (s, st, st))
         st = st + 1
+        retry = false
       else
         break
       end
@@ -283,7 +282,7 @@ if type (_DEBUG) == "table" and _DEBUG.std then
     { "a2c3",     ".+",           "#", false, "#",         1 }, -- test .+
     { "a2c3",     ".*",           "#", false, "##",        2 }, -- test .*
     { "/* */ */", "%/%*(.*)%*%/", "#", false, "#",         1 },
-    { "a2c3",     ".-",           "#", false, "#a#2#c#3#", 5 }, -- test .-
+    { "a2c3",     ".-",           "#", false, "#########", 9 }, -- test .-
     { "/**/",     "%/%*(.-)%*%/", "#", false, "#",         1 },
     { "/* */ */", "%/%*(.-)%*%/", "#", false, "# */",      1 },
     { "a2c3",     "%d",           "#", false, "a#c#",      2 }, -- test %d
@@ -301,11 +300,11 @@ if type (_DEBUG) == "table" and _DEBUG.std then
   local set5 = {
     name = "Set5",
     --  { s,      p,          f,     n,     res1,        res2 },
-    { subj, "a(.)c(.)", frep1, false, subj,        1 },
+    { subj, "a(.)c(.)", frep1, false, subj,        0 },
     { subj, "a(.)c(.)", frep2, false, "#",         1 },
     { subj, "a(.)c(.)", frep3, false, "2,3",       1 },
     { subj, "a.c.",     frep3, false, subj,        1 },
-    { subj, "",         frep1, false, subj,        5 },
+    { subj, "",         frep1, false, subj,        0 },
     { subj, "",         frep2, false, "#a#2#c#3#", 5 },
     { subj, "",         frep3, false, subj,        5 },
     { subj, subj,       frep4, false, false,       0 },
@@ -316,12 +315,12 @@ if type (_DEBUG) == "table" and _DEBUG.std then
   local set6 = {
     name = "Set6",
     --  { s,      p,        f,     n,     res1,  res2 },
-    { subj, "a(.)c(.)", tab1,  false, subj,  1 },
+    { subj, "a(.)c(.)", tab1,  false, subj,  0 },
     { subj, "a(.)c(.)", tab2,  false, "56",  1 },
     { subj, "a(.)c(.)", tab3,  false, false, 0 },
-    { subj, "a.c.",     tab1,  false, subj,  1 },
-    { subj, "a.c.",     tab2,  false, subj,  1 },
-    { subj, "a.c.",     tab3,  false, subj,  1 },
+    { subj, "a.c.",     tab1,  false, subj,  0 },
+    { subj, "a.c.",     tab2,  false, subj,  0 },
+    { subj, "a.c.",     tab3,  false, subj,  0 },
   }
 
   subj = ""
@@ -487,7 +486,7 @@ if type (_DEBUG) == "table" and _DEBUG.std then
       end
 
       run_test (string.gsub, "string.gsub", function (p) return p end)
-      run_test (rex.gsub,    "rex.gsub",    PatternLua2Pcre)
+      run_test (gsub,        "rex.gsub",    PatternLua2Pcre)
       run_test (gsubPCRE,    "gsubPCRE",    PatternLua2Pcre)
     end
   end

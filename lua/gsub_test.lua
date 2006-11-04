@@ -134,7 +134,7 @@ local set4 = {
     { "a2c3",     ".+",           "#", false, "#",         1 }, -- test .+
     { "a2c3",     ".*",           "#", false, "##",        2 }, -- test .*
     { "/* */ */", "%/%*(.*)%*%/", "#", false, "#",         1 },
-    { "a2c3",     ".-",           "#", false, "#a#2#c#3#", 5 }, -- test .-
+    { "a2c3",     ".-",           "#", false, "#########", 9 }, -- test .-
     { "/**/",     "%/%*(.-)%*%/", "#", false, "#",         1 },
     { "/* */ */", "%/%*(.-)%*%/", "#", false, "# */",      1 },
     { "a2c3",     "%d",           "#", false, "a#c#",      2 }, -- test %d
@@ -152,11 +152,11 @@ subj = "a2c3"
 local set5 = {
     name = "Set5",
 --  { s,      p,          f,     n,     res1,        res2 },
-    { subj, "a(.)c(.)", frep1, false, subj,        1 },
+    { subj, "a(.)c(.)", frep1, false, subj,        0 },
     { subj, "a(.)c(.)", frep2, false, "#",         1 },
     { subj, "a(.)c(.)", frep3, false, "2,3",       1 },
     { subj, "a.c.",     frep3, false, subj,        1 },
-    { subj, "",         frep1, false, subj,        5 },
+    { subj, "",         frep1, false, subj,        0 },
     { subj, "",         frep2, false, "#a#2#c#3#", 5 },
     { subj, "",         frep3, false, subj,        5 },
     { subj, subj,       frep4, false, false,       0 },
@@ -167,12 +167,12 @@ subj = "a2c3"
 local set6 = {
     name = "Set6",
 --  { s,      p,        f,     n,     res1,  res2 },
-    { subj, "a(.)c(.)", tab1,  false, subj,  1 },
+    { subj, "a(.)c(.)", tab1,  false, subj,  0 },
     { subj, "a(.)c(.)", tab2,  false, "56",  1 },
     { subj, "a(.)c(.)", tab3,  false, false, 0 },
-    { subj, "a.c.",     tab1,  false, subj,  1 },
-    { subj, "a.c.",     tab2,  false, subj,  1 },
-    { subj, "a.c.",     tab3,  false, subj,  1 },
+    { subj, "a.c.",     tab1,  false, subj,  0 },
+    { subj, "a.c.",     tab2,  false, subj,  0 },
+    { subj, "a.c.",     tab3,  false, subj,  0 },
 }
 
 subj = ""

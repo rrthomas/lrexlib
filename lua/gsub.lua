@@ -106,12 +106,17 @@ function generic_gsub (func, str, pat, repl, n, cflags, eflags)
             else
                 val = repl(sub(str,from,to)) -- metatable __call used if repl is a table
             end
-            val = val or sub(str,from,to)
-            local valtype = type(val)
-            if valtype ~= "string" and valtype ~= "number" then
-                error("invalid replacement value (a " .. valtype .. ")")
+            if val then
+                local valtype = type(val)
+                if valtype == "string" or valtype == "number" then
+                    insert(tb_out, val)
+                else
+                    error("invalid replacement value (a " .. valtype .. ")")
+                end
+            else
+                insert(tb_out, sub(str,from,to))
+                num_rep = num_rep - 1
             end
-            insert(tb_out, val)
         end
 
         num_rep = num_rep + 1
