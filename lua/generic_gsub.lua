@@ -4,7 +4,7 @@
   it allows to plug in various search/match  engines (such
   as PCRE or POSIX regex library).
 
-  Shmuel Zeigerman; June 2004 - February 2006.
+  Shmuel Zeigerman; June 2004 - November 2006.
 --]]
 
 local insert = table.insert
@@ -136,4 +136,6 @@ function generic_gsub (func, str, pat, repl, n, cflags, eflags)
 
     return table.concat(tb_out), num_rep
 end
+
+return generic_gsub
 

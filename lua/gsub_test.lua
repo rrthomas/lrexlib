@@ -1,11 +1,13 @@
--- started: 2006-Jan-27
+--[[
+  Shmuel Zeigerman: Jan 2006 - Nov 2006.
+--]]
 
-require "rex_pcre"
-dofile  "gsub.lua"      -- defines global generic_gsub;
-dofile  "new_gsub.lua"  -- defines global rex; defines rex.gsub
+require "string"         -- just to be consistent
+require "rex"            -- must load PCRE, not some other library!
+require "generic_gsub"   -- defines global function generic_gsub
 
-local function gsubPCRE(str, pat, repl, n)
-   return generic_gsub(rex_pcre.newPCRE, str, pat, repl, n)
+local function gsubPCRE (str, pat, repl, n)
+   return generic_gsub (rex.new, str, pat, repl, n)
 end
 
 local t_esc = {
@@ -143,10 +145,10 @@ local set4 = {
     { "a \t\nb",  "%S",           "#", false, "# \t\n#",   2 }, -- test %S
 }
 
-local function frep1(...) end                             -- returns nothing
-local function frep2(...) return "#" end                  -- ignores arguments
-local function frep3(...) return table.concat({...}, ",") end -- "normal"
-local function frep4(...) return {} end                   -- invalid return type
+local function frep1 (...) end                             -- returns nothing
+local function frep2 (...) return "#" end                  -- ignores arguments
+local function frep3 (...) return table.concat({...}, ",") end -- "normal"
+local function frep4 (...) return {} end                   -- invalid return type
 
 subj = "a2c3"
 local set5 = {
