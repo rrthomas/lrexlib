@@ -13,9 +13,9 @@ rex = require "rex_pcre" -- global
 
 module ("rex", package.seeall)
 
-_M:flags() -- add flags to rex namespace
+_M:flags () -- add flags to rex namespace
 
--- @func find: string.find for rex library
+-- @func find: string.find with regexs
 --   @param s: string to search
 --   @param p: pattern to find
 --   @param [st]: start position for match
@@ -24,7 +24,7 @@ _M:flags() -- add flags to rex namespace
 --   @param [ef]: execution flags for the regex
 -- @returns
 --   @param from, to: start and end points of match, or nil
---   @param [match, ...]: substring matches
+--   @param [c1, ...]: captures
 function find (s, p, st, cf, lo, ef)
   local from, to, cap = new (p, cf, lo):match (s, st, ef)
   if from and cap[1] ~= nil then
@@ -33,35 +33,31 @@ function find (s, p, st, cf, lo, ef)
   return from, to
 end
 
--- @func gmatch: rex:gmatch in Lua
---   @param self: compiled regex
+-- @func gmatch: string.gmatch with regexs
+--   @param p: pattern
 --   @param s: string to search
---   @param f: function to call for each match
---     @param m: matched string
---     @param t: table of captures
---   @returns
---     @param quit: true to stop gmatch immediately
---   @param [n]: maximum number of matches [all]
+--   @param [cf]: compile-time flags for the regex
+--   @param [lo]: locale for the regex
 --   @param [ef]: execution flags for the regex
 -- @returns
---   @param matches: number of matches made
-function gmatch (self, s, f, n, ef)
-  local matches, st = 0, 1
-  while (not n) or matches < n do
-    local from, to, cap = self:match (s, st, ef)
-    if from then
-      matches = matches + 1
-      if f (string.sub (s, from, to), cap) then
-        break
-      end
-      st = to + 1
-    else
-      break
-    end
-  end
-  return matches
+--   @param if: iterator function
+--   @returns
+--     @param c1, ...: captures (or whole string if no captures)
+function gmatch (s, p, ef)
+  local r = new (p, cf, lo)
+  local st = 1
+  return function ()
+           local from, to, cap = r:match (s, st, ef)
+           if from then
+             st = to + 1
+             if #cap > 0 then
+               return unpack (cap)
+             else
+               return string.sub (s, from, to)
+             end
+           end
+         end
 end
-getmetatable (new ("")).gmatch = gmatch
 
 -- @func gsub: string.gsub for rex
 --   @param s: string to search
@@ -82,7 +78,7 @@ function gsub (s, p, f, n, cf, lo, ef)
           local ret = rep
           local function repfun (percent, d)
             if #percent % 2 == 1 then
-              d = tonumber(d)
+              d = tonumber (d)
               d = arg [d == 0 and 1 or d]
               assert (d ~= nil, "invalid capture index")
               d = d or "" -- capture can be false
@@ -152,8 +148,8 @@ end
 
 if type (_DEBUG) == "table" and _DEBUG.std then
   
-  local function gsubPCRE(str, pat, repl, n)
-    return generic_gsub(rex_pcre.newPCRE, str, pat, repl, n)
+  local function gsubPCRE (str, pat, repl, n)
+    return generic_gsub (rex_pcre.newPCRE, str, pat, repl, n)
   end
 
   local t_esc = {
@@ -293,7 +289,7 @@ if type (_DEBUG) == "table" and _DEBUG.std then
 
   local function frep1(...) end                             -- returns nothing
   local function frep2(...) return "#" end                  -- ignores arguments
-  local function frep3(...) return table.concat({...}, ",") end -- "normal"
+  local function frep3(...) return table.concat ({...}, ",") end -- "normal"
   local function frep4(...) return {} end                   -- invalid return type
 
   subj = "a2c3"
@@ -452,7 +448,7 @@ if type (_DEBUG) == "table" and _DEBUG.std then
   --     that are further used as reference gsub results.
   --
   local function prepare_set (set)
-    for k,v in ipairs(set) do
+    for k,v in ipairs (set) do
       local r0, r1, r2 = pcall (string.gsub, v[1], v[2], v[3], v[4] or nil)
       if r0 then
         v[5], v[6] = r1, r2
@@ -470,18 +466,18 @@ if type (_DEBUG) == "table" and _DEBUG.std then
   local function gsub_test (set)
     local r0, r1, r2 -- results
     local function err (k, func_name)
-      print("Test " .. k .. " of " .. func_name)
-      print("Test Data:", unpack(set[k]))
-      print("Test Results:", r1, r2, "\n")
+      print ("Test " .. k .. " of " .. func_name)
+      print ("Test Data:", unpack(set[k]))
+      print ("Test Results:", r1, r2, "\n")
     end
-    print(set.name or "Unnamed Set")
-    for k,v in ipairs(set) do
+    print (set.name or "Unnamed Set")
+    for k,v in ipairs (set) do
       local num = v[4] or nil
 
       local function run_test (f_gsub, s_gsub, f_pat)
-        r0, r1, r2 = pcall (f_gsub, v[1], f_pat(v[2]), v[3], num)
+        r0, r1, r2 = pcall (f_gsub, v[1], f_pat (v[2]), v[3], num)
         if (r0 and (r1~=v[5] or r2~=v[6])) or (not r0 and v[5]) then
-          err(k, s_gsub)
+          err (k, s_gsub)
         end
       end
 

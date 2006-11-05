@@ -185,60 +185,6 @@ static int posix_exec(lua_State *L)
   return posix_match_generic(L, posix_push_offsets);
 }
 
-static int posix_gmatch(lua_State *L) {
-  int res;
-  size_t len;
-  size_t nmatch = 0, limit = 0;
-  const char *text;
-  TPosix *ud;
-  size_t maxmatch = (size_t)luaL_optnumber(L, 4, 0);
-
-#ifdef REX_POSIX_EXT
-  int eflags = luaL_optint(L, 5, REG_STARTEND);
-#else
-  int eflags = luaL_optint(L, 5, 0);
-#endif
-
-  posix_getargs(L, &ud, &text, &len);
-  luaL_checktype(L, 3, LUA_TFUNCTION);
-
-  if(maxmatch > 0) /* this must be stated in the docs */
-    limit = 1;
-
-  while (!limit || nmatch < maxmatch) {
-
-#ifdef REX_POSIX_EXT
-    if(eflags & REG_STARTEND) {
-      ud->match[0].rm_so = 0;
-      ud->match[0].rm_eo = len;
-    }
-#endif
-
-    res = regexec(&ud->r, text, ud->r.re_nsub + 1, ud->match, eflags);
-    if (res == 0) {
-      nmatch++;
-      lua_pushvalue(L, 3);
-      lua_pushlstring(L, text + ud->match[0].rm_so,
-                      ud->match[0].rm_eo - ud->match[0].rm_so);
-      posix_push_substrings(L, text, 0, ud->match, ud->r.re_nsub);
-      lua_call(L, 2, 1);
-      if(lua_toboolean(L, -1))
-        break;
-      lua_pop(L, 1);
-      text += ud->match[0].rm_eo;
-
-#ifdef REX_POSIX_EXT
-      if(eflags & REG_STARTEND)
-        len -= ud->match[0].rm_eo;
-#endif
-
-    } else
-      break;
-  }
-  lua_pushinteger(L, nmatch);
-  return 1;
-}
-
 static int posix_gc (lua_State *L) {
   TPosix *ud = (TPosix *)luaL_checkudata(L, 1, posix_handle);
   if (ud) {
@@ -297,7 +243,6 @@ static int posix_get_flags (lua_State *L) {
 static const luaL_reg posixmeta[] = {
   {"exec",       posix_exec},
   {"match",      posix_match},
-  {"gmatch",     posix_gmatch},
   {"__gc",       posix_gc},
   {"__tostring", posix_tostring},
   {NULL, NULL}

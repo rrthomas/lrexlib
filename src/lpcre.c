@@ -309,39 +309,6 @@ static int Lpcre_exec(lua_State *L)
   return Lpcre_match_generic(L, Lpcre_push_offsets);
 }
 
-static int Lpcre_gmatch(lua_State *L)
-{
-  int res;
-  size_t len;
-  int nmatch = 0;
-  const char *text;
-  TPcre *ud;
-  int maxmatch = luaL_optint(L, 4, 0);
-  int eflags = luaL_optint(L, 5, 0);
-  int startoffset = 0;
-  Lpcre_getargs(L, &ud, &text, &len);
-  luaL_checktype(L, 3, LUA_TFUNCTION);
-
-  while (maxmatch <= 0 || nmatch < maxmatch) {
-    res = pcre_exec(ud->pr, ud->extra, text, (int)len, startoffset, eflags,
-                    ud->match, (ud->ncapt + 1) * 3);
-    if (res >= 0) {
-      nmatch++;
-      lua_pushvalue(L, 3);
-      lua_pushlstring(L, text + ud->match[0], ud->match[1] - ud->match[0]);
-      Lpcre_push_substrings(L, text, ud);
-      lua_call(L, 2, 1);
-      if(lua_toboolean(L, -1))
-        break;
-      lua_pop(L, 1);
-      startoffset = ud->match[1];
-    } else
-      break;
-  }
-  lua_pushinteger(L, nmatch);
-  return 1;
-}
-
 static int Lpcre_gc (lua_State *L)
 {
   TPcre *ud = (TPcre *)luaL_checkudata(L, 1, pcre_handle);
@@ -473,7 +440,6 @@ static int Lpcre_get_flags (lua_State *L) {
 static const luaL_reg pcremeta[] = {
   {"exec",       Lpcre_exec},
   {"match",      Lpcre_match},
-  {"gmatch",     Lpcre_gmatch},
   {"__gc",       Lpcre_gc},
   {"__tostring", Lpcre_tostring},
 #if PCRE_MAJOR >= 6
