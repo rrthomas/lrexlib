@@ -1,21 +1,18 @@
 <html><head><title>Regular expressions library</title></head><body>
+<h1>rex: Regular expressions library</h1>
 <p>
-<h1>rex</h1>
-Regular expressions library
+The rex module provides an interface to the lrexlib POSIX and PCRE
+regular expression support that mimics the standard string library.
+It provides find, gmatch and gsub functions, which as far as
+possible are compatible with their string library equivalents. It
+also adds a gmatch metamethod for regex objects (this allows gmatch
+to be used without constructing the regex object each time).
 </p><hr>
 <p>
-The rex module provides an interface to the lrexlib POSIX and PCRE<br>
-regular expression support that mimics the standard string library.<br>
-It provides find, gmatch and gsub functions, which as far as<br>
-possible are compatible with their string library equivalents. It<br>
-also adds a gmatch metamethod for regex objects (this allows gmatch<br>
-to be used without constructing the regex object each time).<br>
+Default constructor (use PCREs)
 </p><hr>
 <p>
-Default constructor (use PCREs)<br>
-</p><hr>
-<p>
-<strong>find:</strong> <em>string.find for rex library<br></em>
+<strong>find:</strong> <em>string.find with regexs<br></em>
 &nbsp;&nbsp;<strong>s</strong>: string to search<br>
 &nbsp;&nbsp;<strong>p</strong>: pattern to find<br>
 &nbsp;&nbsp;<strong>[st]</strong>: start position for match<br>
@@ -24,21 +21,19 @@ Default constructor (use PCREs)<br>
 &nbsp;&nbsp;<strong>[ef]</strong>: execution flags for the regex<br>
 <strong>returns</strong><br>
 &nbsp;&nbsp;<strong>from, to</strong>: start and end points of match, or nil<br>
-&nbsp;&nbsp;<strong>[match, ...]</strong>: substring matches<br>
+&nbsp;&nbsp;<strong>[c1, ...]</strong>: captures<br>
 </p><hr>
 <p>
-<strong>rex.gmatch:</strong> <em>rex:gmatch in Lua<br></em>
-&nbsp;&nbsp;<strong>self</strong>: compiled regex<br>
+<strong>gmatch:</strong> <em>string.gmatch with regexs<br></em>
+&nbsp;&nbsp;<strong>p</strong>: pattern<br>
 &nbsp;&nbsp;<strong>s</strong>: string to search<br>
-&nbsp;&nbsp;<strong>f</strong>: function to call for each match<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<strong>m</strong>: matched string<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<strong>t</strong>: table of captures<br>
-&nbsp;&nbsp;<strong>returns</strong><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<strong>quit</strong>: true to stop gmatch immediately<br>
-&nbsp;&nbsp;<strong>[n]</strong>: maximum number of replacements [all]<br>
+&nbsp;&nbsp;<strong>[cf]</strong>: compile-time flags for the regex<br>
+&nbsp;&nbsp;<strong>[lo]</strong>: locale for the regex<br>
 &nbsp;&nbsp;<strong>[ef]</strong>: execution flags for the regex<br>
 <strong>returns</strong><br>
-&nbsp;&nbsp;<strong>reps</strong>: number of replacements made<br>
+&nbsp;&nbsp;<strong>f</strong>: iterator function<br>
+&nbsp;&nbsp;<strong>returns</strong>
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>c1, ...</strong>: captures (or whole string if none)<br>
 </p><hr>
 <p>
 <strong>gsub:</strong> <em>string.gsub for rex<br></em>
@@ -52,8 +47,5 @@ Default constructor (use PCREs)<br>
 <strong>returns</strong><br>
 &nbsp;&nbsp;<strong>r</strong>: string with replacements<br>
 &nbsp;&nbsp;<strong>reps</strong>: number of replacements made<br>
-</p><hr>
-<p>
-Tests<br>
 </p><hr>
 </body></html>

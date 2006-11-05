@@ -40,9 +40,9 @@ end
 --   @param [lo]: locale for the regex
 --   @param [ef]: execution flags for the regex
 -- @returns
---   @param if: iterator function
+--   @param f: iterator function
 --   @returns
---     @param c1, ...: captures (or whole string if no captures)
+--     @param c1, ...: captures (or whole string if none)
 function gmatch (s, p, ef)
   local r = new (p, cf, lo)
   local st = 1
