@@ -94,7 +94,7 @@ function gsub (s, p, f, n, cf, lo, ef)
           return rep (unpack (cap))
         end
   else
-    error ("bad type of argument #3 to gsub")
+    error ("argument 3 must be string, table or function")
   end
   local reg = _M.new (p, cf, lo)
   local st = 1
