@@ -7,6 +7,11 @@ It provides find, gmatch and gsub functions, which as far as
 possible are compatible with their string library equivalents. It
 also adds a gmatch metamethod for regex objects (this allows gmatch
 to be used without constructing the regex object each time).
+</p>
+<p>
+The rex module requires bitwise OR; a Lua implementation is
+provided in <code>bit.lua</code>. You may wish instead to use bitlib, from
+<a href="http://luaforge.net/projects/bitlib">http://luaforge.net/projects/bitlib</a>.
 </p><hr>
 <p>
 Default constructor (use PCREs)
