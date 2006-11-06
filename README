@@ -15,8 +15,8 @@ Zeigerman 2004-2006, and is released under the MIT license, like Lua
 (see http://www.lua.org/copyright.html for the full license; it's
 basically the same as the BSD license). There is no warranty.
 
-Please report bugs and make suggestions to Shmuel, who is the current
-maintainer.
+Please report bugs and make suggestions to the maintainer, or use the
+LuaForge trackers and mailing lists.
 
 Thanks to Thatcher Ulrich for bug and warning fixes, and to Nick
 Gammon for adding support for PCRE named subpatterns.
