@@ -11,6 +11,9 @@
 -- TODO: Allow a default regex library to be installed (Lua, POSIX or PCRE)
 rex = require "rex_pcre" -- global!
 module ("rex", package.seeall)
+-- The module requires bitwise OR; a Lua implementation is
+-- provided in bit.lua. You may wish instead to use bitlib, from
+-- http://luaforge.net/projects/bitlib.
 local bit = require "bit"
 
 _M:flags () -- add flags to rex namespace
