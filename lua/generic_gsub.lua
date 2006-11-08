@@ -115,7 +115,6 @@ function generic_gsub (func, str, pat, repl, n, cflags, eflags)
                 end
             else
                 insert(tb_out, sub(str,from,to))
-                num_rep = num_rep - 1
             end
         end
 

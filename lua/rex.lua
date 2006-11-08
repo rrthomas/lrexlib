@@ -75,7 +75,8 @@ end
 --   @param reps: number of replacements made
 function gsub (s, p, f, n, cf, lo, ef)
   local rep = f
-  if type (rep) == "string" then
+  local reptype = type (rep)
+  if reptype == "string" then
     f = function (cap)
           local function repfun (d)
             local n = tonumber (d)
@@ -88,16 +89,16 @@ function gsub (s, p, f, n, cf, lo, ef)
           end
           return (string.gsub (rep, "%%(.)", repfun))
         end
-  elseif type (rep) == "table" then
+  elseif reptype == "table" then
     f = function (cap)
           return rep[cap[1]]
         end
-  elseif type (rep) == "function" then
+  elseif reptype == "function" then
     f = function (cap)
           return rep (unpack (cap))
         end
   else
-    error ("argument 3 must be string, table or function")
+    error ("argument #3 must be string, table or function")
   end
   local reg = _M.new (p, cf, lo)
   local st = 1
@@ -116,13 +117,13 @@ function gsub (s, p, f, n, cf, lo, ef)
         local reptype = type (rep)
         if reptype == "string" or reptype == "number" then
           table.insert (r, rep)
-          reps = reps + 1
         else
           error ("invalid replacement value (a " .. reptype .. ")")
         end
       else
         table.insert (r, string.sub (s, from, to))
       end
+      reps = reps + 1
       if from <= to then
         retry = false
         st = to + 1
