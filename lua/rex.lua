@@ -36,6 +36,30 @@ function find (s, p, st, cf, lo, ef)
   return from, to
 end
 
+-- @func gmatch: metamethod, used with an already compiled pattern
+--   @param self: compiled pattern
+--   @param s: string to search
+--   @param [ef]: execution flags for the regex
+-- @returns
+--   @param f: iterator function
+--   @returns
+--     @param c1, ...: captures (or whole match if none)
+getmetatable (rex.new ("")).gmatch =
+  function (self, s, ef)
+    local st = 1
+    return function ()
+      local from, to, cap = self:match (s, st, ef)
+      if from then
+        st = to + 1
+        if #cap > 0 then
+          return unpack (cap)
+        else
+          return string.sub (s, from, to)
+        end
+      end
+    end
+  end
+
 -- @func gmatch: string.gmatch with regexs
 --   @param s: string to search
 --   @param p: pattern
@@ -43,23 +67,9 @@ end
 --   @param [lo]: locale for the regex
 --   @param [ef]: execution flags for the regex
 -- @returns
---   @param f: iterator function
---   @returns
---     @param c1, ...: captures (or whole match if none)
+--   @param f: iterator function (see gmatch method)
 function gmatch (s, p, cf, lo, ef)
-  local r = _M.new (p, cf, lo)
-  local st = 1
-  return function ()
-           local from, to, cap = r:match (s, st, ef)
-           if from then
-             st = to + 1
-             if #cap > 0 then
-               return unpack (cap)
-             else
-               return string.sub (s, from, to)
-             end
-           end
-         end
+  return _M.new (p, cf, lo):gmatch (s, ef)
 end
 
 -- @func gsub: string.gsub for rex
