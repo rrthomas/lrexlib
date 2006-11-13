@@ -30,7 +30,7 @@ CompilerSet=0
 CompilerSettings=0000000000000000000000
 
 [Unit1]
-FileName=..\..\..\src\lposix.c
+FileName=..\..\src\lposix.c
 CompileCpp=0
 Folder=rex_posix1
 Compile=1
@@ -40,7 +40,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit2]
-FileName=..\..\..\src\common.c
+FileName=..\..\src\common.c
 CompileCpp=0
 Folder=rex_posix1
 Compile=1
