@@ -1,3 +1,18 @@
+2006-11-13  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
+	* rex.lua (gmatch, gmatch): metamethod and function deleted.
+	* lpcre.c (Lpcre_gmatch_iter, Lpcre_gmatch_method, Lpcre_gmatch_func):
+	  functions added.
+	* lposix.c (posix_gmatch_iter, posix_gmatch_method, posix_gmatch_func):
+	  functions added.
+
+2006-11-12  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
+	* rex.lua (r:gmatch): metamethod added.
+	* lpcre.c (Lpcre_maketables): function API simplified.
+	* lpcre.c (Lpcre_getargs): function removed.
+	* lpcre.c (LpcreGetExecParams): renamed from LpcreProcessExecParams.
+
 2006-11-09  Shmuel Zeigerman  <shmuz@actcom.co.il>
 
 	* bit.lua: file removed.
