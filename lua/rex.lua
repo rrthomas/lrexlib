@@ -3,17 +3,13 @@
 
 -- The rex module provides an interface to the lrexlib POSIX and PCRE
 -- regular expression support that mimics the standard string library.
--- It provides find, gmatch and gsub functions, which as far as
--- possible are compatible with their string library equivalents. It
--- also adds a gmatch metamethod for regex objects (this allows gmatch
--- to be used without constructing the regex object each time).
+-- It provides find and gsub functions, which as far as possible are
+-- compatible with their string library equivalents.
 
 -- TODO: Allow a default regex library to be installed (Lua, POSIX or PCRE)
 rex = require "rex_pcre" -- global!
 module ("rex", package.seeall)
--- The module requires bitwise OR; a Lua implementation is
--- provided in bit.lua. You may wish instead to use bitlib, from
--- http://luaforge.net/projects/bitlib.
+-- Use bitlib, from http://luaforge.net/projects/bitlib.
 local bit = require "bit"
 
 _M:flags () -- add flags to rex namespace
@@ -34,42 +30,6 @@ function find (s, p, st, cf, lo, ef)
     return from, to, unpack (cap)
   end
   return from, to
-end
-
--- @func gmatch: metamethod, used with an already compiled pattern
---   @param self: compiled pattern
---   @param s: string to search
---   @param [ef]: execution flags for the regex
--- @returns
---   @param f: iterator function
---   @returns
---     @param c1, ...: captures (or whole match if none)
-getmetatable (rex.new ("")).gmatch =
-  function (self, s, ef)
-    local st = 1
-    return function ()
-      local from, to, cap = self:match (s, st, ef)
-      if from then
-        st = to + 1
-        if #cap > 0 then
-          return unpack (cap)
-        else
-          return string.sub (s, from, to)
-        end
-      end
-    end
-  end
-
--- @func gmatch: string.gmatch with regexs
---   @param s: string to search
---   @param p: pattern
---   @param [cf]: compile-time flags for the regex
---   @param [lo]: locale for the regex
---   @param [ef]: execution flags for the regex
--- @returns
---   @param f: iterator function (see gmatch method)
-function gmatch (s, p, cf, lo, ef)
-  return _M.new (p, cf, lo):gmatch (s, ef)
 end
 
 -- @func gsub: string.gsub for rex
