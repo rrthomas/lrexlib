@@ -80,7 +80,7 @@ function generic_gsub (func, str, pat, repl, n, cflags, eflags)
 
     while not n or n > num_rep do
 
-        local from,to,cap = expr:match(str, curr_start, eflags)
+        local from,to,cap = expr:oldmatch(str, curr_start, eflags)
         if not from then break; end
         insert( tb_out, sub(str, curr_start, from-1) )
 
