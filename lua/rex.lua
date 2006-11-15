@@ -3,8 +3,8 @@
 
 -- The rex module provides an interface to the lrexlib POSIX and PCRE
 -- regular expression support that mimics the standard string library.
--- It provides find and gsub functions, which as far as possible are
--- compatible with their string library equivalents.
+-- It provides gsub function, which as far as possible is compatible
+-- with its string library equivalent.
 
 -- TODO: Allow a default regex library to be installed (Lua, POSIX or PCRE)
 rex = require "rex_pcre" -- global!
@@ -13,24 +13,6 @@ module ("rex", package.seeall)
 local bit = require "bit"
 
 _M:flags () -- add flags to rex namespace
-
--- @func find: string.find with regexs
---   @param s: string to search
---   @param p: pattern to find
---   @param [st]: start position for match
---   @param [cf]: compile-time flags for the regex
---   @param [lo]: locale for the regex
---   @param [ef]: execution flags for the regex
--- @returns
---   @param from, to: start and end points of match, or nil
---   @param [c1, ...]: captures
-function find (s, p, st, cf, lo, ef)
-  local from, to, cap = _M.new (p, cf, lo):match (s, st, ef)
-  if from and cap[1] ~= nil then
-    return from, to, unpack (cap)
-  end
-  return from, to
-end
 
 -- @func gsub: string.gsub for rex
 --   @param s: string to search
@@ -76,7 +58,7 @@ function gsub (s, p, f, n, cf, lo, ef)
   local efr = bit.bor (ef or 0, NOTEMPTY, ANCHORED)
   local retry
   while (not n) or reps < n do
-    local from, to, cap = reg:match (s, st, retry and efr or ef)
+    local from, to, cap = reg:oldmatch (s, st, retry and efr or ef)
     if from then
       table.insert (r, string.sub (s, st, from - 1))
       if #cap == 0 then
