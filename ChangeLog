@@ -1,10 +1,12 @@
-2006-11-13  Shmuel Zeigerman  <shmuz@actcom.co.il>
+2006-11-15  Shmuel Zeigerman  <shmuz@actcom.co.il>
 
-	* rex.lua (gmatch, gmatch): metamethod and function deleted.
-	* lpcre.c (Lpcre_gmatch_iter, Lpcre_gmatch_method, Lpcre_gmatch_func):
-	  functions added.
-	* lposix.c (posix_gmatch_iter, posix_gmatch_method, posix_gmatch_func):
-	  functions added.
+	* lpcre.c, lposix.c: Lua API has changed:
+	    * 'match' method renamed to 'oldmatch'
+	    * added (as much as possible) Lua string library API compatible:
+	      'find', 'match' and 'gmatch' - each one being a function/method pair.
+	* rex.lua: deleted everything except gsub.
+	* rex.lua (gsub): rex.oldmatch is used instead of rex.match.
+	* generic_gsub.lua: rex.oldmatch is used instead of rex.match.
 
 2006-11-12  Shmuel Zeigerman  <shmuz@actcom.co.il>
 
