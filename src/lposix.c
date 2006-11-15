@@ -32,23 +32,91 @@
   #endif
 #endif
 
+#ifdef REX_POSIX_EXT
+  #define EFLAGS_DEFAULT REG_STARTEND
+#else
+  #define EFLAGS_DEFAULT 0
+#endif
+
 const char posix_handle[] = REX_LIBNAME"?regex_handle";
 const char posix_typename[] = REX_LIBNAME"_regex";
+
+/*  Data Types
+ ******************************************************************************
+ */
 
 typedef struct {
   regex_t r;
   regmatch_t *match;
 } TPosix;
 
-static int posix_comp (lua_State *L) {
+typedef struct {            /* regcomp arguments */
+  const char * pattern;
+  size_t       patlen;
+  int          cflags;
+} TArgComp;
+
+typedef struct {            /* regexec arguments */
+  TPosix     * ud;
+  const char * text;
+  size_t       textlen;
+  int          startoffset;
+  int          eflags;
+} TArgExec;
+
+/*  Functions
+ ******************************************************************************
+ */
+
+static TPosix* CheckUD (lua_State *L, int stackpos) {
+  TPosix *ud = (TPosix *)luaL_checkudata (L, stackpos, posix_handle);
+  luaL_argcheck (L, ud != NULL, stackpos, "compiled regexp expected");
+  return ud;
+}
+
+static void Check_arg_new (lua_State *L, TArgComp *argC) {
+  argC->pattern = luaL_checklstring (L, 1, &argC->patlen);
+  argC->cflags = luaL_optint (L, 2, REG_EXTENDED);
+}
+
+/* function find (s, p, [st], [cf], [ef]) */
+static void Check_arg_findmatch_func (lua_State *L, TArgComp *argC, TArgExec *argE) {
+  argE->text = luaL_checklstring (L, 1, &argE->textlen);
+  argC->pattern = luaL_checklstring (L, 2, &argC->patlen);
+  argE->startoffset = get_startoffset (L, 3, argE->textlen);
+  argC->cflags = luaL_optint (L, 4, REG_EXTENDED);
+  argE->eflags = luaL_optint (L, 5, EFLAGS_DEFAULT);
+}
+
+/* method r:find (s, [st], [ef]) */
+static void Check_arg_findmatch_method (lua_State *L, TArgExec *argE) {
+  argE->ud = CheckUD (L, 1);
+  argE->text = luaL_checklstring (L, 2, &argE->textlen);
+  argE->startoffset = get_startoffset (L, 3, argE->textlen);
+  argE->eflags = luaL_optint (L, 4, EFLAGS_DEFAULT);
+}
+
+/* method r:gmatch (s, [ef]) */
+static void Check_arg_gmatch_method (lua_State *L, TArgExec *argE) {
+  argE->ud = CheckUD (L, 1);
+  argE->text = luaL_checklstring (L, 2, &argE->textlen);
+  argE->eflags = luaL_optint (L, 3, EFLAGS_DEFAULT);
+}
+
+/* function gmatch (s, p, [cf], [lo], [ef]) */
+static void Check_arg_gmatch_func (lua_State *L, TArgComp *argC, TArgExec *argE) {
+  argE->text = luaL_checklstring (L, 1, &argE->textlen);
+  argC->pattern = luaL_checklstring (L, 2, &argC->patlen);
+  argC->cflags = luaL_optint (L, 3, REG_EXTENDED);
+  argE->eflags = luaL_optint (L, 4, EFLAGS_DEFAULT);
+}
+
+static int posix_comp (lua_State *L, const TArgComp *argC, TPosix **pud) {
   int res;
   TPosix *ud;
-  size_t clen;
-  const char *pattern = luaL_checklstring (L, 1, &clen);
-  int cflags = luaL_optint (L, 2, REG_EXTENDED);
 
 #ifdef REX_POSIX_EXT
-  if ((cflags & REG_EXTENDED) && (cflags & REG_NOSPEC)) {
+  if ((argC->cflags & REG_EXTENDED) && (argC->cflags & REG_NOSPEC)) {
     return luaL_argerror (L, 2,
       "flags REG_EXTENDED and REG_NOSPEC must not be specified together");
   }
@@ -58,11 +126,11 @@ static int posix_comp (lua_State *L) {
   ud->match = NULL;
 
 #ifdef REX_POSIX_EXT
-  if (cflags & REG_PEND)
-    ud->r.re_endp = pattern + clen;
+  if (argC->cflags & REG_PEND)
+    ud->r.re_endp = argC->pattern + argC->patlen;
 #endif
 
-  res = regcomp (&ud->r, pattern, cflags);
+  res = regcomp (&ud->r, argC->pattern, argC->cflags);
   if (res) {
     size_t sz = regerror (res, &ud->r, NULL, 0);
     char *errbuf = (char *) lua_newuserdata (L, sz+1);
@@ -74,15 +142,9 @@ static int posix_comp (lua_State *L) {
     (regmatch_t *) Lmalloc (L, (ud->r.re_nsub + 1) * sizeof (regmatch_t));
   luaL_getmetatable (L, posix_handle);
   lua_setmetatable (L, -2);
-  return 1;
-}
 
-static void posix_getargs
-  (lua_State *L, TPosix **ud, const char **text, size_t *text_len)
-{
-  *ud = (TPosix *)luaL_checkudata (L, 1, posix_handle);
-  luaL_argcheck (L, *ud != NULL, 1, "compiled regexp expected");
-  *text = luaL_checklstring (L, 2, text_len);
+  if (pud) *pud = ud;
+  return 1;
 }
 
 typedef void (*posix_push_matches)
@@ -132,41 +194,34 @@ static void posix_push_offsets
   }
 }
 
-static int posix_match_generic (lua_State *L, posix_push_matches push_matches)
+static int posix_oldmatch_generic (lua_State *L, posix_push_matches push_matches)
 {
   size_t elen;
-  const char *text;
-  TPosix *ud;
-  int startoffset;
   int res;
+  TArgExec argE;
+  TPosix *ud;
+
+  Check_arg_findmatch_method (L, &argE);
+  ud = argE.ud; /* avoiding too many redirections */
 
 #ifdef REX_POSIX_EXT
-  int eflags = luaL_optint (L, 4, REG_STARTEND);
-#else
-  int eflags = luaL_optint (L, 4, 0);
-#endif
-
-  posix_getargs (L, &ud, &text, &elen);
-  startoffset = get_startoffset (L, 3, elen);
-
-#ifdef REX_POSIX_EXT
-  if (eflags & REG_STARTEND) {
-    ud->match[0].rm_so = startoffset;
-    ud->match[0].rm_eo = elen;
-    startoffset = 0;
+  if (argE.eflags & REG_STARTEND) {
+    ud->match[0].rm_so = argE.startoffset;
+    ud->match[0].rm_eo = argE.textlen;
+    argE.startoffset = 0;
   }
   else
-    text += startoffset;
+    argE.text += argE.startoffset;
 #else
-  text += startoffset;
+  argE.text += argE.startoffset;
 #endif
 
   /* execute the search */
-  res = regexec (&ud->r, text, ud->r.re_nsub + 1, ud->match, eflags);
+  res = regexec (&ud->r, argE.text, ud->r.re_nsub + 1, ud->match, argE.eflags);
   if (res == 0) {
-    lua_pushinteger (L, ud->match[0].rm_so + 1 + startoffset);
-    lua_pushinteger (L, ud->match[0].rm_eo + startoffset);
-    (*push_matches)(L, text, startoffset, ud->match, ud->r.re_nsub);
+    lua_pushinteger (L, ud->match[0].rm_so + 1 + argE.startoffset);
+    lua_pushinteger (L, ud->match[0].rm_eo + argE.startoffset);
+    (*push_matches)(L, argE.text, argE.startoffset, ud->match, ud->r.re_nsub);
     lua_pushinteger (L, res);
     return 4;
   }
@@ -175,23 +230,23 @@ static int posix_match_generic (lua_State *L, posix_push_matches push_matches)
   return 2;
 }
 
-static int posix_match (lua_State *L)
+static int posix_oldmatch (lua_State *L)
 {
-  return posix_match_generic (L, posix_push_substrings);
+  return posix_oldmatch_generic (L, posix_push_substrings);
 }
 
 static int posix_exec (lua_State *L)
 {
-  return posix_match_generic (L, posix_push_offsets);
+  return posix_oldmatch_generic (L, posix_push_offsets);
 }
 
 static int posix_gmatch_iter (lua_State *L)
 {
-  int res, i, incr;
-  int eflags, startoffset;
-  size_t len;
   TPosix *ud;
   const char *text;
+  size_t len;
+  int eflags, startoffset;
+  int res, i, incr;
 
   ud = (TPosix*) lua_touserdata (L, lua_upvalueindex (1));
   text = lua_tolstring (L, lua_upvalueindex (2), &len);
@@ -244,49 +299,116 @@ static int posix_gmatch_iter (lua_State *L)
   return 0;
 }
 
-static int posix_gmatch_method (lua_State *L)
-{
-  size_t textlen;
-  TPosix *ud = (TPosix *)luaL_checkudata (L, 1, posix_handle); /* get 1st param: self */
-  luaL_argcheck (L, ud != NULL, 1, "compiled regexp expected");
-
-  (void) luaL_checklstring (L, 2, &textlen); /* get 2nd param: text */
-  if (!lua_isnoneornil (L, 3)) {             /* get 3rd param: eflags */
-    (void) luaL_checkint (L, 3);
-    lua_settop (L, 3);
-  }
-  else {
-    lua_settop (L, 2);
-#ifdef REX_POSIX_EXT
-    lua_pushinteger (L, REG_STARTEND);
-#else
-    lua_pushinteger (L, 0);
-#endif
-  }
-  lua_pushinteger (L, textlen); /* 3rd upvalue */
-  lua_insert (L, 3);
-  lua_pushinteger (L, 0);       /* 5th upvalue: start offset */
+/* method r:gmatch (s, [ef]) */
+static int posix_gmatch_method (lua_State *L) {
+  TArgExec argE;
+  Check_arg_gmatch_method (L, &argE);
+  lua_pushvalue (L, 1);                          /* ud */
+  lua_pushlstring (L, argE.text, argE.textlen);  /* s  */
+  lua_pushinteger (L, argE.textlen);             /* textlen */
+  lua_pushinteger (L, argE.eflags);              /* ef */
+  lua_pushinteger (L, 0);                        /* start offset */
   lua_pushcclosure (L, posix_gmatch_iter, 5);
   return 1;
 }
 
-/*
-function gmatch (s, p, cf, ef)
-  return new (p, cf):gmatch (s, ef)
-end
-*/
-static int posix_gmatch_func (lua_State *L)
-{
-  lua_settop (L, 4);                           /* s, p, cf, ef */
-  lua_insert (L, 2);                           /* s, ef, p, cf */
-  lua_pushcfunction (L, posix_comp);           /* s, ef, p, cf, F */
-  lua_insert (L, 3);                           /* s, ef, F, p, cf */
-  lua_call (L, 2, 1);                          /* s, ef, r */
-  lua_insert (L, 1);                           /* r, s, ef */
-  lua_pushcfunction (L, posix_gmatch_method);  /* r, s, ef, F */
-  lua_insert (L, 1);                           /* F, r, s, ef */
-  lua_call (L, 3, 1);                          /* Iter */
+/* function gmatch (s, p, [cf], [ef]) */
+static int posix_gmatch_func (lua_State *L) {
+  TArgComp argC;
+  TArgExec argE;
+  Check_arg_gmatch_func (L, &argC, &argE);
+  posix_comp (L, &argC, NULL);                   /* ud */
+  lua_pushlstring (L, argE.text, argE.textlen);  /* s */
+  lua_pushinteger (L, argE.textlen);             /* textlen */
+  lua_pushinteger (L, argE.eflags);              /* ef */
+  lua_pushinteger (L, 0);                        /* start offset */
+  lua_pushcclosure (L, posix_gmatch_iter, 5);
   return 1;
+}
+
+static int posix_new (lua_State *L) {
+  TArgComp argC;
+  Check_arg_new (L, &argC);
+  return posix_comp (L, &argC, NULL);
+}
+
+static int posix_find_generic (lua_State *L, TArgExec *argE, int find)
+{
+  int i, res;
+  TPosix *ud = argE->ud;
+
+#ifdef REX_POSIX_EXT
+  if (argE->eflags & REG_STARTEND) {
+    ud->match[0].rm_so = argE->startoffset;
+    ud->match[0].rm_eo = argE->textlen;
+    argE->startoffset = 0;
+  }
+  else
+    argE->text += argE->startoffset;
+#else
+  argE->text += argE->startoffset;
+#endif
+
+  res = regexec (&ud->r, argE->text, ud->r.re_nsub + 1, ud->match, argE->eflags);
+  if (res == 0) {
+    lua_settop (L, 0);
+    if (find) {
+      lua_pushinteger (L, ud->match[0].rm_so + 1 + argE->startoffset);
+      lua_pushinteger (L, ud->match[0].rm_eo + argE->startoffset);
+    }
+    if (ud->r.re_nsub) {  /* push captures */
+      if (lua_checkstack (L, ud->r.re_nsub) == 0)
+        return luaL_error (L, "cannot add %d stack slots", ud->r.re_nsub);
+
+      for (i = 1; i <= (int)ud->r.re_nsub; i++) {
+        if (ud->match[i].rm_so >= 0) {
+          lua_pushlstring (L, argE->text + ud->match[i].rm_so,
+            ud->match[i].rm_eo - ud->match[i].rm_so);
+        }
+        else
+          lua_pushboolean (L, 0);
+      }
+    }
+    else if (!find) {  /* push entire match */
+      lua_pushlstring (L, argE->text + ud->match[0].rm_so + argE->startoffset,
+        ud->match[0].rm_eo - ud->match[0].rm_so);
+      return 1;
+    }
+    return find ? ud->r.re_nsub + 2 : ud->r.re_nsub;
+  }
+  lua_pushnil (L);
+  lua_pushinteger (L, res);
+  return 2;
+}
+
+static int posix_findmatch_method (lua_State *L, int find) {
+  TArgExec argE;
+  Check_arg_findmatch_method (L, &argE);
+  return posix_find_generic (L, &argE, find);
+}
+
+static int posix_find_method (lua_State *L) {
+  return posix_findmatch_method (L, 1);
+}
+
+static int posix_match_method (lua_State *L) {
+  return posix_findmatch_method (L, 0);
+}
+
+static int posix_findmatch_func (lua_State *L, int find) {
+  TArgComp argC;
+  TArgExec argE;
+  Check_arg_findmatch_func (L, &argC, &argE);
+  posix_comp (L, &argC, &argE.ud);
+  return posix_find_generic (L, &argE, find);
+}
+
+static int posix_find_func (lua_State *L) {
+  return posix_findmatch_func (L, 1);
+}
+
+static int posix_match_func (lua_State *L) {
+  return posix_findmatch_func (L, 0);
 }
 
 static int posix_gc (lua_State *L) {
@@ -346,24 +468,27 @@ static int posix_get_flags (lua_State *L) {
 
 static const luaL_reg posixmeta[] = {
   {"exec",       posix_exec},
-  {"match",      posix_match},
+  {"oldmatch",   posix_oldmatch},
   {"gmatch",     posix_gmatch_method},
+  {"find",       posix_find_method},
+  {"match",      posix_match_method},
   {"__gc",       posix_gc},
   {"__tostring", posix_tostring},
   {NULL, NULL}
 };
 
-/* Open the library */
-
 static const luaL_reg rexlib[] = {
-  {"new",         posix_comp},
-  {"newPOSIX",    posix_comp},       /* for backwards compatibility */
+  {"new",         posix_new},
+  {"newPOSIX",    posix_new},       /* for backwards compatibility */
   {"flags",       posix_get_flags},
   {"flagsPOSIX",  posix_get_flags},  /* for backwards compatibility */
   {"gmatch",      posix_gmatch_func},
+  {"find",        posix_find_func},
+  {"match",       posix_match_func},
   {NULL, NULL}
 };
 
+/* Open the library */
 REX_API int REX_OPENLIB (lua_State *L)
 {
   createmeta (L, posix_handle);
