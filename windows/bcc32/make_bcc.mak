@@ -25,7 +25,7 @@ LFLAGS       = -aa -Gi -Gn -Tpd -x
 # PCRE, multi-threaded build
 #==========================================================================
 DEF_PCRE     = -DREX_OPENLIB=luaopen_$(TARG_PCRE) \
-               -DREX_LIBNAME=\"$(TARG_PCRE)\" -DCOMPAT51
+               -DREX_LIBNAME=\"$(TARG_PCRE)\" -D$(CMDLINE)
 DEFFILE_PCRE = $(TARG_PCRE).def
 INC_PCRE     = $(DIR_LUA);$(DIR_PCRE)
 LIBS_PCRE    = $(LIB_LUA) $(LIB_PCRE) import32.lib cw32mt.lib
@@ -35,14 +35,14 @@ FLAGS_PCRE   = -A -tWD -tWM
 # PCRE with recursion disabled, multi-threaded build
 #==========================================================================
 DEF_PCRE_NR  = -DREX_OPENLIB=luaopen_$(TARG_PCRE_NR) \
-               -DREX_LIBNAME=\"$(TARG_PCRE_NR)\" -DCOMPAT51
+               -DREX_LIBNAME=\"$(TARG_PCRE_NR)\" -D$(CMDLINE)
 DEFFILE_PCRE_NR = $(TARG_PCRE_NR).def
 LIBS_PCRE_NR = $(LIB_LUA) $(LIB_PCRE_NR) import32.lib cw32mt.lib
 
 # POSIX1, single-threaded build
 #==========================================================================
 DEF_POSIX1   = -DREX_OPENLIB=luaopen_$(TARG_POSIX1) \
-               -DREX_LIBNAME=\"$(TARG_POSIX1)\"  -DCOMPAT51
+               -DREX_LIBNAME=\"$(TARG_POSIX1)\" -D$(CMDLINE)
 DEFFILE_POSIX1 = $(TARG_POSIX1).def
 INC_POSIX1   = $(DIR_LUA);$(DIR_POSIX1)
 LIBS_POSIX1  = $(LIB_LUA) $(LIB_POSIX1) import32.lib cw32.lib
@@ -56,7 +56,7 @@ FLAGS_POSIX1 = -A -tWD
 # File regex.hpp was copied from $(DIR_POSIX2)/boost to $(DIR_POSIX2)
 #
 DEF_POSIX2   = -DREX_OPENLIB=luaopen_$(TARG_POSIX2) \
-               -DREX_LIBNAME=\"$(TARG_POSIX2)\" -DCOMPAT51
+               -DREX_LIBNAME=\"$(TARG_POSIX2)\" -D$(CMDLINE)
 DEFFILE_POSIX2 = $(TARG_POSIX2).def
 INC_POSIX2   = $(DIR_LUA);$(DIR_POSIX2);$(DIR_POSIX2)/boost
 LIBS_POSIX2  = $(LIB_LUA) $(LIB_POSIX2) import32.lib cw32mt.lib
