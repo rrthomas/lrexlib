@@ -15,10 +15,10 @@
  * They should be kept in sync between themselves and with the target name.
  */
 #ifndef REX_LIBNAME
-  #define REX_LIBNAME "rex_posix"
+#  define REX_LIBNAME "rex_posix"
 #endif
 #ifndef REX_OPENLIB
-  #define REX_OPENLIB luaopen_rex_posix
+#  define REX_OPENLIB luaopen_rex_posix
 #endif
 
 /* Test if regex.h corresponds to the extended POSIX library, i.e. H.Spencer's.
@@ -27,15 +27,15 @@
    If that's the case, add -DREX_POSIX_EXT in the makefile/command line.
 */
 #ifndef REX_POSIX_EXT
-  #if defined(REG_BASIC) && defined(REG_STARTEND)
-    #define REX_POSIX_EXT
-  #endif
+#  if defined(REG_BASIC) && defined(REG_STARTEND)
+#    define REX_POSIX_EXT
+#  endif
 #endif
 
 #ifdef REX_POSIX_EXT
-  #define EFLAGS_DEFAULT REG_STARTEND
+#  define EFLAGS_DEFAULT REG_STARTEND
 #else
-  #define EFLAGS_DEFAULT 0
+#  define EFLAGS_DEFAULT 0
 #endif
 
 const char posix_handle[] = REX_LIBNAME"?regex_handle";
@@ -62,6 +62,8 @@ typedef struct {            /* regexec arguments */
   size_t       textlen;
   int          startoffset;
   int          eflags;
+  int          funcpos;
+  int          maxmatch;
 } TArgExec;
 
 /*  Functions
@@ -109,6 +111,15 @@ static void Check_arg_gmatch_func (lua_State *L, TArgComp *argC, TArgExec *argE)
   argC->pattern = luaL_checklstring (L, 2, &argC->patlen);
   argC->cflags = luaL_optint (L, 3, REG_EXTENDED);
   argE->eflags = luaL_optint (L, 4, EFLAGS_DEFAULT);
+}
+
+/* method r:oldgmatch (s, f, [n], [ef]) */
+static void Check_arg_oldgmatch_method (lua_State *L, TArgExec *argE) {
+  argE->ud = CheckUD (L, 1);
+  argE->text = luaL_checklstring (L, 2, &argE->textlen);
+  argE->funcpos = CheckFunction (L, 3);
+  argE->maxmatch = luaL_optint (L, 4, 0);
+  argE->eflags = luaL_optint (L, 5, EFLAGS_DEFAULT);
 }
 
 static int posix_comp (lua_State *L, const TArgComp *argC, TPosix **pud) {
@@ -230,12 +241,12 @@ static int posix_oldmatch_generic (lua_State *L, posix_push_matches push_matches
   return 2;
 }
 
-static int posix_oldmatch (lua_State *L)
+static int posix_oldmatch_method (lua_State *L)
 {
   return posix_oldmatch_generic (L, posix_push_substrings);
 }
 
-static int posix_exec (lua_State *L)
+static int posix_exec_method (lua_State *L)
 {
   return posix_oldmatch_generic (L, posix_push_offsets);
 }
@@ -267,9 +278,7 @@ static int posix_gmatch_iter (lua_State *L)
   if (res == 0) {
     /* push either captures or entire match */
     if (ud->r.re_nsub) {
-      lua_settop (L, 0);
-      if (lua_checkstack (L, ud->r.re_nsub) == 0)
-        return luaL_error (L, "cannot add %d stack slots", ud->r.re_nsub);
+      CheckStack (L, ud->r.re_nsub);
       for (i = 1; i <= (int)ud->r.re_nsub; i++) {
         if (ud->match[i].rm_so >= 0)
           lua_pushlstring (L, text + ud->match[i].rm_so,
@@ -283,8 +292,8 @@ static int posix_gmatch_iter (lua_State *L)
         ud->match[0].rm_eo - ud->match[0].rm_so);
     }
     incr = (ud->match[0].rm_so == ud->match[0].rm_eo) ? 1 : 0; /* prevent endless loop */
-    /* update length */
 #ifdef REX_POSIX_EXT
+    /* update length */
     if (eflags & REG_STARTEND) {
       lua_pushinteger (L, len - ud->match[0].rm_eo - incr);
       lua_replace (L, lua_upvalueindex (3));
@@ -351,15 +360,12 @@ static int posix_find_generic (lua_State *L, TArgExec *argE, int find)
 
   res = regexec (&ud->r, argE->text, ud->r.re_nsub + 1, ud->match, argE->eflags);
   if (res == 0) {
-    lua_settop (L, 0);
     if (find) {
       lua_pushinteger (L, ud->match[0].rm_so + 1 + argE->startoffset);
       lua_pushinteger (L, ud->match[0].rm_eo + argE->startoffset);
     }
     if (ud->r.re_nsub) {  /* push captures */
-      if (lua_checkstack (L, ud->r.re_nsub) == 0)
-        return luaL_error (L, "cannot add %d stack slots", ud->r.re_nsub);
-
+      CheckStack (L, ud->r.re_nsub);
       for (i = 1; i <= (int)ud->r.re_nsub; i++) {
         if (ud->match[i].rm_so >= 0) {
           lua_pushlstring (L, argE->text + ud->match[i].rm_so,
@@ -409,6 +415,51 @@ static int posix_find_func (lua_State *L) {
 
 static int posix_match_func (lua_State *L) {
   return posix_findmatch_func (L, 0);
+}
+
+static int posix_oldgmatch_method (lua_State *L) {
+  int res, nmatch=0, limit=0;
+  TArgExec argE;
+  TPosix *ud;
+
+  Check_arg_oldgmatch_method (L, &argE);
+  ud = argE.ud;
+
+  if (argE.maxmatch > 0) /* this must be stated in the docs */
+    limit = 1;
+
+  while (!limit || nmatch < argE.maxmatch) {
+
+#ifdef REX_POSIX_EXT
+    if(argE.eflags & REG_STARTEND) {
+      ud->match[0].rm_so = 0;
+      ud->match[0].rm_eo = argE.textlen;
+    }
+#endif
+
+    res = regexec(&ud->r, argE.text, ud->r.re_nsub + 1, ud->match, argE.eflags);
+    if (res == 0) {
+      nmatch++;
+      lua_pushvalue(L, argE.funcpos);
+      lua_pushlstring(L, argE.text + ud->match[0].rm_so,
+                      ud->match[0].rm_eo - ud->match[0].rm_so);
+      posix_push_substrings(L, argE.text, 0, ud->match, ud->r.re_nsub);
+      lua_call(L, 2, 1);
+      if(lua_toboolean(L, -1))
+        break;
+      lua_pop(L, 1);
+      argE.text += ud->match[0].rm_eo;
+
+#ifdef REX_POSIX_EXT
+      if(argE.eflags & REG_STARTEND)
+        argE.textlen -= ud->match[0].rm_eo;
+#endif
+
+    } else
+      break;
+  }
+  lua_pushinteger(L, nmatch);
+  return 1;
 }
 
 static int posix_gc (lua_State *L) {
@@ -467,25 +518,24 @@ static int posix_get_flags (lua_State *L) {
 }
 
 static const luaL_reg posixmeta[] = {
-  {"exec",       posix_exec},
-  {"oldmatch",   posix_oldmatch},
-  {"gmatch",     posix_gmatch_method},
-  {"find",       posix_find_method},
-  {"match",      posix_match_method},
-  {"__gc",       posix_gc},
-  {"__tostring", posix_tostring},
-  {NULL, NULL}
+  { "exec",       posix_exec_method },
+  { "oldmatch",   posix_oldmatch_method },
+  { "oldgmatch",  posix_oldgmatch_method },
+  { "gmatch",     posix_gmatch_method },
+  { "find",       posix_find_method },
+  { "match",      posix_match_method },
+  { "__gc",       posix_gc },
+  { "__tostring", posix_tostring },
+  { NULL, NULL}
 };
 
 static const luaL_reg rexlib[] = {
-  {"new",         posix_new},
-  {"newPOSIX",    posix_new},       /* for backwards compatibility */
-  {"flags",       posix_get_flags},
-  {"flagsPOSIX",  posix_get_flags},  /* for backwards compatibility */
-  {"gmatch",      posix_gmatch_func},
-  {"find",        posix_find_func},
-  {"match",       posix_match_func},
-  {NULL, NULL}
+  { "new",         posix_new },
+  { "flags",       posix_get_flags },
+  { "gmatch",      posix_gmatch_func },
+  { "find",        posix_find_func },
+  { "match",       posix_match_func },
+  { NULL, NULL }
 };
 
 /* Open the library */
@@ -495,5 +545,7 @@ REX_API int REX_OPENLIB (lua_State *L)
   luaL_register (L, NULL, posixmeta);
   lua_pop (L, 1);
   luaL_register (L, REX_LIBNAME, rexlib);
+  lua_pushliteral (L, "Lrexlib 2.0 alpha");
+  lua_setfield (L, -2, "_VERSION");
   return 1;
 }
