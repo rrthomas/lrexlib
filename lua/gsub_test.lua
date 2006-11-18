@@ -1,91 +1,13 @@
 --[[
-  Shmuel Zeigerman: Jan 2006 - Nov 2006.
+  Shmuel Zeigerman: Jan-Nov 2006.
 --]]
 
-require "string"         -- just to be consistent
 require "rex"            -- must load PCRE, not some other library!
 require "generic_gsub"   -- defines global function generic_gsub
+require "pat2pcre"       -- defines global function pat2pcre
 
 local function gsubPCRE (str, pat, repl, n)
    return generic_gsub (rex.new, str, pat, repl, n)
-end
-
-local t_esc = {
-  a = "[:alpha:]",
-  A = "[:^alpha:]",
-  c = "[:cntrl:]",
-  C = "[:^cntrl:]",
-  l = "[:lower:]",
-  L = "[:^lower:]",
-  p = "[:punct:]",
-  P = "[:^punct:]",
-  u = "[:upper:]",
-  U = "[:^upper:]",
-  w = "[:alnum:]",
-  W = "[:^alnum:]",
-  x = "[:xdigit:]",
-  X = "[:^xdigit:]",
-  z = "\\x00",
-  Z = "\\x01-\\xFF",
-}
-
-local function rep_normal (ch)
-  assert (ch ~= "b", "\"%b\" subpattern is not supported")
-  assert (ch ~= "0", "invalid capture index")
-  local v = t_esc[ch]
-  return v and ("[" .. v .. "]") or ("\\" .. ch)
-end
-
-local function rep_charclass (ch)
-  return t_esc[ch] or ("\\" .. ch)
-end
-
-local function PatternLua2Pcre (s)
-  local ind = 0
-
-  local function getc ()
-    ind = ind + 1
-    return string.sub (s, ind, ind)
-  end
-
-  local function getnum ()
-    local num = string.match (s, "^\\(%d%d?%d?)", ind)
-    if num then
-      ind = ind + #num
-      return string.format ("\\x%02X", num)
-    end
-  end
-
-  local out, state = "", "normal"
-  while ind < #s do
-    local ch = getc ()
-    if state == "normal" then
-      if ch == "%" then
-        out = out .. rep_normal (getc ())
-      elseif ch == "-" then
-        out = out .. "*?"
-      elseif ch == "." then
-        out = out .. "\\C"
-      elseif ch == "[" then
-        out = out .. ch
-        state = "charclass"
-      else
-        local num = getnum ()
-        out = num and (out .. num) or (out .. ch)
-      end
-    elseif state == "charclass" then
-      if ch == "%" then
-        out = out .. rep_charclass (getc ())
-      elseif ch == "]" then
-        out = out .. ch
-        state = "normal"
-      else
-        local num = getnum ()
-        out = num and (out .. num) or (out .. ch)
-      end
-    end
-  end
-  return out
 end
 
 local subj, pat = "abcdef", "[abef]+"
@@ -340,8 +262,8 @@ local function gsub_test (set)
         end
 
         run_test (string.gsub, "string.gsub", function (p) return p end)
-        run_test (rex.gsub,    "rex.gsub",    PatternLua2Pcre)
-        run_test (gsubPCRE,    "gsubPCRE",    PatternLua2Pcre)
+        run_test (rex.gsub,    "rex.gsub",    pat2pcre)
+        run_test (gsubPCRE,    "gsubPCRE",    pat2pcre)
     end
 end
 
