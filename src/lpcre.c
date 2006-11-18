@@ -693,7 +693,7 @@ REX_API int REX_OPENLIB (lua_State *L) {
   lua_pop (L, 1);
   pcre_callout = Lpcre_callout;
   luaL_register (L, REX_LIBNAME, rexlib);
-  lua_pushliteral (L, "Lrexlib 2.0 alpha");
+  lua_pushliteral (L, "Lrexlib 2.0 alpha (for PCRE)");
   lua_setfield (L, -2, "_VERSION");
   return 1;
 }
