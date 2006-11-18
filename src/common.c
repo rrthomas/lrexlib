@@ -79,3 +79,22 @@ void createmeta(lua_State *L, const char *name)
   lua_pushvalue(L, -2);         /* push metatable */
   lua_rawset(L, -3);            /* metatable.__index = metatable, for OO-style use */
 }
+
+void CheckStack (lua_State *L, int extraslots)
+{
+  if (lua_checkstack (L, extraslots) == 0)
+    luaL_error (L, "cannot add %d stack slots", extraslots);
+}
+
+int CheckFunction (lua_State *L, int pos) {
+  luaL_checktype (L, pos, LUA_TFUNCTION);
+  return pos;
+}
+
+int OptFunction (lua_State *L, int pos) {
+  if (lua_isnoneornil (L, pos))
+    return 0;
+  luaL_checktype (L, pos, LUA_TFUNCTION);
+  return pos;
+}
+
