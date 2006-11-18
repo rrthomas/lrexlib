@@ -81,7 +81,7 @@ local function DoOneTest(line, lineno)
   local Success
   local function Compile(flags)
     local expr
-    Success, expr = pcall(Rex.newPOSIX, Prop.re, flags)
+    Success, expr = pcall(Rex.new, Prop.re, flags)
     if Mustfail and Success or not Mustfail and not Success then
       return Error("compile result is not as expected")
     end
@@ -134,7 +134,7 @@ local function DoOneTest(line, lineno)
   end
 
   local function Match(expr)
-    local s,e,t = expr:match(Prop.f3, Start, Eflags)
+    local s,e,t = expr:oldmatch(Prop.f3, Start, Eflags)
     if Mustfail and s or not Mustfail and not s then
       return Error("match result is not as expected")
     end
@@ -195,7 +195,7 @@ local function run (libname, testfile, silent)
   Print = (not silent and print) or (function() end)
 
   -- initialize upvalues
-  Opts = Rex.flagsPOSIX()
+  Opts = Rex.flags()
   Errcount = 0
 
   -- run tests
