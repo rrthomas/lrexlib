@@ -21,21 +21,11 @@ local sub = string.sub
 -----------------------------------------------------------------
 local function split_rep_string(str)
     local tb = {}
-    local chunk_start = 1
-    for s,char in string.gmatch(str, "()%%(.)") do
-        if string.find(char, "[0-9]") then
-            local chunk = sub(str, chunk_start, s-1)
-            if chunk ~= "" then
-                insert(tb, (string.gsub(chunk, "%%(.)", "%1")))
-            end
-            insert(tb, tonumber(char))
-            chunk_start = s+2
-        end
-    end
-    local chunk = sub(str, chunk_start)  -- store the last chunk
-    if chunk ~= "" then
-        insert(tb, (string.gsub(chunk, "%%(.)", "%1")))
-    end
+    string.gsub (str, "([^%%]*)%%?(.?)",
+      function (c1, c2)
+        insert (tb, c1)
+        insert (tb, tonumber (c2) or c2)
+      end)
     return tb
 end
 
@@ -43,7 +33,7 @@ end
 --
 --   This function can be "wrapped", for example:
 --       function gsubPCRE(str, pat, repl, n)
---          return generic_gsub(pcre.newPCRE, str, pat, repl, n)
+--          return generic_gsub(pcre.new, str, pat, repl, n)
 --       end
 --   Wrapper like this can be direct replacement for string.gsub().
 --
