@@ -1,34 +1,51 @@
-2006-11-15  Shmuel Zeigerman  <shmuz@actcom.co.il>
+2006-11-18  Shmuel
+
+	* lpcre.c, lposix.c: old 'gmatch' method put back; renamed into 'oldgmatch'.
+
+2006-11-17  Shmuel
+
+	* windows/bcc32/make_bcc.mak: deleted -DCOMPAT51, added -D$(CMDLINE)
+
+2006-11-16  Shmuel
+
+	* gsub_test.lua (PatternLua2Pcre): function renamed into 'pat2pcre'.
+	* lua/pat2pcre.lua: file added (was part of gsub_test.lua).
+
+2006-11-15  Shmuel
 
 	* lpcre.c, lposix.c: Lua API has changed:
 	    * 'match' method renamed to 'oldmatch'
 	    * added (as much as possible) Lua string library API compatible:
 	      'find', 'match' and 'gmatch' - each one being a function/method pair.
+	* lpcre.c (newPCRE, flagsPCRE): functions removed.
+	* lposix.c (newPOSIX, flagsPOSIX): functions removed.
+	* lpcre.c, lposix.c: added literal rex._VERSION.
 	* rex.lua: deleted everything except gsub.
 	* rex.lua (gsub): rex.oldmatch is used instead of rex.match.
 	* generic_gsub.lua: rex.oldmatch is used instead of rex.match.
+	* test/test1.lua: file added
 
-2006-11-12  Shmuel Zeigerman  <shmuz@actcom.co.il>
+2006-11-12  Shmuel
 
 	* rex.lua (r:gmatch): metamethod added.
 	* lpcre.c (Lpcre_maketables): function API simplified.
 	* lpcre.c (Lpcre_getargs): function removed.
 	* lpcre.c (LpcreGetExecParams): renamed from LpcreProcessExecParams.
 
-2006-11-09  Shmuel Zeigerman  <shmuz@actcom.co.il>
+2006-11-09  Shmuel
 
-	* bit.lua: file removed.
+	* lua/bit.lua: file removed.
 
-2006-11-05  Shmuel Zeigerman  <shmuz@actcom.co.il>
+2006-11-05  Shmuel
 
 	* rex.lua (gsub): a few structural optimizations.
 	* rex.lua (gmatch): a bugfix.
 	* rex.lua: tests deleted from the file.
 	* gsub.lua: renamed into 'generic_gsub.lua'; made a module.
 	* new_gsub.lua: file deleted.
-	* bit.lua: file added.
+	* lua/bit.lua: file added.
 
-2006-11-04  Reuben Thomas  <rrt@sc3d.org>
+2006-11-04  Reuben
 
 	* rex.lua (gmatch): function rewritten to be compatible with
 	    string.gmatch.
@@ -36,19 +53,19 @@
 	* lpcre.c (Lpcre_gmatch): function deleted.
 	* lposix.c (posix_gmatch): function deleted.
 
-2006-11-04  Shmuel Zeigerman  <shmuz@actcom.co.il>
+2006-11-04  Shmuel
 
 	* gsub.lua, new_gsub.lua, gsub_test.lua, rex.lua: bugfixes.
 
-2006-10-18  Shmuel Zeigerman  <shmuz@actcom.co.il>
+2006-10-18  Shmuel
 
 	* [Windows] DLL builds need lua5.1.dll rather than lua51.dll.
 
-2006-10-02  Shmuel Zeigerman  <shmuz@actcom.co.il>
+2006-10-02  Shmuel
 
 	* Support of Lua 5.0 was dropped.
 
-2006-09-03  Shmuel Zeigerman  <shmuz@actcom.co.il>
+2006-09-03  Shmuel
 
 	* common.h (REX_LIB_API): renamed into REX_API.
 	* common.h (flags_pair): renamed into flag_pair.
@@ -65,51 +82,51 @@
 	* added directory test/Spencer (containing test.lua).
 	* test/Spencer/test.lua: file returns a function.
 
-2006-08-27  Shmuel Zeigerman  <shmuz@actcom.co.il>
+2006-08-27  Shmuel
 
 	* (local) merge with the version put into CVS by R.Thomas.
 	* common.h: added conditional #define's for lua_pushinteger and
 	    lua_tointeger (needed to compile with Lua 5.0).
 
-2006-08-18  Shmuel Zeigerman  <shmuz@actcom.co.il>
+2006-08-18  Shmuel
 
 	* common.c, lpcre.c, lposix.c: lua_pushnumber replaced with
 	    lua_pushinteger where appropriate (in many places).
 	* lpcre.c (put_number): function renamed into put_integer.
 
-2006-06-17  Shmuel Zeigerman  <shmuz@actcom.co.il>
+2006-06-17  Shmuel
 
 	* lpcre.c (TPcreExecParam): `use_callout' struct member was eliminated.
 	    Instead, a special value of function reference (LUA_NOREF) is used.
 
-2006-04-01  Reuben Thomas  <rrt@sc3d.org>
+2006-04-01  Reuben
 
 	* lpcre.c, common.c: Remove trailing whitespace.
 	* lpcre.c (Lpcre_gmatch): Remove unnecessary limit variable.
 
-2006-02-17  Shmuel Zeigerman  <shmuz@actcom.co.il>
+2006-02-17  Shmuel
 
 	* common.c, common.h (L_lua_error): function deleted.
 	* common.c, lpcre.c, lposix.c: luaL_error used in place of L_lua_error.
 	* lposix.c (posix2): struct renamed into TPosix.
 	* lposix.c (posix_comp): lua_newuserdata() used instead of Lmalloc().
 
-2005-12-26  Shmuel Zeigerman  <shmuz@actcom.co.il>
+2005-12-26  Shmuel
 
 	* Separate makefiles for POSIX and PCRE. No config file.
 
-2005-11-28  Shmuel Zeigerman  <shmuz@actcom.co.il>
+2005-11-28  Shmuel
 
 	* common.h (REXLIB_API): macro renamed into REX_LIB_API.
 	* lposix.c (LREXLIB_POSIX_EXT): macro renamed into REX_POSIX_EXT.
 
-2005-11-26  Shmuel Zeigerman  <shmuz@actcom.co.il>
+2005-11-26  Shmuel
 
 	* common.h (LUAL_REGISTER): macro renamed into REX_REGISTER.
 	* lpcre.c (LUAOPEN_LIB): macro renamed into REX_OPENLIB.
 	* lpcre.c (LIBNAME): macro renamed into REX_LIBNAME.
 
-2005-11-15  Shmuel Zeigerman  <shmuz@actcom.co.il>
+2005-11-15  Shmuel
 
 	* common.c, common.h, lposix.c, lpcre.c: new files (lrexlib.c was
 		  splitted); POSIX and PCRE parts now live in their own
@@ -125,11 +142,11 @@
 		  have aliases (flags and new, correspondently).
 	* lpcre.c (Lpcre_vers): function renamed into Lpcre_version.
 
-2005-11-12  Shmuel Zeigerman  <shmuz@actcom.co.il>
+2005-11-12  Shmuel
 
 	* lrexlib.c (LUAL_REGISTER): new macro.
 
-2005-11-10  Shmuel Zeigerman  <shmuz@actcom.co.il>
+2005-11-10  Shmuel
 
 	* lrexlib.c (posix_match_generic): return (on Lua-side) an
 		  additional value (the return code of regexec).
@@ -138,7 +155,7 @@
 	* lrexlib.c (Lpcre_dfa_exec): return (on Lua-side) an additional
 		  value (the return code of pcre_dfa_exec).
 
-2005-10-29  Shmuel Zeigerman  <shmuz@actcom.co.il>
+2005-10-29  Shmuel
 
 	* lrexlib.c (get_flags): the function now accepts one parameter
 		  from the Lua stack (a table). Was: no parameters. (This
@@ -153,7 +170,7 @@
 	* lrexlib.c: added all missing PCRE flags starting from PCRE
 		  version 4.
 
-2005-10-25  Shmuel Zeigerman  <shmuz@actcom.co.il>
+2005-10-25  Shmuel
 
 	* lrexlib.c (DIM): new macro.
 	* lrexlib.c (pcre2): renamed into TPcre.
@@ -162,7 +179,7 @@
 	* lrexlib.c (Lpcre_dfa_exec): new function. Lua-side: dfa_exec.
 	* lrexlib.c (Lpcre_dfa_restart): new function. Lua-side: dfa_restart.
 
-2005-10-23  Shmuel Zeigerman  <shmuz@actcom.co.il>
+2005-10-23  Shmuel
 
 	* lrexlib.c (TPcreCalloutData): new struct.
 	* lrexlib.c (Lpcre_callout): new function.
@@ -170,11 +187,11 @@
 	* lrexlib.c: added new PCRE flags (from PCRE versions 5 and 6).
 	* lrexlib.c (put_number): new helper function.
 
-2005-05-27  Shmuel Zeigerman  <shmuz@actcom.co.il>
+2005-05-27  Shmuel
 
 	* lrexlib.c: updated to work with Compat-5.1.
 
-2004-12-18  Shmuel Zeigerman  <shmuz@actcom.co.il>
+2004-12-18  Shmuel
 
 	* lrexlib.c (regex_tostring): error handling added.
 	* lrexlib.c (regex_tostring): renamed into udata_tostring.
@@ -197,16 +214,16 @@
 	* lrexlib.c (Lpcre_push_substrings): added support for "named
 		  subpatterns".
 
-2004-09-15  Shmuel Zeigerman  <shmuz@actcom.co.il>
+2004-09-15  Shmuel
 
 	* gsub.lua (is_odd): Function removed; math.mod used instead.
 
-2004-08-24  Shmuel Zeigerman  <shmuz@actcom.co.il>
+2004-08-24  Shmuel
 
 	* ChangeLog: File added.
 	* NEWS: File added.
 
-2004-08-12  Shmuel Zeigerman  <shmuz@actcom.co.il>
+2004-08-12  Shmuel
 
 	* lrexlib.c (posix_exec, Lpcre_exec): New C functions, that
 		  correspond to the new lua function 'r:exec'.
@@ -223,17 +240,17 @@
 		  (posix_push_offsets, Lpcre_push_offsets): New functions.
 	* gsub.lua: File added.
 
-2004-08-11  Reuben Thomas  <rrt@sc3d.org>
+2004-08-11  Reuben
 
 	* config: Many changes.
 	* Makefile: Many changes.
 
-2004-08-11  Shmuel Zeigerman  <shmuz@actcom.co.il>
+2004-08-11  Shmuel
 
 	* config: File added + many changes.
 	* Makefile: Many changes.
 
-2004-07-15  Shmuel Zeigerman  <shmuz@actcom.co.il>
+2004-07-15  Shmuel
 
 	* lrexlib.c (posix_get_flags, Lpcre_get_flags, Lpcre_vers): New C
 		  functions, that correspond to new lua functions
