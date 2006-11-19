@@ -1,3 +1,8 @@
+2006-11-19  Shmuel
+
+	* lpcre.c (Lpcre_config): new function (pcre.config from Lua side).
+	* lpcre.c: callout handling improved.
+
 2006-11-18  Shmuel
 
 	* lpcre.c, lposix.c: old 'gmatch' method put back; renamed into 'oldgmatch'.
