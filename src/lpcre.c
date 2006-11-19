@@ -29,20 +29,20 @@ const char pcre_typename[] = REX_LIBNAME"_regex";
  */
 
 typedef struct {
-  pcre *pr;
-  pcre_extra *extra;
-  int *match;
-  int ncapt;
-  const unsigned char *tables;
+  pcre       * pr;
+  pcre_extra * extra;
+  int        * match;
+  int          ncapt;
+  const unsigned char * tables;
 } TPcre;
 
-typedef struct {            /* pcre_compile arguments */
+typedef struct {             /* pcre_compile arguments */
   const char * pattern;
   int          cflags;
   const char * locale;
 } TArgComp;
 
-typedef struct {            /* pcre_exec arguments */
+typedef struct {             /* pcre_exec arguments */
   TPcre      * ud;
   const char * text;
   size_t       textlen;
@@ -53,15 +53,11 @@ typedef struct {            /* pcre_exec arguments */
 } TArgExec;
 
 typedef struct {
-  lua_State *L;   /* lua state */
-  int func_ref;   /* function reference in the registry */
-} TPcreCalloutData;
-
-typedef struct {
-  pcre_extra  own_extra;          /* own pcre_extra block             */
-  pcre_extra  *ptr_extra;         /* pointer to used pcre_extra block */
-  TPcreCalloutData callout_data;  /* keep the reference of the user function */
-} TPcreExecParam;
+  pcre_extra   own_extra;    /* own pcre_extra block */
+  pcre_extra * ptr_extra;    /* pointer to used pcre_extra block */
+  lua_State  * L;            /* lua state */
+  int          funcpos;      /* function position on Lua stack */
+} TExecData;
 
 /*  Functions
  ******************************************************************************
@@ -243,16 +239,16 @@ static void put_integer (lua_State *L, const char *key, int value) {
 }
 
 static int Lpcre_callout (pcre_callout_block *block) {
-  TPcreCalloutData *data;
+  TExecData *data;
   lua_State *L;
+  int result;
 
   if (!block || !block->callout_data)
     return 0;
 
-  data = (TPcreCalloutData*) block->callout_data;
+  data = (TExecData*) block->callout_data;
   L = data->L;
-
-  lua_rawgeti (L, LUA_REGISTRYINDEX, data->func_ref);
+  lua_pushvalue (L, data->funcpos);
   lua_newtable (L);
 
   put_integer (L, "version",           block->version);
@@ -267,29 +263,32 @@ static int Lpcre_callout (pcre_callout_block *block) {
   put_integer (L, "next_item_length",  block->next_item_length);
 #endif
 
-  lua_call (L, 1, 1);
-  return lua_tointeger (L, -1);
+  result = lua_pcall (L, 1, 1, 0);
+  if ((result == 0) && lua_isnumber (L, -1))
+    result = lua_tointeger (L, -1);
+  else
+    result = PCRE_ERROR_CALLOUT;
+  lua_pop (L, 1);
+  return result;
 }
 
-static void LpcreGetExecParams (lua_State *L, const TArgExec *argE, TPcreExecParam *p) {
+static void LpcreSetExecData (lua_State *L, const TArgExec *argE, TExecData *trg) {
   /* check callout and initialize if required */
-  p->callout_data.func_ref = LUA_NOREF;
-  p->ptr_extra = argE->ud->extra;
+  trg->funcpos = 0;
+  trg->ptr_extra = argE->ud->extra;
   if (argE->funcpos) {
-    if (p->ptr_extra == NULL) {
+    if (trg->ptr_extra == NULL) {
       /* set up our own pcre_extra block */
-      memset (&p->own_extra, 0, sizeof (pcre_extra));
-      p->ptr_extra = &p->own_extra;
+      memset (&trg->own_extra, 0, sizeof (pcre_extra));
+      trg->ptr_extra = &trg->own_extra;
     }
-    p->ptr_extra->flags |= PCRE_EXTRA_CALLOUT_DATA;
-    p->ptr_extra->callout_data = &p->callout_data;
-
-    lua_pushvalue (L, argE->funcpos);
-    p->callout_data.func_ref = luaL_ref (L, LUA_REGISTRYINDEX);
-    p->callout_data.L = L;
+    trg->ptr_extra->flags |= PCRE_EXTRA_CALLOUT_DATA;
+    trg->ptr_extra->callout_data = trg;
+    trg->funcpos = argE->funcpos;
+    trg->L = L;
   }
-  else if (p->ptr_extra) {
-    p->ptr_extra->callout_data = NULL;
+  else if (trg->ptr_extra) {
+    trg->ptr_extra->callout_data = NULL;
   }
 }
 
@@ -297,17 +296,14 @@ typedef void (*fptrPushMatches) (lua_State *L, const TArgExec *argE);
 
 static int Lpcre_oldmatch_generic (lua_State *L, fptrPushMatches push_matches) {
   TArgExec argE;
-  TPcreExecParam P;
+  TExecData ed;
   int res;
 
   Check_arg_findmatch_method (L, &argE);
-  LpcreGetExecParams (L, &argE, &P);
-  res = pcre_exec (argE.ud->pr, P.ptr_extra, argE.text, (int)argE.textlen, argE.startoffset,
-                  argE.eflags, argE.ud->match, (argE.ud->ncapt + 1) * 3);
-
-  if (P.callout_data.func_ref != LUA_NOREF) {
-    luaL_unref (L, LUA_REGISTRYINDEX, P.callout_data.func_ref);
-  }
+  LpcreSetExecData (L, &argE, &ed);
+  res = pcre_exec (argE.ud->pr, ed.ptr_extra, argE.text, (int)argE.textlen,
+                   argE.startoffset, argE.eflags, argE.ud->match,
+                   (argE.ud->ncapt + 1) * 3);
 
   if (res >= 0) {
     lua_pushinteger (L, argE.ud->match[0] + 1);
@@ -325,19 +321,15 @@ static int Lpcre_oldmatch_generic (lua_State *L, fptrPushMatches push_matches) {
 static int Lpcre_dfa_exec (lua_State *L)
 {
   TArgExec argE;
-  TPcreExecParam P;
+  TExecData ed;
   int res;
   int ovector[30];
   int wspace[40];
 
   Check_arg_findmatch_method (L, &argE);
-  LpcreGetExecParams (L, &argE, &P);
-  res = pcre_dfa_exec (argE.ud->pr, P.ptr_extra, argE.text, (int)argE.textlen,
+  LpcreSetExecData (L, &argE, &ed);
+  res = pcre_dfa_exec (argE.ud->pr, ed.ptr_extra, argE.text, (int)argE.textlen,
     argE.startoffset, argE.eflags, ovector, DIM (ovector), wspace, DIM (wspace));
-
-  if (P.callout_data.func_ref != LUA_NOREF) {
-    luaL_unref (L, LUA_REGISTRYINDEX, P.callout_data.func_ref);
-  }
 
   if (res >= 0 || res == PCRE_ERROR_PARTIAL) {
     int i;
@@ -425,18 +417,13 @@ static int Lpcre_gmatch_func (lua_State *L) {
   return 1;
 }
 
-static int Lpcre_find_generic
-  (lua_State *L, const TArgExec *argE, TPcreExecParam *P, int find)
-{
+static int Lpcre_find_generic (lua_State *L, const TArgExec *argE,
+                               TExecData *ed, int find) {
   int i, res;
   TPcre *ud = argE->ud;
 
-  res = pcre_exec (ud->pr, P->ptr_extra, argE->text, (int)argE->textlen,
+  res = pcre_exec (ud->pr, ed->ptr_extra, argE->text, (int)argE->textlen,
     argE->startoffset, argE->eflags, ud->match, (ud->ncapt + 1) * 3);
-
-  if (P->callout_data.func_ref != LUA_NOREF) {
-    luaL_unref (L, LUA_REGISTRYINDEX, P->callout_data.func_ref);
-  }
 
   if (res >= 0) {
     if (find) {
@@ -467,10 +454,10 @@ static int Lpcre_find_generic
 
 static int Lpcre_findmatch_method (lua_State *L, int find) {
   TArgExec argE;
-  TPcreExecParam P;
+  TExecData ed;
   Check_arg_findmatch_method (L, &argE);
-  LpcreGetExecParams (L, &argE, &P);
-  return Lpcre_find_generic (L, &argE, &P, find);
+  LpcreSetExecData (L, &argE, &ed);
+  return Lpcre_find_generic (L, &argE, &ed, find);
 }
 
 static int Lpcre_find_method (lua_State *L) {
@@ -484,11 +471,11 @@ static int Lpcre_match_method (lua_State *L) {
 static int Lpcre_findmatch_func (lua_State *L, int find) {
   TArgComp argC;
   TArgExec argE;
-  TPcreExecParam P;
+  TExecData ed;
   Check_arg_findmatch_func (L, &argC, &argE);
   Lpcre_comp (L, &argC, &argE.ud);
-  LpcreGetExecParams (L, &argE, &P);
-  return Lpcre_find_generic (L, &argE, &P, find);
+  LpcreSetExecData (L, &argE, &ed);
+  return Lpcre_find_generic (L, &argE, &ed, find);
 }
 
 static int Lpcre_find_func (lua_State *L) {
@@ -549,6 +536,37 @@ static int Lpcre_tostring (lua_State *L) {
 
 static int Lpcre_version (lua_State *L) {
   lua_pushstring (L, pcre_version ());
+  return 1;
+}
+
+static void CheckConfig (lua_State *L, int what, const char *key, int *pval) {
+  if (0 == pcre_config (what, pval)) {
+    lua_pushinteger (L, *pval);
+    lua_setfield (L, -2, key);
+  }
+}
+
+static int Lpcre_config (lua_State *L) {
+  int val;
+  lua_newtable (L);
+
+# if PCRE_MAJOR >= 4
+  CheckConfig (L, PCRE_CONFIG_UTF8, "CONFIG_UTF8", &val);
+  CheckConfig (L, PCRE_CONFIG_NEWLINE, "CONFIG_NEWLINE", &val);
+  CheckConfig (L, PCRE_CONFIG_LINK_SIZE, "CONFIG_LINK_SIZE", &val);
+  CheckConfig (L, PCRE_CONFIG_POSIX_MALLOC_THRESHOLD, "CONFIG_POSIX_MALLOC_THRESHOLD", &val);
+  CheckConfig (L, PCRE_CONFIG_MATCH_LIMIT, "CONFIG_MATCH_LIMIT", &val);
+  CheckConfig (L, PCRE_CONFIG_STACKRECURSE, "CONFIG_STACKRECURSE", &val);
+# endif
+
+# if PCRE_MAJOR >= 5
+  CheckConfig (L, PCRE_CONFIG_UNICODE_PROPERTIES, "CONFIG_UNICODE_PROPERTIES", &val);
+# endif
+
+# ifdef PCRE_CONFIG_MATCH_LIMIT_RECURSION
+  CheckConfig (L, PCRE_CONFIG_MATCH_LIMIT_RECURSION, "CONFIG_MATCH_LIMIT_RECURSION", &val);
+# endif
+
   return 1;
 }
 
@@ -640,6 +658,9 @@ static flag_pair pcre_flags[] = {
 #if PCRE_MAJOR >= 5
   { "CONFIG_UNICODE_PROPERTIES",     PCRE_CONFIG_UNICODE_PROPERTIES },
 #endif
+#ifdef PCRE_CONFIG_MATCH_LIMIT_RECURSION
+  { "CONFIG_MATCH_LIMIT_RECURSION",  PCRE_CONFIG_MATCH_LIMIT_RECURSION },
+#endif
 /*---------------------------------------------------------------------------*/
 #if PCRE_MAJOR >= 4
   { "EXTRA_STUDY_DATA",              PCRE_EXTRA_STUDY_DATA },
@@ -679,6 +700,7 @@ static const luaL_reg rexlib[] = {
   { "find",        Lpcre_find_func },
   { "match",       Lpcre_match_func },
   { "versionPCRE", Lpcre_version },
+  { "config",      Lpcre_config },
   { NULL, NULL }
 };
 
