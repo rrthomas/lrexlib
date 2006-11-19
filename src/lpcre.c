@@ -210,17 +210,15 @@ static void Lpcre_push_substrings (lua_State *L, const TArgExec *argE) {
   }
 }
 
-static void Lpcre_push_offsets (lua_State *L, const TArgExec *argE) {
-  TPcre *ud = argE->ud;
+static void push_offsets (lua_State *L, const int *offsets, int nmax) {
   int i, j, k;
-
   lua_newtable (L);
-  for (i=1, j=1; i <= ud->ncapt; i++) {
+  for (i=1, j=1; i <= nmax; i++) {
     k = i * 2;
-    if (ud->match[k] >= 0) {
-      lua_pushinteger (L, ud->match[k] + 1);
+    if (offsets[k] >= 0) {
+      lua_pushinteger (L, offsets[k] + 1);
       lua_rawseti (L, -2, j++);
-      lua_pushinteger (L, ud->match[k+1]);
+      lua_pushinteger (L, offsets[k+1]);
       lua_rawseti (L, -2, j++);
     }
     else {
@@ -232,40 +230,48 @@ static void Lpcre_push_offsets (lua_State *L, const TArgExec *argE) {
   }
 }
 
+static void Lpcre_push_offsets (lua_State *L, const TArgExec *argE) {
+  push_offsets (L, argE->ud->match, argE->ud->ncapt);
+}
+
 static void put_integer (lua_State *L, const char *key, int value) {
   lua_pushstring (L, key);
   lua_pushinteger (L, value);
   lua_rawset (L, -3);
 }
 
-static int Lpcre_callout (pcre_callout_block *block) {
+static int Lpcre_callout (pcre_callout_block *blk) {
   TExecData *data;
   lua_State *L;
   int result;
 
-  if (!block || !block->callout_data)
+  if (!blk || !blk->callout_data)
     return 0;
 
-  data = (TExecData*) block->callout_data;
+  data = (TExecData*) blk->callout_data;
   L = data->L;
   lua_pushvalue (L, data->funcpos);
   lua_newtable (L);
-
-  put_integer (L, "version",           block->version);
-  put_integer (L, "callout_number",    block->callout_number);
-  put_integer (L, "subject_length",    block->subject_length);
-  put_integer (L, "start_match",       block->start_match);
-  put_integer (L, "current_position",  block->current_position);
-  put_integer (L, "capture_top",       block->capture_top);
-  put_integer (L, "capture_last",      block->capture_last);
+  put_integer (L, "version", blk->version);                       /* version */
+  put_integer (L, "callout_number", blk->callout_number);         /* callout number */
+  push_offsets (L, blk->offset_vector, blk->capture_top - 1);     /* offset_vector */
+  lua_setfield (L, -2, "offset_vector");
+  lua_pushlstring (L, blk->subject, blk->subject_length);         /* subject */
+  lua_setfield (L, -2, "subject");
+  put_integer (L, "start_match", blk->start_match + 1);           /* start_match */
+  put_integer (L, "current_position", blk->current_position + 1); /* current_position */
+  put_integer (L, "capture_top", blk->capture_top - 1);           /* capture_top */
+  put_integer (L, "capture_last", blk->capture_last);             /* capture_last */
 #if PCRE_MAJOR >= 5
-  put_integer (L, "pattern_position",  block->pattern_position);
-  put_integer (L, "next_item_length",  block->next_item_length);
+  put_integer (L, "pattern_position", blk->pattern_position + 1); /* pattern_position */
+  put_integer (L, "next_item_length", blk->next_item_length);     /* next_item_length */
 #endif
 
   result = lua_pcall (L, 1, 1, 0);
-  if ((result == 0) && lua_isnumber (L, -1))
-    result = lua_tointeger (L, -1);
+  if (result == 0) {
+    if (lua_isnumber (L, -1))
+      result = lua_tointeger (L, -1);
+  }
   else
     result = PCRE_ERROR_CALLOUT;
   lua_pop (L, 1);
@@ -277,6 +283,7 @@ static void LpcreSetExecData (lua_State *L, const TArgExec *argE, TExecData *trg
   trg->funcpos = 0;
   trg->ptr_extra = argE->ud->extra;
   if (argE->funcpos) {
+    pcre_callout = Lpcre_callout;
     if (trg->ptr_extra == NULL) {
       /* set up our own pcre_extra block */
       memset (&trg->own_extra, 0, sizeof (pcre_extra));
@@ -713,7 +720,6 @@ REX_API int REX_OPENLIB (lua_State *L) {
   createmeta (L, pcre_handle);
   luaL_register (L, NULL, pcremeta);
   lua_pop (L, 1);
-  pcre_callout = Lpcre_callout;
   luaL_register (L, REX_LIBNAME, rexlib);
   lua_pushliteral (L, "Lrexlib 2.0 alpha (for PCRE)");
   lua_setfield (L, -2, "_VERSION");
