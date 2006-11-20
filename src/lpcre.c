@@ -687,12 +687,12 @@ static int Lpcre_get_flags (lua_State *L) {
 }
 
 static const luaL_reg pcremeta[] = {
+  { "gmatch",     Lpcre_gmatch_method },
+  { "match",      Lpcre_match_method },
+  { "find",       Lpcre_find_method },
   { "exec",       Lpcre_exec_method },
   { "oldmatch",   Lpcre_oldmatch_method },
   { "oldgmatch",  Lpcre_oldgmatch_method },
-  { "gmatch",     Lpcre_gmatch_method },
-  { "find",       Lpcre_find_method },
-  { "match",      Lpcre_match_method },
   { "__gc",       Lpcre_gc },
   { "__tostring", Lpcre_tostring },
 #if PCRE_MAJOR >= 6
