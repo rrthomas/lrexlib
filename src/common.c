@@ -3,7 +3,7 @@
 /* (c) Shmuel Zeigerman 2004-2006 */
 
 #include <stdlib.h>
-#include <stdio.h>
+#include <mem.h>
 
 #include "lua.h"
 #include "lauxlib.h"
@@ -96,5 +96,27 @@ int OptFunction (lua_State *L, int pos) {
     return 0;
   luaL_checktype (L, pos, LUA_TFUNCTION);
   return pos;
+}
+
+/* function plainfind (s, p, [st], [ci]) */
+int plainfind_func (lua_State *L) {
+  typedef int (*f_comp)(const void*, const void*, size_t);
+  size_t textlen, patlen;
+
+  const char *text = luaL_checklstring (L, 1, &textlen);
+  const char *pattern = luaL_checklstring (L, 2, &patlen);
+  const char *from = text + get_startoffset (L, 3, textlen);
+  f_comp func = lua_toboolean (L, 4) ? memicmp : memcmp;
+  const char *end = text + textlen;
+
+  for (; from + patlen <= end; ++from) {
+    if (!(*func) (from, pattern, patlen)) {
+      lua_pushinteger (L, from - text + 1);
+      lua_pushinteger (L, from - text + patlen);
+      return 2;
+    }
+  }
+  lua_pushnil (L);
+  return 1;
 }
 

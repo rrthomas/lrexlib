@@ -27,6 +27,6 @@ int udata_tostring (lua_State *L, const char* type_handle, const char* type_name
 void CheckStack (lua_State *L, int extraslots);
 int OptFunction (lua_State *L, int pos);
 int CheckFunction (lua_State *L, int pos);
-
+int plainfind_func (lua_State *L);
 
 #endif

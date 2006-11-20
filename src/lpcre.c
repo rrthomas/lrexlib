@@ -38,6 +38,7 @@ typedef struct {
 
 typedef struct {             /* pcre_compile arguments */
   const char * pattern;
+  size_t       patlen;
   int          cflags;
   const char * locale;
 } TArgComp;
@@ -702,10 +703,11 @@ static const luaL_reg pcremeta[] = {
 
 static const luaL_reg rexlib[] = {
   { "new",         Lpcre_new },
-  { "flags",       Lpcre_get_flags },
   { "gmatch",      Lpcre_gmatch_func },
-  { "find",        Lpcre_find_func },
   { "match",       Lpcre_match_func },
+  { "find",        Lpcre_find_func },
+  { "plainfind",   plainfind_func },
+  { "flags",       Lpcre_get_flags },
   { "versionPCRE", Lpcre_version },
   { "config",      Lpcre_config },
   { NULL, NULL }

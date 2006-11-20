@@ -531,10 +531,11 @@ static const luaL_reg posixmeta[] = {
 
 static const luaL_reg rexlib[] = {
   { "new",         posix_new },
-  { "flags",       posix_get_flags },
   { "gmatch",      posix_gmatch_func },
-  { "find",        posix_find_func },
   { "match",       posix_match_func },
+  { "find",        posix_find_func },
+  { "plainfind",   plainfind_func },
+  { "flags",       posix_get_flags },
   { NULL, NULL }
 };
 
