@@ -2,6 +2,8 @@
 
 	* common.c, common.h (plainfind_func): function added.
 	* lpcre.c, lposix.c (rex.plainfind): new function (from Lua side).
+	* test/framework.lua: file added.
+	* test/pcre_test.lua: file added.
 
 2006-11-19  Shmuel
 
