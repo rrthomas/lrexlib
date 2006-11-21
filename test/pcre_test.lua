@@ -174,25 +174,35 @@ local function test_method_oldgmatch ()
   local r = rex.new ("(.)b.(d)")
   local subj = string.rep ("abcd", 10)
   local rep, n
-  -----------------------------------------------------------------------------
+  -------- 1:  simple case
   rep = 10
-  local f1 = function (m, t)
+  local decr = function (m, t)
     if m == "abcd" and fw.eq (t, {"a","d"}) then rep = rep - 1 end
   end
-  r:oldgmatch (subj, f1)
+  r:oldgmatch (subj, decr)
   if rep ~= 0 then print ("  FAIL") return end
-  -----------------------------------------------------------------------------
+  -------- 2:  limiting number of matches in advance
   rep, n = 10, 4
-  r:oldgmatch (subj, f1, n)
+  r:oldgmatch (subj, decr, n)
   if rep + n ~= 10 then print ("  FAIL") return end
-  -----------------------------------------------------------------------------
+  -------- 3:  break iterations from the callback
   rep = 10
   local f2 = function (m, t)
-    f1 (m, t)
+    decr (m, t)
     if rep == 3 then return true end
   end
   r:oldgmatch (subj, f2)
   if rep ~= 3 then print ("  FAIL") return end
+  -------- 4: named subpatterns
+  rep = 3
+  r = rex.new ("(?P<dog>.)b.(?P<cat>d)")
+  r:oldgmatch (subj,
+    function (m, t)
+      if t.dog ~= "a" or t.cat ~= "d" then
+        print ("  FAIL")
+        return true
+      end
+    end)
 end
 
 local function test_func (set)
@@ -220,6 +230,15 @@ local function test_method (set)
   end
 end
 
+local function test_named_subpatterns ()
+  print ("Named Subpatterns (method oldmatch)")
+  local r = rex.new ("(?P<dog>.)b.(?P<cat>d)")
+  local _,_,caps = r:oldmatch ("abcd")
+  if caps.dog ~= "a" or caps.cat ~= "d" then
+    print ("  FAIL")
+  end
+end
+
 do
   test_func_gmatch ()
   test_func (set_f_match)
@@ -232,5 +251,6 @@ do
   test_method (set_m_exec)
   test_method (set_m_oldmatch)
   test_method_oldgmatch ()
+  test_named_subpatterns ()
 end
 
