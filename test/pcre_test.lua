@@ -13,20 +13,20 @@ local function callout1m () return -1 end
 local set_f_find = {
   SetName = "Function find",
   FMName = "find",
---  { subj,  patt,  st, cf, lo, ef, co }      { results }
+--  { subj,  patt,  st, cf, ef, lo, co }      { results }
   { {"abcd", ".+"},                           { 1,4 }   }, -- [none]
   { {"abcd", ".+",  2},                       { 2,4 }   }, -- positive st
   { {"abcd", ".+", -2},                       { 3,4 }   }, -- negative st
-  { {"abcd", ".+",  5},                       { N,-1 }  }, -- failing st
+  { {"abcd", ".+",  5},                       { N,rex.ERROR_NOMATCH }}, -- failing st
   { {"abcd", ".*"},                           { 1,4 }   }, -- [none]
   { {"abcd", ".*?"},                          { 1,0 }   }, -- non-greedy
-  { {"abc", "aBC",  N, rex.CASELESS},         { 1,3 }   }, -- cf
+  { {"abc", "aBC",     N, rex.CASELESS},      { 1,3 }   }, -- cf
   { {"abc", "bc"},                            { 2,3 }   }, -- [none]
-  { {"abc", "bc",      N, rex.ANCHORED},      { N,-1 }  }, -- cf
-  { {"abc", "bc",      N, N,N, rex.ANCHORED}, { N,-1 }  }, -- ef
+  { {"abc", "bc",      N, rex.ANCHORED},      { N,rex.ERROR_NOMATCH }}, -- cf
+  { {"abc", "bc",      N,N,rex.ANCHORED, N},  { N,rex.ERROR_NOMATCH }}, -- ef
   { {"ab",  "(?C)a|b", N,N,N,N, callout0},    { 1,1 } },   -- callout
   { {"ab",  "(?C)a|b", N,N,N,N, callout1},    { 2,2 } },   -- callout
-  { {"ab",  "(?C)a|b", N,N,N,N, callout1m},   { N,-1 } },  -- callout
+  { {"ab",  "(?C)a|b", N,N,N,N, callout1m},   { N,rex.ERROR_NOMATCH }}, -- callout
   { {"abcd", "(.)b.(d)"},                     { 1,4,"a","d" }},--[captures]
 }
 
@@ -37,36 +37,36 @@ local set_m_find = {
   { {".+"},               {"abcd"},                { 1,4 }   }, -- [none]
   { {".+"},               {"abcd",2},              { 2,4 }   }, -- positive st
   { {".+"},               {"abcd",-2},             { 3,4 }   }, -- negative st
-  { {".+"},               {"abcd",5},              { N,-1 }  }, -- failing st
+  { {".+"},               {"abcd",5},              { N,rex.ERROR_NOMATCH }}, -- failing st
   { {".*"},               {"abcd"},                { 1,4 }   }, -- [none]
   { {".*?"},              {"abcd"},                { 1,0 }   }, -- non-greedy
   { {"aBC",rex.CASELESS}, {"abc"},                 { 1,3 }   }, -- cf
   { {"bc"},               {"abc"},                 { 2,3 }   }, -- [none]
-  { {"bc",rex.ANCHORED},  {"abc"},                 { N,-1 }  }, -- cf
-  { {"bc"},               {"abc",N, rex.ANCHORED}, { N,-1 }  }, -- ef
+  { {"bc",rex.ANCHORED},  {"abc"},                 { N,rex.ERROR_NOMATCH }}, -- cf
+  { {"bc"},               {"abc",N, rex.ANCHORED}, { N,rex.ERROR_NOMATCH }}, -- ef
   { {"(?C)a|b"},          {"ab",N,N, callout0},    { 1,1 } },   -- callout
   { {"(?C)a|b"},          {"ab",N,N, callout1},    { 2,2 } },   -- callout
-  { {"(?C)a|b"},          {"ab",N,N, callout1m},   { N,-1 } },  -- callout
+  { {"(?C)a|b"},          {"ab",N,N, callout1m},   { N,rex.ERROR_NOMATCH }}, -- callout
   { { "(.)b.(d)"},        {"abcd"},                { 1,4,"a","d" }},--[captures]
 }
 
 local set_f_match = {
   SetName = "Function match",
   FMName = "match",
---  { subj,  patt,  st, cf, lo, ef }          { results }
+--  { subj,  patt,  st, cf, ef, lo, co }      { results }
   { {"abcd", ".+"},                           {"abcd"}  }, -- [none]
   { {"abcd", ".+",  2},                       { "bcd"}  }, -- positive st
   { {"abcd", ".+", -2},                       { "cd" }  }, -- negative st
-  { {"abcd", ".+",  5},                       { N,-1 }  }, -- failing st
+  { {"abcd", ".+",  5},                       { N,rex.ERROR_NOMATCH }}, -- failing st
   { {"abcd", ".*"},                           {"abcd"}  }, -- [none]
   { {"abcd", ".*?"},                          { "" }    }, -- non-greedy
   { {"abc", "aBC",  N, rex.CASELESS},         {"abc" }  }, -- cf
   { {"abc", "bc",                  },         { "bc" }  }, -- [none]
-  { {"abc", "bc",   N, rex.ANCHORED},         { N,-1 }  }, -- cf
-  { {"abc", "bc",   N, N,N, rex.ANCHORED},    { N,-1 }  }, -- ef
+  { {"abc", "bc",   N, rex.ANCHORED},         { N,rex.ERROR_NOMATCH }}, -- cf
+  { {"abc", "bc",   N, N,rex.ANCHORED, N},    { N,rex.ERROR_NOMATCH }}, -- ef
   { {"ab",  "(?C)a|b", N,N,N,N, callout0},    { "a" } },   -- callout
   { {"ab",  "(?C)a|b", N,N,N,N, callout1},    { "b" } },   -- callout
-  { {"ab",  "(?C)a|b", N,N,N,N, callout1m},   { N,-1 } },  -- callout
+  { {"ab",  "(?C)a|b", N,N,N,N, callout1m},   { N,rex.ERROR_NOMATCH }}, -- callout
   { {"abcd", "(.)b.(d)"},                     { "a","d" }},--[captures]
 }
 
@@ -77,16 +77,16 @@ local set_m_match = {
   { {".+"},               {"abcd"},                 {"abcd"}  }, -- [none]
   { {".+"},               {"abcd",2},               { "bcd"}  }, -- positive st
   { {".+"},               {"abcd",-2},              { "cd" }  }, -- negative st
-  { {".+"},               {"abcd",5},               { N,-1 }  }, -- failing st
+  { {".+"},               {"abcd",5},               { N,rex.ERROR_NOMATCH }}, -- failing st
   { {".*"},               {"abcd"},                 {"abcd"}  }, -- [none]
   { {".*?"},              {"abcd"},                 { "" }    }, -- non-greedy
   { {"aBC",rex.CASELESS}, {"abc"},                  {"abc" }  }, -- cf
   { {"bc"},               {"abc"},                  { "bc" }  }, -- [none]
-  { {"bc",rex.ANCHORED},  {"abc"},                  { N,-1 }  }, -- cf
-  { {"bc"},               {"abc",N, rex.ANCHORED},  { N,-1 }  }, -- ef
+  { {"bc",rex.ANCHORED},  {"abc"},                  { N,rex.ERROR_NOMATCH }}, -- cf
+  { {"bc"},               {"abc",N, rex.ANCHORED},  { N,rex.ERROR_NOMATCH }}, -- ef
   { {"(?C)a|b"},          {"ab",N,N, callout0},     { "a" } },   -- callout
   { {"(?C)a|b"},          {"ab",N,N, callout1},     { "b" } },   -- callout
-  { {"(?C)a|b"},          {"ab",N,N, callout1m},    { N,-1 } },  -- callout
+  { {"(?C)a|b"},          {"ab",N,N, callout1m},    { N,rex.ERROR_NOMATCH }}, -- callout
   { { "(.)b.(d)"},        {"abcd"},                 { "a","d" }},--[captures]
 }
 
@@ -97,16 +97,16 @@ local set_m_exec = {
   { {".+"},               {"abcd"},                 {1,4,{},1}  }, -- [none]
   { {".+"},               {"abcd",2},               {2,4,{},1}  }, -- positive st
   { {".+"},               {"abcd",-2},              {3,4,{},1}  }, -- negative st
-  { {".+"},               {"abcd",5},               { N,-1 }    }, -- failing st
+  { {".+"},               {"abcd",5},               { N,rex.ERROR_NOMATCH }}, -- failing st
   { {".*"},               {"abcd"},                 {1,4,{},1}  }, -- [none]
   { {".*?"},              {"abcd"},                 {1,0,{},1}  }, -- non-greedy
   { {"aBC",rex.CASELESS}, {"abc"},                  {1,3,{},1}  }, -- cf
   { {"bc"},               {"abc"},                  {2,3,{},1}  }, -- [none]
-  { {"bc",rex.ANCHORED},  {"abc"},                  { N,-1 }    }, -- cf
-  { {"bc"},               {"abc",N, rex.ANCHORED},  { N,-1 }    }, -- ef
+  { {"bc",rex.ANCHORED},  {"abc"},                  { N,rex.ERROR_NOMATCH }}, -- cf
+  { {"bc"},               {"abc",N, rex.ANCHORED},  { N,rex.ERROR_NOMATCH }}, -- ef
   { {"(?C)a|b"},          {"ab",N,N, callout0},     {1,1,{},1}  },   -- callout
   { {"(?C)a|b"},          {"ab",N,N, callout1},     {2,2,{},1}  },   -- callout
-  { {"(?C)a|b"},          {"ab",N,N, callout1m},    { N,-1 }    },  -- callout
+  { {"(?C)a|b"},          {"ab",N,N, callout1m},    { N,rex.ERROR_NOMATCH }}, -- callout
   { { "(.)b.(d)"},        {"abcd"},                 {1,4,{1,1,4,4},3}},--[captures]
 }
 
@@ -117,16 +117,16 @@ local set_m_oldmatch = {
   { {".+"},               {"abcd"},                 {1,4,{},1}  }, -- [none]
   { {".+"},               {"abcd",2},               {2,4,{},1}  }, -- positive st
   { {".+"},               {"abcd",-2},              {3,4,{},1}  }, -- negative st
-  { {".+"},               {"abcd",5},               { N,-1 }    }, -- failing st
+  { {".+"},               {"abcd",5},               { N,rex.ERROR_NOMATCH }}, -- failing st
   { {".*"},               {"abcd"},                 {1,4,{},1}  }, -- [none]
   { {".*?"},              {"abcd"},                 {1,0,{},1}  }, -- non-greedy
   { {"aBC",rex.CASELESS}, {"abc"},                  {1,3,{},1}  }, -- cf
   { {"bc"},               {"abc"},                  {2,3,{},1}  }, -- [none]
-  { {"bc",rex.ANCHORED},  {"abc"},                  { N,-1 }    }, -- cf
-  { {"bc"},               {"abc",N, rex.ANCHORED},  { N,-1 }    }, -- ef
+  { {"bc",rex.ANCHORED},  {"abc"},                  { N,rex.ERROR_NOMATCH }}, -- cf
+  { {"bc"},               {"abc",N, rex.ANCHORED},  { N,rex.ERROR_NOMATCH }}, -- ef
   { {"(?C)a|b"},          {"ab",N,N, callout0},     {1,1,{},1}  },   -- callout
   { {"(?C)a|b"},          {"ab",N,N, callout1},     {2,2,{},1}  },   -- callout
-  { {"(?C)a|b"},          {"ab",N,N, callout1m},    { N,-1 }    },  -- callout
+  { {"(?C)a|b"},          {"ab",N,N, callout1m},    { N,rex.ERROR_NOMATCH }}, -- callout
   { { "(.)b.(d)"},        {"abcd"},                 {1,4,{"a","d"},3}},--[captures]
 }
 
@@ -145,7 +145,7 @@ local set_f_plainfind = {
   { {"ab\000cd", "b\000c"},     {2,4}  }, -- contains nul
 }
 
--- gmatch (s, p, [cf], [lo], [ef])
+-- gmatch (s, p, [cf], [ef], [lo])
 local function test_func_gmatch ()
   print ("Function gmatch")
   local rep = 10
@@ -156,7 +156,7 @@ local function test_func_gmatch ()
   if rep ~= 0 then print ("  FAIL") end
 end
 
--- r:gmatch (s, [cf], [lo], [ef])
+-- r:gmatch (s, [ef])
 local function test_method_gmatch ()
   print ("Method gmatch")
   local rep = 10
