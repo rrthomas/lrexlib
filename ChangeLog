@@ -1,3 +1,14 @@
+2006-11-22  Shmuel
+
+	* lpcre.c (Check_arg_findmatch_func): 5th and 6th arguments swapped.
+	* lpcre.c (Check_arg_gmatch_func): 4th and 5th arguments swapped.
+	* test/posix_test.lua: file added.
+	* lposix.c: 2 bugs fixed.
+
+2006-11-21  Shmuel
+
+	* test/pcre_test.lua: "named subpatterns" tests added.
+
 2006-11-20  Shmuel
 
 	* common.c, common.h (plainfind_func): function added.
