@@ -5,7 +5,11 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <regex.h>
+#ifndef REX_POSIX_INCLUDE
+#  include <regex.h>
+#else
+#  include REX_POSIX_INCLUDE
+#endif
 
 #include "lua.h"
 #include "lauxlib.h"
@@ -205,6 +209,20 @@ static void posix_push_offsets
   }
 }
 
+static void CheckStartEnd (TArgExec *argE) {
+#ifdef REX_POSIX_EXT
+  if (argE->eflags & REG_STARTEND) {
+    argE->ud->match[0].rm_so = argE->startoffset;
+    argE->ud->match[0].rm_eo = argE->textlen;
+    argE->startoffset = 0;
+  }
+  else
+    argE->text += argE->startoffset;
+#else
+  argE->text += argE->startoffset;
+#endif
+}
+
 static int posix_oldmatch_generic (lua_State *L, posix_push_matches push_matches)
 {
   size_t elen;
@@ -213,21 +231,10 @@ static int posix_oldmatch_generic (lua_State *L, posix_push_matches push_matches
   TPosix *ud;
 
   Check_arg_findmatch_method (L, &argE);
-  ud = argE.ud; /* avoiding too many redirections */
-
-#ifdef REX_POSIX_EXT
-  if (argE.eflags & REG_STARTEND) {
-    ud->match[0].rm_so = argE.startoffset;
-    ud->match[0].rm_eo = argE.textlen;
-    argE.startoffset = 0;
-  }
-  else
-    argE.text += argE.startoffset;
-#else
-  argE.text += argE.startoffset;
-#endif
+  CheckStartEnd (&argE);
 
   /* execute the search */
+  ud = argE.ud; /* avoiding too many redirections */
   res = regexec (&ud->r, argE.text, ud->r.re_nsub + 1, ud->match, argE.eflags);
   if (res == 0) {
     lua_pushinteger (L, ud->match[0].rm_so + 1 + argE.startoffset);
@@ -255,20 +262,20 @@ static int posix_gmatch_iter (lua_State *L)
 {
   TPosix *ud;
   const char *text;
-  size_t len;
+  size_t textlen;
   int eflags, startoffset;
   int res, i, incr;
 
   ud = (TPosix*) lua_touserdata (L, lua_upvalueindex (1));
-  text = lua_tolstring (L, lua_upvalueindex (2), &len);
-  len = lua_tointeger (L, lua_upvalueindex (3));
+  text = lua_tolstring (L, lua_upvalueindex (2), &textlen);
+  textlen = lua_tointeger (L, lua_upvalueindex (3));
   eflags = lua_tointeger (L, lua_upvalueindex (4));
   startoffset = lua_tointeger (L, lua_upvalueindex (5));
 
 #ifdef REX_POSIX_EXT
   if (eflags & REG_STARTEND) {
     ud->match[0].rm_so = 0;
-    ud->match[0].rm_eo = len;
+    ud->match[0].rm_eo = textlen;
   }
 #endif
 
@@ -295,12 +302,12 @@ static int posix_gmatch_iter (lua_State *L)
 #ifdef REX_POSIX_EXT
     /* update length */
     if (eflags & REG_STARTEND) {
-      lua_pushinteger (L, len - ud->match[0].rm_eo - incr);
+      lua_pushinteger (L, textlen - ud->match[0].rm_eo - incr);
       lua_replace (L, lua_upvalueindex (3));
     }
 #endif
     /* update start offset */
-    lua_pushinteger (L, ud->match[0].rm_eo + incr);
+    lua_pushinteger (L, startoffset + ud->match[0].rm_eo + incr);
     lua_replace (L, lua_upvalueindex (5));
     /* return */
     return ud->r.re_nsub ? ud->r.re_nsub : 1;
@@ -341,23 +348,11 @@ static int posix_new (lua_State *L) {
   return posix_comp (L, &argC, NULL);
 }
 
-static int posix_find_generic (lua_State *L, TArgExec *argE, int find)
-{
+static int posix_find_generic (lua_State *L, TArgExec *argE, int find) {
   int i, res;
   TPosix *ud = argE->ud;
 
-#ifdef REX_POSIX_EXT
-  if (argE->eflags & REG_STARTEND) {
-    ud->match[0].rm_so = argE->startoffset;
-    ud->match[0].rm_eo = argE->textlen;
-    argE->startoffset = 0;
-  }
-  else
-    argE->text += argE->startoffset;
-#else
-  argE->text += argE->startoffset;
-#endif
-
+  CheckStartEnd (argE);
   res = regexec (&ud->r, argE->text, ud->r.re_nsub + 1, ud->match, argE->eflags);
   if (res == 0) {
     if (find) {
@@ -376,7 +371,7 @@ static int posix_find_generic (lua_State *L, TArgExec *argE, int find)
       }
     }
     else if (!find) {  /* push entire match */
-      lua_pushlstring (L, argE->text + ud->match[0].rm_so + argE->startoffset,
+      lua_pushlstring (L, argE->text + ud->match[0].rm_so,
         ud->match[0].rm_eo - ud->match[0].rm_so);
       return 1;
     }
