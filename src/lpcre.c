@@ -76,14 +76,14 @@ static void Check_arg_new (lua_State *L, TArgComp *argC) {
   argC->locale = luaL_optstring (L, 3, NULL);
 }
 
-/* function find (s, p, [st], [cf], [lo], [ef], [co]) */
+/* function find (s, p, [st], [cf], [ef], [lo], [co]) */
 static void Check_arg_findmatch_func (lua_State *L, TArgComp *argC, TArgExec *argE) {
   argE->text = luaL_checklstring (L, 1, &argE->textlen);
   argC->pattern = luaL_checkstring (L, 2);
   argE->startoffset = get_startoffset (L, 3, argE->textlen);
   argC->cflags = luaL_optint (L, 4, 0);
-  argC->locale = luaL_optstring (L, 5, NULL);
-  argE->eflags = luaL_optint (L, 6, 0);
+  argE->eflags = luaL_optint (L, 5, 0);
+  argC->locale = luaL_optstring (L, 6, NULL);
   argE->funcpos = OptFunction (L, 7);
 }
 
@@ -103,13 +103,13 @@ static void Check_arg_gmatch_method (lua_State *L, TArgExec *argE) {
   argE->eflags = luaL_optint (L, 3, 0);
 }
 
-/* function gmatch (s, p, [cf], [lo], [ef]) */
+/* function gmatch (s, p, [cf], [ef], [lo]) */
 static void Check_arg_gmatch_func (lua_State *L, TArgComp *argC, TArgExec *argE) {
   argE->text = luaL_checklstring (L, 1, &argE->textlen);
   argC->pattern = luaL_checkstring (L, 2);
   argC->cflags = luaL_optint (L, 3, 0);
-  argC->locale = luaL_optstring (L, 4, NULL);
-  argE->eflags = luaL_optint (L, 5, 0);
+  argE->eflags = luaL_optint (L, 4, 0);
+  argC->locale = luaL_optstring (L, 5, NULL);
 }
 
 /* method r:oldgmatch (s, f, [n], [ef]) */
