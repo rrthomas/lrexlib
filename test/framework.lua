@@ -45,9 +45,9 @@ end
 
 local function new (lib, par)
   local ptype = type (par)
-  return ptype == nil and lib["new"] ()
-    or ptype == "table" and lib["new"] (unpackNT (par))
-    or lib["new"] (par)
+  return ptype == nil and lib.new ()
+    or ptype == "table" and lib.new (unpackNT (par))
+    or lib.new (par)
 end
 
 local function run_func (func, par)
