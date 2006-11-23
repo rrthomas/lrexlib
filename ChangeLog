@@ -1,6 +1,7 @@
 2006-11-23  Shmuel
 
 	* test/framework.lua, test/pcre_test.lua, test/posix_test.lua: refactoring.
+	* lua/rex.lua, lua/rex_.lua (gsub): 6th and 7th arguments swapped.
 
 2006-11-22  Shmuel
 
