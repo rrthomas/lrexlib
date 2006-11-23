@@ -20,12 +20,12 @@ _M:flags () -- add flags to rex namespace
 --   @param f: replacement function or string
 --   @param [n]: maximum number of replacements [all]
 --   @param [cf]: compile-time flags for the regex
---   @param [lo]: locale for the regex
 --   @param [ef]: execution flags for the regex
+--   @param [lo]: locale for the regex
 -- @returns
 --   @param r: string with replacements
 --   @param reps: number of replacements made
-function gsub (s, p, f, n, cf, lo, ef)
+function gsub (s, p, f, n, cf, ef, lo)
   local rep = f
   local reptype = type (rep)
   if reptype == "string" then
