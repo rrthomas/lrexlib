@@ -1,3 +1,7 @@
+2006-11-23  Shmuel
+
+	* test/framework.lua, test/pcre_test.lua, test/posix_test.lua: refactoring.
+
 2006-11-22  Shmuel
 
 	* lpcre.c (Check_arg_findmatch_func): 5th and 6th arguments swapped.
