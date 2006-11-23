@@ -43,24 +43,49 @@ local function unpackNT (t)
   if len > 0 then return unpack_from (1) end
 end
 
-function new (lib, par)
+local function new (lib, par)
   local ptype = type (par)
   return ptype == nil and lib["new"] ()
     or ptype == "table" and lib["new"] (unpackNT (par))
     or lib["new"] (par)
 end
 
-function run_func (func, par)
+local function run_func (func, par)
   local ptype = type (par)
   return ptype == nil and packNT (func ())
     or ptype == "table" and packNT (func (unpackNT (par)))
     or packNT (func (par))
 end
 
-function run_method (r, name, par)
+local function run_method (r, name, par)
   local ptype = type (par)
   return ptype == "nil" and packNT (r[name] (r))
     or ptype == "table" and packNT (r[name] (r, unpackNT (par)))
     or packNT(r[name] (r, par))
+end
+
+function test_func (lib, set)
+  print (set.SetName or "Unnamed set")
+  assert (type (set.FMName) == "string")
+  local func = lib[set.FMName]
+  assert (type(func) == "function")
+  for i,v in ipairs (set) do
+    assert (type(v) == "table")
+    if not eq (run_func (func, v[1]), v[2]) then
+      print ("  Test " .. i)
+    end
+  end
+end
+
+function test_method (lib, set)
+  print (set.SetName or "Unnamed set")
+  assert (type (set.FMName) == "string")
+  for i,v in ipairs (set) do
+    assert (type(v) == "table")
+    local r = new (lib, v[1])
+    if not eq (run_method (r, set.FMName, v[2]), v[3]) then
+      print ("  Test " .. i)
+    end
+  end
 end
 
