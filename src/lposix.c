@@ -541,7 +541,7 @@ REX_API int REX_OPENLIB (lua_State *L)
   luaL_register (L, NULL, posixmeta);
   lua_pop (L, 1);
   luaL_register (L, REX_LIBNAME, rexlib);
-  lua_pushliteral (L, "Lrexlib 2.0 alpha (for POSIX regexes");
+  lua_pushliteral (L, "Lrexlib 2.0 beta (for POSIX regexes");
   lua_setfield (L, -2, "_VERSION");
   return 1;
 }
