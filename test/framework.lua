@@ -1,16 +1,21 @@
 -- [ Shmuel Zeigerman; Nov-Nov 2006 ]
 
-module ("framework", package.seeall)
+module (..., package.seeall)
 
--- deep table comparison
-function eq (t1, t2)
-  assert (type(t1) == "table")
-  assert (type(t2) == "table")
+-- arrays: deep comparison
+function eq (t1, t2, lut)
   if t1 == t2 then return true end
   if #t1 ~= #t2 then return false end
+
+  lut = lut or {} -- look-up table: are these 2 arrays already compared?
+  local s1, s2 = tostring (t1), tostring (t2)
+  local key = s1 < s2 and s1.."\0"..s2 or s2.."\0"..s1
+  if lut[key] then return true end
+  lut[key] = true
+
   for k,v in ipairs (t1) do
     if type(t2[k])=="table" and type(v)=="table" then
-      if not eq (t2[k], v) then return false end -- recursion
+      if not eq (t2[k], v, lut) then return false end -- recursion
     else
       if t2[k] ~= v then return false end
     end
