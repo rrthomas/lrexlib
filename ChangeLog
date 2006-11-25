@@ -1,6 +1,9 @@
 2006-11-25  Shmuel
 	* lpcre.c, lposix.c: alpha -> beta.
-	* test/test_all.lua: file added.
+	* lpcre_f.c: file added (was: part of lpcre.c).
+	* rex_pcre.mak: updated due to the new file lpcre_f.c
+	* *.mak: version updated to 2.0
+	* test/all_test.lua: file added.
 	* test/posix_test.lua, test/pcre_test.lua: made modules.
 	* test/posix_test.lua: tests added.
 	* test/*.lua: refactoring.
