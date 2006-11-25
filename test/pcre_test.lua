@@ -1,5 +1,7 @@
 -- [ Shmuel Zeigerman; Nov-Nov 2006 ]
 
+module (..., package.seeall)
+
 local fw = require "framework"
 
 -- gmatch (s, p, [cf], [ef], [lo])
@@ -71,8 +73,9 @@ local function test_named_subpatterns (lib)
   end
 end
 
-local function test_library (libname)
+function testlib (libname)
 
+  print ("[Library: " .. libname .. "]")
   local lib = require (libname)
   lib:flags()
 
@@ -213,7 +216,7 @@ local function test_library (libname)
     { {"abcd", "bc", -4},         {2,3}  }, -- negative st
     { {"abcd", "bc", 3},          {N}  },   -- failing st
     { {"abcd", "BC", N, true},    {2,3}  }, -- case insensitive
-    { {"ab\000cd", "b\000c"},     {2,4}  }, -- contains nul
+    { {"ab\0cd", "b\0c"},         {2,4}  }, -- contains nul
   }
 
   do
@@ -232,7 +235,4 @@ local function test_library (libname)
     print ""
   end
 end
-
-test_library ("rex_pcre")
-test_library ("rex_pcre_nr")
 

@@ -1,5 +1,7 @@
 -- [ Shmuel Zeigerman; Nov-Nov 2006 ]
 
+module (..., package.seeall)
+
 local fw = require "framework"
 
 -- gmatch (s, p, [cf], [ef])
@@ -52,8 +54,9 @@ local function test_method_oldgmatch (lib)
   if rep ~= 3 then print ("  FAIL") return end
 end
 
-local function test_library (libname)
+function testlib (libname)
 
+  print ("[Library: " .. libname .. "]")
   local lib = require (libname)
   lib:flags()
 
@@ -70,8 +73,8 @@ local function test_library (libname)
     { {"abcd", ".*"},                           { 1,4 }   }, -- [none]
     { {"abc", "aBC",  N, lib.ICASE},            { 1,3 }   }, -- cf
     { {"abc", "bc"},                            { 2,3 }   }, -- [none]
-  --{ {"abc", "bc",      N, lib.ANCHORED},      { N,lib.NOMATCH }}, -- cf
-  --{ {"abc", "bc",      N, N,N, lib.ANCHORED}, { N,lib.NOMATCH }}, -- ef
+    { {"abc", "^abc"},                          { 1,3 }   }, -- anchor
+    { {"abc", "^abc", N, N, lib.NOTBOL},        { N,lib.NOMATCH }}, -- anchor + ef
     { {"abcd", "(.)b.(d)"},                     { 1,4,"a","d" }},--[captures]
   }
 
@@ -86,8 +89,8 @@ local function test_library (libname)
     { {".*"},               {"abcd"},                { 1,4 }   }, -- [none]
     { {"aBC",lib.ICASE},    {"abc"},                 { 1,3 }   }, -- cf
     { {"bc"},               {"abc"},                 { 2,3 }   }, -- [none]
-  --{ {"bc",lib.ANCHORED},  {"abc"},                 { N,lib.NOMATCH }}, -- cf
-  --{ {"bc"},               {"abc",N, lib.ANCHORED}, { N,lib.NOMATCH }}, -- ef
+    { {"^abc"},             {"abc"},                 { 1,3 }   }, -- anchor
+    { {"^abc"},             {"^abc",N,lib.NOTBOL},   { N,lib.NOMATCH }}, -- anchor + ef
     { { "(.)b.(d)"},        {"abcd"},                { 1,4,"a","d" }},--[captures]
   }
 
@@ -101,9 +104,9 @@ local function test_library (libname)
     { {"abcd", ".+",  5},                       { N,lib.NOMATCH }}, -- failing st
     { {"abcd", ".*"},                           {"abcd"}  }, -- [none]
     { {"abc", "aBC",  N, lib.ICASE},            {"abc" }  }, -- cf
-    { {"abc", "bc",                  },         { "bc" }  }, -- [none]
-  --{ {"abc", "bc",   N, lib.ANCHORED},         { N,lib.NOMATCH }}, -- cf
-  --{ {"abc", "bc",   N, N,N, lib.ANCHORED},    { N,lib.NOMATCH }}, -- ef
+    { {"abc", "bc"},                            { "bc" }  }, -- [none]
+    { {"abc", "^abc"},                          {"abc" }  }, -- anchor
+    { {"abc", "^abc", N, N, lib.NOTBOL},        { N,lib.NOMATCH }}, -- anchor + ef
     { {"abcd", "(.)b.(d)"},                     { "a","d" }},--[captures]
   }
 
@@ -111,32 +114,32 @@ local function test_library (libname)
     SetName = "Method match",
     FMName = "match",
   --  {patt,cf},            {subj,st,ef}             { results }
-    { {".+"},               {"abcd"},                 {"abcd"}  }, -- [none]
-    { {".+"},               {"abcd",2},               { "bcd"}  }, -- positive st
-    { {".+"},               {"abcd",-2},              { "cd" }  }, -- negative st
-    { {".+"},               {"abcd",5},               { N,lib.NOMATCH }}, -- failing st
-    { {".*"},               {"abcd"},                 {"abcd"}  }, -- [none]
-    { {"aBC",lib.ICASE},    {"abc"},                  {"abc" }  }, -- cf
-    { {"bc"},               {"abc"},                  { "bc" }  }, -- [none]
-  --{ {"bc",lib.ANCHORED},  {"abc"},                  { N,lib.NOMATCH }}, -- cf
-  --{ {"bc"},               {"abc",N, lib.ANCHORED},  { N,lib.NOMATCH }}, -- ef
-    { { "(.)b.(d)"},        {"abcd"},                 { "a","d" }},--[captures]
+    { {".+"},               {"abcd"},                {"abcd"}  }, -- [none]
+    { {".+"},               {"abcd",2},              { "bcd"}  }, -- positive st
+    { {".+"},               {"abcd",-2},             { "cd" }  }, -- negative st
+    { {".+"},               {"abcd",5},              { N,lib.NOMATCH }}, -- failing st
+    { {".*"},               {"abcd"},                {"abcd"}  }, -- [none]
+    { {"aBC",lib.ICASE},    {"abc"},                 {"abc" }  }, -- cf
+    { {"bc"},               {"abc"},                 { "bc" }  }, -- [none]
+    { {"^abc"},             {"abc"},                 {"abc" }  }, -- anchor
+    { {"^abc"},             {"^abc",N,lib.NOTBOL},   { N,lib.NOMATCH }}, -- anchor + ef
+    { { "(.)b.(d)"},        {"abcd"},                { "a","d" }},--[captures]
   }
 
   local set_m_exec = {
     SetName = "Method exec",
     FMName = "exec",
-  --  {patt,cf},            {subj,st,ef}              { results }
-    { {".+"},               {"abcd"},                 {1,4,{},0}  }, -- [none]
-    { {".+"},               {"abcd",2},               {2,4,{},0}  }, -- positive st
-    { {".+"},               {"abcd",-2},              {3,4,{},0}  }, -- negative st
-    { {".+"},               {"abcd",5},               { N,lib.NOMATCH }}, -- failing st
-    { {".*"},               {"abcd"},                 {1,4,{},0}  }, -- [none]
-    { {"aBC",lib.ICASE},    {"abc"},                  {1,3,{},0}  }, -- cf
-    { {"bc"},               {"abc"},                  {2,3,{},0}  }, -- [none]
-  --{ {"bc",lib.ANCHORED},  {"abc"},                  { N,lib.NOMATCH }}, -- cf
-  --{ {"bc"},               {"abc",N, lib.ANCHORED},  { N,lib.NOMATCH }}, -- ef
-    { { "(.)b.(d)"},        {"abcd"},                 {1,4,{1,1,4,4},0}},--[captures]
+  --  {patt,cf},            {subj,st,ef}             { results }
+    { {".+"},               {"abcd"},                {1,4,{},0}  }, -- [none]
+    { {".+"},               {"abcd",2},              {2,4,{},0}  }, -- positive st
+    { {".+"},               {"abcd",-2},             {3,4,{},0}  }, -- negative st
+    { {".+"},               {"abcd",5},              { N,lib.NOMATCH }}, -- failing st
+    { {".*"},               {"abcd"},                {1,4,{},0}  }, -- [none]
+    { {"aBC",lib.ICASE},    {"abc"},                 {1,3,{},0}  }, -- cf
+    { {"bc"},               {"abc"},                 {2,3,{},0}  }, -- [none]
+    { {"^abc"},             {"abc"},                 {1,3,{},0}  }, -- anchor
+    { {"^abc"},             {"^abc",N,lib.NOTBOL},   { N,lib.NOMATCH }}, -- anchor + ef
+    { { "(.)b.(d)"},        {"abcd"},                {1,4,{1,1,4,4},0}},--[captures]
   }
 
   local set_m_oldmatch = {
@@ -150,8 +153,8 @@ local function test_library (libname)
     { {".*"},               {"abcd"},                 {1,4,{},0}  }, -- [none]
     { {"aBC",lib.ICASE},    {"abc"},                  {1,3,{},0}  }, -- cf
     { {"bc"},               {"abc"},                  {2,3,{},0}  }, -- [none]
-  --{ {"bc",lib.ANCHORED},  {"abc"},                  { N,lib.NOMATCH }}, -- cf
-  --{ {"bc"},               {"abc",N, lib.ANCHORED},  { N,lib.NOMATCH }}, -- ef
+    { {"^abc"},             {"abc"},                 {1,3,{},0}  }, -- anchor
+    { {"^abc"},             {"^abc",N,lib.NOTBOL},   { N,lib.NOMATCH }}, -- anchor + ef
     { { "(.)b.(d)"},        {"abcd"},                 {1,4,{"a","d"},0}}, --[captures]
   }
 
@@ -167,7 +170,7 @@ local function test_library (libname)
     { {"abcd", "bc", -4},         {2,3}  }, -- negative st
     { {"abcd", "bc", 3},          {N}  },   -- failing st
     { {"abcd", "BC", N, true},    {2,3}  }, -- case insensitive
-    { {"ab\000cd", "b\000c"},     {2,4}  }, -- contains nul
+    { {"ab\0cd", "b\0c"},         {2,4}  }, -- contains nul
   }
 
   do
@@ -186,6 +189,3 @@ local function test_library (libname)
   end
 end
 
-test_library ("rex_posix1")
-test_library ("rex_posix2")
-test_library ("rex_pcreposix")
