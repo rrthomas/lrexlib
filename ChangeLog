@@ -1,6 +1,14 @@
+2006-11-25  Shmuel
+	* lpcre.c, lposix.c: alpha -> beta.
+	* test/test_all.lua: file added.
+	* test/posix_test.lua, test/pcre_test.lua: made modules.
+	* test/posix_test.lua: tests added.
+	* test/*.lua: refactoring.
+	* lua/generic_gsub.lua: refactoring.
+
 2006-11-23  Shmuel
 
-	* test/framework.lua, test/pcre_test.lua, test/posix_test.lua: refactoring.
+	* test/*.lua: refactoring.
 	* lua/rex.lua, lua/rex_.lua (gsub): 6th and 7th arguments swapped.
 
 2006-11-22  Shmuel
