@@ -1,7 +1,7 @@
 [Project]
 FileName=rex_pcre.dev
 Name=rex_pcre
-UnitCount=2
+UnitCount=3
 Type=3
 Ver=1
 ObjFiles=
@@ -66,4 +66,14 @@ OriginalFilename=
 ProductName=
 ProductVersion=
 AutoIncBuildNr=0
+
+[Unit3]
+FileName=..\..\src\lpcre_f.c
+CompileCpp=0
+Folder=rex_pcre
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
 

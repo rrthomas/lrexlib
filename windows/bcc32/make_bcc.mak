@@ -17,8 +17,8 @@
 SRCDIR       = ..\..\src
 SRCS_POSIX   = $(SRCDIR)\lposix.c $(SRCDIR)\common.c
 OBJS_POSIX   = lposix.obj common.obj
-SRCS_PCRE    = $(SRCDIR)\lpcre.c $(SRCDIR)\common.c
-OBJS_PCRE    = lpcre.obj common.obj
+SRCS_PCRE    = $(SRCDIR)\lpcre.c $(SRCDIR)\lpcre_f.c $(SRCDIR)\common.c
+OBJS_PCRE    = lpcre.obj lpcre_f.obj common.obj
 STARTUP      = c0d32.obj
 LFLAGS       = -aa -Gi -Gn -Tpd -x
 
