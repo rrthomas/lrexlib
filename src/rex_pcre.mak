@@ -24,11 +24,11 @@ CC = gcc
 # ===========================================================================
 # === END OF USER SETTINGS ===
 
-V = 1.20
+V = 2.0
 
 NAME = rex_pcre
 
-OBJ    = lpcre.o common.o
+OBJ    = lpcre.o lpcre_f.o common.o
 TRG_AR = lib$(NAME).a
 TRG_SO = $(NAME).so
 
@@ -52,6 +52,7 @@ clean:
 
 # Dependencies
 lpcre.o: lpcre.c common.h
+lpcre_f.o: lpcre_f.c common.h
 common.o: common.c common.h
 
 # (End of Makefile)
