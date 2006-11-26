@@ -80,13 +80,13 @@ static TPosix* CheckUD (lua_State *L, int stackpos) {
   return ud;
 }
 
-static void Check_arg_new (lua_State *L, TArgComp *argC) {
+static void Checkarg_new (lua_State *L, TArgComp *argC) {
   argC->pattern = luaL_checklstring (L, 1, &argC->patlen);
   argC->cflags = luaL_optint (L, 2, REG_EXTENDED);
 }
 
 /* function find (s, p, [st], [cf], [ef]) */
-static void Check_arg_findmatch_func (lua_State *L, TArgComp *argC, TArgExec *argE) {
+static void Checkarg_findmatch_func (lua_State *L, TArgComp *argC, TArgExec *argE) {
   argE->text = luaL_checklstring (L, 1, &argE->textlen);
   argC->pattern = luaL_checklstring (L, 2, &argC->patlen);
   argE->startoffset = get_startoffset (L, 3, argE->textlen);
@@ -95,7 +95,7 @@ static void Check_arg_findmatch_func (lua_State *L, TArgComp *argC, TArgExec *ar
 }
 
 /* method r:find (s, [st], [ef]) */
-static void Check_arg_findmatch_method (lua_State *L, TArgExec *argE) {
+static void Checkarg_findmatch_method (lua_State *L, TArgExec *argE) {
   argE->ud = CheckUD (L, 1);
   argE->text = luaL_checklstring (L, 2, &argE->textlen);
   argE->startoffset = get_startoffset (L, 3, argE->textlen);
@@ -103,14 +103,14 @@ static void Check_arg_findmatch_method (lua_State *L, TArgExec *argE) {
 }
 
 /* method r:gmatch (s, [ef]) */
-static void Check_arg_gmatch_method (lua_State *L, TArgExec *argE) {
+static void Checkarg_gmatch_method (lua_State *L, TArgExec *argE) {
   argE->ud = CheckUD (L, 1);
   argE->text = luaL_checklstring (L, 2, &argE->textlen);
   argE->eflags = luaL_optint (L, 3, EFLAGS_DEFAULT);
 }
 
 /* function gmatch (s, p, [cf], [lo], [ef]) */
-static void Check_arg_gmatch_func (lua_State *L, TArgComp *argC, TArgExec *argE) {
+static void Checkarg_gmatch_func (lua_State *L, TArgComp *argC, TArgExec *argE) {
   argE->text = luaL_checklstring (L, 1, &argE->textlen);
   argC->pattern = luaL_checklstring (L, 2, &argC->patlen);
   argC->cflags = luaL_optint (L, 3, REG_EXTENDED);
@@ -118,7 +118,7 @@ static void Check_arg_gmatch_func (lua_State *L, TArgComp *argC, TArgExec *argE)
 }
 
 /* method r:oldgmatch (s, f, [n], [ef]) */
-static void Check_arg_oldgmatch_method (lua_State *L, TArgExec *argE) {
+static void Checkarg_oldgmatch_method (lua_State *L, TArgExec *argE) {
   argE->ud = CheckUD (L, 1);
   argE->text = luaL_checklstring (L, 2, &argE->textlen);
   argE->funcpos = CheckFunction (L, 3);
@@ -230,7 +230,7 @@ static int posix_oldmatch_generic (lua_State *L, posix_push_matches push_matches
   TArgExec argE;
   TPosix *ud;
 
-  Check_arg_findmatch_method (L, &argE);
+  Checkarg_findmatch_method (L, &argE);
   CheckStartEnd (&argE);
 
   /* execute the search */
@@ -318,7 +318,7 @@ static int posix_gmatch_iter (lua_State *L)
 /* method r:gmatch (s, [ef]) */
 static int posix_gmatch_method (lua_State *L) {
   TArgExec argE;
-  Check_arg_gmatch_method (L, &argE);
+  Checkarg_gmatch_method (L, &argE);
   lua_pushvalue (L, 1);                          /* ud */
   lua_pushlstring (L, argE.text, argE.textlen);  /* s  */
   lua_pushinteger (L, argE.textlen);             /* textlen */
@@ -332,7 +332,7 @@ static int posix_gmatch_method (lua_State *L) {
 static int posix_gmatch_func (lua_State *L) {
   TArgComp argC;
   TArgExec argE;
-  Check_arg_gmatch_func (L, &argC, &argE);
+  Checkarg_gmatch_func (L, &argC, &argE);
   posix_comp (L, &argC, NULL);                   /* ud */
   lua_pushlstring (L, argE.text, argE.textlen);  /* s */
   lua_pushinteger (L, argE.textlen);             /* textlen */
@@ -344,7 +344,7 @@ static int posix_gmatch_func (lua_State *L) {
 
 static int posix_new (lua_State *L) {
   TArgComp argC;
-  Check_arg_new (L, &argC);
+  Checkarg_new (L, &argC);
   return posix_comp (L, &argC, NULL);
 }
 
@@ -384,7 +384,7 @@ static int posix_find_generic (lua_State *L, TArgExec *argE, int find) {
 
 static int posix_findmatch_method (lua_State *L, int find) {
   TArgExec argE;
-  Check_arg_findmatch_method (L, &argE);
+  Checkarg_findmatch_method (L, &argE);
   return posix_find_generic (L, &argE, find);
 }
 
@@ -399,7 +399,7 @@ static int posix_match_method (lua_State *L) {
 static int posix_findmatch_func (lua_State *L, int find) {
   TArgComp argC;
   TArgExec argE;
-  Check_arg_findmatch_func (L, &argC, &argE);
+  Checkarg_findmatch_func (L, &argC, &argE);
   posix_comp (L, &argC, &argE.ud);
   return posix_find_generic (L, &argE, find);
 }
@@ -417,7 +417,7 @@ static int posix_oldgmatch_method (lua_State *L) {
   TArgExec argE;
   TPosix *ud;
 
-  Check_arg_oldgmatch_method (L, &argE);
+  Checkarg_oldgmatch_method (L, &argE);
   ud = argE.ud;
 
   if (argE.maxmatch > 0) /* this must be stated in the docs */
