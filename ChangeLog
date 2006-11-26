@@ -3,7 +3,7 @@
 	* lpcre.c, lposix.c: all Check_arg_* functions renamed to Checkarg_*
 	* lpcre.c (Lpcre_dfa_exec): added 2 arguments to dfa_exec
 	* common.h (DIM): macro removed
-	* test/pcre_test: tests for dfa_exec method added
+	* test/pcre_test.lua: tests for dfa_exec method added
 
 2006-11-25  Shmuel
 
