@@ -44,7 +44,7 @@ typedef struct {             /* pcre_compile arguments */
   const char * locale;
 } TArgComp;
 
-typedef struct {             /* pcre_exec arguments */
+typedef struct {            /* pcre_exec arguments */
   TPcre      * ud;
   const char * text;
   size_t       textlen;
@@ -52,13 +52,15 @@ typedef struct {             /* pcre_exec arguments */
   int          eflags;
   int          funcpos;
   int          maxmatch;
+  size_t       ovecsize;      /* used with dfa_exec */
+  size_t       wscount;       /* used with dfa_exec */
 } TArgExec;
 
 typedef struct {
-  pcre_extra   own_extra;    /* own pcre_extra block */
-  pcre_extra * ptr_extra;    /* pointer to used pcre_extra block */
-  lua_State  * L;            /* lua state */
-  int          funcpos;      /* function position on Lua stack */
+  pcre_extra   own_extra;     /* own pcre_extra block */
+  pcre_extra * ptr_extra;     /* pointer to used pcre_extra block */
+  lua_State  * L;             /* lua state */
+  int          funcpos;       /* function position on Lua stack */
 } TExecData;
 
 /*  Functions
@@ -71,14 +73,14 @@ static TPcre* CheckUD (lua_State *L, int stackpos) {
   return ud;
 }
 
-static void Check_arg_new (lua_State *L, TArgComp *argC) {
+static void Checkarg_new (lua_State *L, TArgComp *argC) {
   argC->pattern = luaL_checkstring (L, 1);
   argC->cflags = luaL_optint (L, 2, 0);
   argC->locale = luaL_optstring (L, 3, NULL);
 }
 
 /* function find (s, p, [st], [cf], [ef], [lo], [co]) */
-static void Check_arg_findmatch_func (lua_State *L, TArgComp *argC, TArgExec *argE) {
+static void Checkarg_findmatch_func (lua_State *L, TArgComp *argC, TArgExec *argE) {
   argE->text = luaL_checklstring (L, 1, &argE->textlen);
   argC->pattern = luaL_checkstring (L, 2);
   argE->startoffset = get_startoffset (L, 3, argE->textlen);
@@ -89,7 +91,7 @@ static void Check_arg_findmatch_func (lua_State *L, TArgComp *argC, TArgExec *ar
 }
 
 /* method r:find (s, [st], [ef], [co]) */
-static void Check_arg_findmatch_method (lua_State *L, TArgExec *argE) {
+static void Checkarg_findmatch_method (lua_State *L, TArgExec *argE) {
   argE->ud = CheckUD (L, 1);
   argE->text = luaL_checklstring (L, 2, &argE->textlen);
   argE->startoffset = get_startoffset (L, 3, argE->textlen);
@@ -97,15 +99,28 @@ static void Check_arg_findmatch_method (lua_State *L, TArgExec *argE) {
   argE->funcpos = OptFunction (L, 5);
 }
 
+#if PCRE_MAJOR >= 6
+/* method r:dfa_exec (s, [st], [ef], [co], [ovecsize], [wscount]) */
+static void Checkarg_dfa_exec_method (lua_State *L, TArgExec *argE) {
+  argE->ud = CheckUD (L, 1);
+  argE->text = luaL_checklstring (L, 2, &argE->textlen);
+  argE->startoffset = get_startoffset (L, 3, argE->textlen);
+  argE->eflags = luaL_optint (L, 4, 0);
+  argE->funcpos = OptFunction (L, 5);
+  argE->ovecsize = luaL_optint (L, 6, 100);
+  argE->wscount = luaL_optint (L, 7, 50);
+}
+#endif
+
 /* method r:gmatch (s, [ef]) */
-static void Check_arg_gmatch_method (lua_State *L, TArgExec *argE) {
+static void Checkarg_gmatch_method (lua_State *L, TArgExec *argE) {
   argE->ud = CheckUD (L, 1);
   argE->text = luaL_checklstring (L, 2, &argE->textlen);
   argE->eflags = luaL_optint (L, 3, 0);
 }
 
 /* function gmatch (s, p, [cf], [ef], [lo]) */
-static void Check_arg_gmatch_func (lua_State *L, TArgComp *argC, TArgExec *argE) {
+static void Checkarg_gmatch_func (lua_State *L, TArgComp *argC, TArgExec *argE) {
   argE->text = luaL_checklstring (L, 1, &argE->textlen);
   argC->pattern = luaL_checkstring (L, 2);
   argC->cflags = luaL_optint (L, 3, 0);
@@ -114,7 +129,7 @@ static void Check_arg_gmatch_func (lua_State *L, TArgComp *argC, TArgExec *argE)
 }
 
 /* method r:oldgmatch (s, f, [n], [ef]) */
-static void Check_arg_oldgmatch_method (lua_State *L, TArgExec *argE) {
+static void Checkarg_oldgmatch_method (lua_State *L, TArgExec *argE) {
   argE->ud = CheckUD (L, 1);
   argE->text = luaL_checklstring (L, 2, &argE->textlen);
   argE->funcpos = CheckFunction (L, 3);
@@ -169,7 +184,7 @@ static int Lpcre_comp (lua_State *L, const TArgComp *argC, TPcre **pud) {
 
 static int Lpcre_new (lua_State *L) {
   TArgComp argC;
-  Check_arg_new (L, &argC);
+  Checkarg_new (L, &argC);
   return Lpcre_comp (L, &argC, NULL);
 }
 
@@ -308,7 +323,7 @@ static int Lpcre_oldmatch_generic (lua_State *L, fptrPushMatches push_matches) {
   TExecData ed;
   int res;
 
-  Check_arg_findmatch_method (L, &argE);
+  Checkarg_findmatch_method (L, &argE);
   LpcreSetExecData (L, &argE, &ed);
   res = pcre_exec (argE.ud->pr, ed.ptr_extra, argE.text, (int)argE.textlen,
                    argE.startoffset, argE.eflags, argE.ud->match,
@@ -332,17 +347,19 @@ static int Lpcre_dfa_exec (lua_State *L)
   TArgExec argE;
   TExecData ed;
   int res;
-  int ovector[30];
-  int wspace[40];
+  int *ovector, *wspace;
 
-  Check_arg_findmatch_method (L, &argE);
+  Checkarg_dfa_exec_method (L, &argE);
+  ovector = (int*) Lmalloc (L, argE.ovecsize * sizeof(int));
+  wspace = (int*) Lmalloc (L, argE.wscount * sizeof(int));
+
   LpcreSetExecData (L, &argE, &ed);
   res = pcre_dfa_exec (argE.ud->pr, ed.ptr_extra, argE.text, (int)argE.textlen,
-    argE.startoffset, argE.eflags, ovector, DIM (ovector), wspace, DIM (wspace));
+    argE.startoffset, argE.eflags, ovector, argE.ovecsize, wspace, argE.wscount);
 
   if (res >= 0 || res == PCRE_ERROR_PARTIAL) {
     int i;
-    int max = (res>0) ? res : (res==0) ? (int)DIM (ovector)/2 : 1;
+    int max = (res>0) ? res : (res==0) ? (int)argE.ovecsize/2 : 1;
     lua_pushinteger (L, ovector[0] + 1);         /* 1-st return value */
     lua_newtable (L);                            /* 2-nd return value */
     for (i=0; i<max; i++) {
@@ -350,11 +367,16 @@ static int Lpcre_dfa_exec (lua_State *L)
       lua_rawseti (L, -2, i+1);
     }
     lua_pushinteger (L, res);                    /* 3-rd return value */
-    return 3;
+    res = 3;
   }
-  lua_pushnil (L);
-  lua_pushinteger (L, res);
-  return 2;
+  else {
+    lua_pushnil (L);
+    lua_pushinteger (L, res);
+    res = 2;
+  }
+  free (wspace);
+  free (ovector);
+  return res;
 }
 #endif /* #if PCRE_MAJOR >= 6 */
 
@@ -404,7 +426,7 @@ static int Lpcre_gmatch_iter (lua_State *L) {
 /* method r:gmatch (s, [ef]) */
 static int Lpcre_gmatch_method (lua_State *L) {
   TArgExec argE;
-  Check_arg_gmatch_method (L, &argE);
+  Checkarg_gmatch_method (L, &argE);
   lua_pushvalue (L, 1);                          /* ud */
   lua_pushlstring (L, argE.text, argE.textlen);  /* s  */
   lua_pushinteger (L, argE.eflags);              /* ef */
@@ -417,7 +439,7 @@ static int Lpcre_gmatch_method (lua_State *L) {
 static int Lpcre_gmatch_func (lua_State *L) {
   TArgComp argC;
   TArgExec argE;
-  Check_arg_gmatch_func (L, &argC, &argE);
+  Checkarg_gmatch_func (L, &argC, &argE);
   Lpcre_comp (L, &argC, NULL);
   lua_pushlstring (L, argE.text, argE.textlen);
   lua_pushinteger (L, argE.eflags);
@@ -464,7 +486,7 @@ static int Lpcre_find_generic (lua_State *L, const TArgExec *argE,
 static int Lpcre_findmatch_method (lua_State *L, int find) {
   TArgExec argE;
   TExecData ed;
-  Check_arg_findmatch_method (L, &argE);
+  Checkarg_findmatch_method (L, &argE);
   LpcreSetExecData (L, &argE, &ed);
   return Lpcre_find_generic (L, &argE, &ed, find);
 }
@@ -481,7 +503,7 @@ static int Lpcre_findmatch_func (lua_State *L, int find) {
   TArgComp argC;
   TArgExec argE;
   TExecData ed;
-  Check_arg_findmatch_func (L, &argC, &argE);
+  Checkarg_findmatch_func (L, &argC, &argE);
   Lpcre_comp (L, &argC, &argE.ud);
   LpcreSetExecData (L, &argE, &ed);
   return Lpcre_find_generic (L, &argE, &ed, find);
@@ -502,7 +524,7 @@ static int Lpcre_oldgmatch_method (lua_State *L)
   TPcre *ud;
 
   TArgExec argE;
-  Check_arg_oldgmatch_method (L, &argE);
+  Checkarg_oldgmatch_method (L, &argE);
   ud = argE.ud;
 
   while (argE.maxmatch <= 0 || nmatch < argE.maxmatch) {
@@ -559,23 +581,22 @@ static int Lpcre_config (lua_State *L) {
   int val;
   lua_newtable (L);
 
-# if PCRE_MAJOR >= 4
+#if PCRE_MAJOR >= 4
   CheckConfig (L, PCRE_CONFIG_UTF8, "CONFIG_UTF8", &val);
   CheckConfig (L, PCRE_CONFIG_NEWLINE, "CONFIG_NEWLINE", &val);
   CheckConfig (L, PCRE_CONFIG_LINK_SIZE, "CONFIG_LINK_SIZE", &val);
   CheckConfig (L, PCRE_CONFIG_POSIX_MALLOC_THRESHOLD, "CONFIG_POSIX_MALLOC_THRESHOLD", &val);
   CheckConfig (L, PCRE_CONFIG_MATCH_LIMIT, "CONFIG_MATCH_LIMIT", &val);
   CheckConfig (L, PCRE_CONFIG_STACKRECURSE, "CONFIG_STACKRECURSE", &val);
-# endif
+#endif
 
-# if PCRE_MAJOR >= 5
+#if PCRE_MAJOR >= 5
   CheckConfig (L, PCRE_CONFIG_UNICODE_PROPERTIES, "CONFIG_UNICODE_PROPERTIES", &val);
-# endif
+#endif
 
-# ifdef PCRE_CONFIG_MATCH_LIMIT_RECURSION
+#ifdef PCRE_CONFIG_MATCH_LIMIT_RECURSION
   CheckConfig (L, PCRE_CONFIG_MATCH_LIMIT_RECURSION, "CONFIG_MATCH_LIMIT_RECURSION", &val);
-# endif
-
+#endif
   return 1;
 }
 
