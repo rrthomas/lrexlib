@@ -1,4 +1,12 @@
+2006-11-26  Shmuel
+
+	* lpcre.c, lposix.c: all Check_arg_* functions renamed to Checkarg_*
+	* lpcre.c (Lpcre_dfa_exec): added 2 arguments to dfa_exec
+	* common.h (DIM): macro removed
+	* test/pcre_test: tests for dfa_exec method added
+
 2006-11-25  Shmuel
+
 	* lpcre.c, lposix.c: alpha -> beta.
 	* lpcre_f.c: file added (was: part of lpcre.c).
 	* rex_pcre.mak: updated due to the new file lpcre_f.c
