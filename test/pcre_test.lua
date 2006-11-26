@@ -84,6 +84,11 @@ function testlib (libname)
   local function callout1 () return 1 end
   local function callout1m () return -1 end
 
+  local function gen (n, m) -- returns: n, n-1, ..., m
+    if n <= m then return m end
+    return n, gen (n-1, m)
+  end
+
   local set_f_find = {
     SetName = "Function find",
     FMName = "find",
@@ -204,6 +209,29 @@ function testlib (libname)
     { { "(.)b.(d)"},        {"abcd"},                 {1,4,{"a","d"},3}},--[captures]
   }
 
+  local set_m_dfa_exec = {
+    SetName = "Method dfa_exec",
+    FMName = "dfa_exec",
+  --  {patt,cf,lo},         {subj,st,ef,co,os,ws}     { results }
+    { {".+"},               {"abcd"},                 {1,{4,3,2,1},4} }, -- [none]
+    { {".+"},               {"abcd",2},               {2,{4,3,2},  3} }, -- positive st
+    { {".+"},               {"abcd",-2},              {3,{4,3},    2} }, -- negative st
+    { {".+"},               {"abcd",5},               {N,lib.ERROR_NOMATCH }}, -- failing st
+    { {".*"},               {"abcd"},                 {1,{4,3,2,1,0},5}}, -- [none]
+    { {".*?"},              {"abcd"},                 {1,{4,3,2,1,0},5}}, -- non-greedy
+    { {"aBC",lib.CASELESS}, {"abc"},                  {1,{3},1}  }, -- cf
+    { {"bc"},               {"abc"},                  {2,{3},1}  }, -- [none]
+    { {"bc",lib.ANCHORED},  {"abc"},                  {N,lib.ERROR_NOMATCH }}, -- cf
+    { {"bc"},               {"abc",N, lib.ANCHORED},  {N,lib.ERROR_NOMATCH }}, -- ef
+    { {"(?C)a|b"},          {"ab",N,N, callout0},     {1,{1},1}  },   -- callout
+    { {"(?C)a|b"},          {"ab",N,N, callout1},     {2,{2},1}  },   -- callout
+    { {"(?C)a|b"},          {"ab",N,N, callout1m},    {N,lib.ERROR_NOMATCH }}, -- callout
+    { { "(.)b.(d)"},        {"abcd"},                 {1,{4},1}}, --[captures]
+    { {"abc"},              {"ab"},                   {N,lib.ERROR_NOMATCH }},
+    { {"abc"},              {"ab",N,lib.PARTIAL},     {1,{2},lib.ERROR_PARTIAL} },
+    { {".+"},     {string.rep("a",50),N,N,N,50,50},   {1,{gen(50,26)},0}},-- small ovecsize
+  }
+
   local set_f_plainfind = {
     SetName = "Function plainfind",
     FMName = "plainfind",
@@ -211,10 +239,10 @@ function testlib (libname)
     { {"abcd", "bc"},             {2,3}  }, -- [none]
     { {"abcd", "cd"},             {3,4}  }, -- positive st
     { {"abcd", "cd", 3},          {3,4}  }, -- positive st
-    { {"abcd", "cd", 4},          {N}  },   -- failing st
+    { {"abcd", "cd", 4},          {N}    }, -- failing st
     { {"abcd", "bc", 2},          {2,3}  }, -- positive st
     { {"abcd", "bc", -4},         {2,3}  }, -- negative st
-    { {"abcd", "bc", 3},          {N}  },   -- failing st
+    { {"abcd", "bc", 3},          {N}    }, -- failing st
     { {"abcd", "BC", N, true},    {2,3}  }, -- case insensitive
     { {"ab\0cd", "b\0c"},         {2,4}  }, -- contains nul
   }
@@ -232,6 +260,9 @@ function testlib (libname)
     test_method_gmatch (lib)
     test_method_oldgmatch (lib)
     test_named_subpatterns (lib)
+    if lib.MAJOR >= 6 then
+      fw.test_method (lib, set_m_dfa_exec)
+    end
     print ""
   end
 end
