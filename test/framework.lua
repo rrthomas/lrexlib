@@ -30,8 +30,7 @@ local function packNT (...)
   local t = {}
   for i=1, select ("#", ...) do
     local v = select (i, ...)
-    if v == nil then v = NT end
-    t[i] = v
+    t[i] = (v == nil) and NT or v
   end
   return t
 end
