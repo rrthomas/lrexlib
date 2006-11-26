@@ -12,9 +12,6 @@
 #  define REX_API LUALIB_API
 #endif
 
-/* helper macro */
-#define DIM(array) (sizeof (array) / sizeof (array[0]))
-
 /* Common structs and functions */
 
 typedef struct { const char* key; int val; } flag_pair;
