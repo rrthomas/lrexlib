@@ -3,11 +3,9 @@
 /* (c) Shmuel Zeigerman 2004-2006 */
 
 #include <stdlib.h>
-#include <mem.h>
-
+#include <ctype.h>
 #include "lua.h"
 #include "lauxlib.h"
-
 #include "common.h"
 
 void *Lmalloc(lua_State *L, size_t size)
@@ -100,17 +98,29 @@ int OptFunction (lua_State *L, int pos) {
 
 /* function plainfind (s, p, [st], [ci]) */
 int plainfind_func (lua_State *L) {
-  typedef int (*f_comp)(const void*, const void*, size_t);
   size_t textlen, patlen;
-
   const char *text = luaL_checklstring (L, 1, &textlen);
   const char *pattern = luaL_checklstring (L, 2, &patlen);
   const char *from = text + get_startoffset (L, 3, textlen);
-  f_comp func = lua_toboolean (L, 4) ? memicmp : memcmp;
+  int ci = lua_toboolean (L, 4);
   const char *end = text + textlen;
 
   for (; from + patlen <= end; ++from) {
-    if (!(*func) (from, pattern, patlen)) {
+    const char *f = from, *p = pattern;
+    size_t len = patlen + 1;
+    if (ci) {
+      while (--len) {
+        if (toupper (*f++) != toupper (*p++))
+          break;
+      }
+    }
+    else {
+      while (--len) {
+        if (*f++ != *p++)
+          break;
+      }
+    }
+    if (len == 0) {
       lua_pushinteger (L, from - text + 1);
       lua_pushinteger (L, from - text + patlen);
       return 2;
