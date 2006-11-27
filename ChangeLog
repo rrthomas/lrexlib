@@ -1,3 +1,8 @@
+2006-11-27  Shmuel
+
+	* common.c (plainfind_func): rewritten to not use memicmp
+	* test/*.lua: every test returns number of failures
+
 2006-11-26  Shmuel
 
 	* lpcre.c, lposix.c: all Check_arg_* functions renamed to Checkarg_*
