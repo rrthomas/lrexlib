@@ -54,42 +54,48 @@ local function new (lib, par)
     or lib.new (par)
 end
 
-local function run_func (func, par)
+function run_func (func, par)
   local ptype = type (par)
   return ptype == nil and packNT (func ())
     or ptype == "table" and packNT (func (unpackNT (par)))
     or packNT (func (par))
 end
 
-local function run_method (r, name, par)
+function run_method (r, name, par)
   local ptype = type (par)
   return ptype == "nil" and packNT (r[name] (r))
     or ptype == "table" and packNT (r[name] (r, unpackNT (par)))
     or packNT(r[name] (r, par))
 end
 
-function test_func (lib, set)
+function test_func (lib, set) -- returns number of tests failed
   print (set.SetName or "Unnamed set")
   assert (type (set.FMName) == "string")
   local func = lib[set.FMName]
   assert (type(func) == "function")
+  local nfail = 0
   for i,v in ipairs (set) do
     assert (type(v) == "table")
     if not eq (run_func (func, v[1]), v[2]) then
+      nfail = nfail + 1
       print ("  Test " .. i)
     end
   end
+  return nfail
 end
 
-function test_method (lib, set)
+function test_method (lib, set) -- returns number of tests failed
   print (set.SetName or "Unnamed set")
   assert (type (set.FMName) == "string")
+  local nfail = 0
   for i,v in ipairs (set) do
     assert (type(v) == "table")
     local r = new (lib, v[1])
     if not eq (run_method (r, set.FMName, v[2]), v[3]) then
+      nfail = nfail + 1
       print ("  Test " .. i)
     end
   end
+  return nfail
 end
 

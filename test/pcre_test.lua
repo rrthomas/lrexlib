@@ -12,7 +12,8 @@ local function test_func_gmatch (lib)
   for a, b in lib.gmatch (subj, "(.)b.(d)") do
     if a == "a" and b == "d" then rep = rep - 1 end
   end
-  if rep ~= 0 then print ("  FAIL") end
+  if rep ~= 0 then print ("  FAIL") return 1 end
+  return 0
 end
 
 -- r:gmatch (s, [ef])
@@ -24,7 +25,8 @@ local function test_method_gmatch (lib)
   for a, b in r:gmatch (subj) do
     if a == "a" and b == "d" then rep = rep - 1 end
   end
-  if rep ~= 0 then print ("  FAIL") end
+  if rep ~= 0 then print ("  FAIL") return 1 end
+  return 0
 end
 
 -- r:oldgmatch (s, f, [n], [ef])
@@ -39,11 +41,11 @@ local function test_method_oldgmatch (lib)
     if m == "abcd" and fw.eq (t, {"a","d"}) then rep = rep - 1 end
   end
   r:oldgmatch (subj, decr)
-  if rep ~= 0 then print ("  FAIL") return end
+  if rep ~= 0 then print ("  FAIL") return 1 end
   -------- 2:  limiting number of matches in advance
   rep, n = 10, 4
   r:oldgmatch (subj, decr, n)
-  if rep + n ~= 10 then print ("  FAIL") return end
+  if rep + n ~= 10 then print ("  FAIL") return 1 end
   -------- 3:  break iterations from the callback
   rep = 10
   local f2 = function (m, t)
@@ -51,26 +53,23 @@ local function test_method_oldgmatch (lib)
     if rep == 3 then return true end
   end
   r:oldgmatch (subj, f2)
-  if rep ~= 3 then print ("  FAIL") return end
+  if rep ~= 3 then print ("  FAIL") return 1 end
   -------- 4: named subpatterns
-  rep = 3
   r = lib.new ("(?P<dog>.)b.(?P<cat>d)")
-  r:oldgmatch (subj,
+  rep = r:oldgmatch (subj,
     function (m, t)
-      if t.dog ~= "a" or t.cat ~= "d" then
-        print ("  FAIL")
-        return true
-      end
+      if t.dog ~= "a" or t.cat ~= "d" then return true end
     end)
+  if rep ~= 10 then print ("  FAIL") return 1 end
+  return 0
 end
 
 local function test_named_subpatterns (lib)
   print ("Named Subpatterns (method oldmatch)")
   local r = lib.new ("(?P<dog>.)b.(?P<cat>d)")
   local _,_,caps = r:oldmatch ("abcd")
-  if caps.dog ~= "a" or caps.cat ~= "d" then
-    print ("  FAIL")
-  end
+  if caps.dog ~= "a" or caps.cat ~= "d" then print ("  FAIL") return 1 end
+  return 0
 end
 
 function testlib (libname)
@@ -84,9 +83,10 @@ function testlib (libname)
   local function callout1 () return 1 end
   local function callout1m () return -1 end
 
-  local function gen (n, m) -- returns: n, n-1, ..., m
-    if n <= m then return m end
-    return n, gen (n-1, m)
+  local function fill (n, m)
+    local t = {}
+    for i = n, m, -1 do table.insert (t, i) end
+    return t
   end
 
   local set_f_find = {
@@ -229,41 +229,45 @@ function testlib (libname)
     { { "(.)b.(d)"},        {"abcd"},                 {1,{4},1}}, --[captures]
     { {"abc"},              {"ab"},                   {N,lib.ERROR_NOMATCH }},
     { {"abc"},              {"ab",N,lib.PARTIAL},     {1,{2},lib.ERROR_PARTIAL} },
-    { {".+"},     {string.rep("a",50),N,N,N,50,50},   {1,{gen(50,26)},0}},-- small ovecsize
+    { {".+"},     {string.rep("a",50),N,N,N,50,50},   {1, fill(50,26), 0}},-- small ovecsize
   }
 
   local set_f_plainfind = {
     SetName = "Function plainfind",
     FMName = "plainfind",
   --  { subj,  patt,  st, ci }    { results }
-    { {"abcd", "bc"},             {2,3}  }, -- [none]
-    { {"abcd", "cd"},             {3,4}  }, -- positive st
-    { {"abcd", "cd", 3},          {3,4}  }, -- positive st
-    { {"abcd", "cd", 4},          {N}    }, -- failing st
-    { {"abcd", "bc", 2},          {2,3}  }, -- positive st
-    { {"abcd", "bc", -4},         {2,3}  }, -- negative st
-    { {"abcd", "bc", 3},          {N}    }, -- failing st
-    { {"abcd", "BC", N, true},    {2,3}  }, -- case insensitive
-    { {"ab\0cd", "b\0c"},         {2,4}  }, -- contains nul
+    { {"abcd", "bc"},             {2,3} }, -- [none]
+    { {"abcd", "dc"},             {N}   }, -- [none]
+    { {"abcd", "cd"},             {3,4} }, -- positive st
+    { {"abcd", "cd", 3},          {3,4} }, -- positive st
+    { {"abcd", "cd", 4},          {N}   }, -- failing st
+    { {"abcd", "bc", 2},          {2,3} }, -- positive st
+    { {"abcd", "bc", -4},         {2,3} }, -- negative st
+    { {"abcd", "bc", 3},          {N}   }, -- failing st
+    { {"abcd", "BC"},             {N}   }, -- case sensitive
+    { {"abcd", "BC", N, true},    {2,3} }, -- case insensitive
+    { {"ab\0cd", "b\0c"},         {2,4} }, -- contains nul
   }
 
   do
-    fw.test_func (lib, set_f_match)
-    fw.test_func (lib, set_f_find)
-    fw.test_func (lib, set_f_plainfind)
-    test_func_gmatch (lib)
+    local n = 0 -- number of failures
+    n = n + fw.test_func (lib, set_f_match)
+    n = n + fw.test_func (lib, set_f_find)
+    n = n + fw.test_func (lib, set_f_plainfind)
+    n = n + test_func_gmatch (lib)
 
-    fw.test_method (lib, set_m_match)
-    fw.test_method (lib, set_m_find)
-    fw.test_method (lib, set_m_exec)
-    fw.test_method (lib, set_m_oldmatch)
-    test_method_gmatch (lib)
-    test_method_oldgmatch (lib)
-    test_named_subpatterns (lib)
+    n = n + fw.test_method (lib, set_m_match)
+    n = n + fw.test_method (lib, set_m_find)
+    n = n + fw.test_method (lib, set_m_exec)
+    n = n + fw.test_method (lib, set_m_oldmatch)
+    n = n + test_method_gmatch (lib)
+    n = n + test_method_oldgmatch (lib)
+    n = n + test_named_subpatterns (lib)
     if lib.MAJOR >= 6 then
-      fw.test_method (lib, set_m_dfa_exec)
+      n = n + fw.test_method (lib, set_m_dfa_exec)
     end
     print ""
+    return n
   end
 end
 
