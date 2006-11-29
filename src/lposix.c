@@ -42,16 +42,17 @@
 #  define EFLAGS_DEFAULT 0
 #endif
 
-const char posix_handle[] = REX_LIBNAME"?regex_handle";
 const char posix_typename[] = REX_LIBNAME"_regex";
+const char *posix_handle = posix_typename;
 
 /*  Data Types
  ******************************************************************************
  */
 
 typedef struct {
-  regex_t r;
-  regmatch_t *match;
+  regex_t      r;
+  regmatch_t * match;
+  int          freed;
 } TPosix;
 
 typedef struct {            /* regcomp arguments */
@@ -75,14 +76,18 @@ typedef struct {            /* regexec arguments */
  */
 
 static TPosix* CheckUD (lua_State *L, int stackpos) {
-  TPosix *ud = (TPosix *)luaL_checkudata (L, stackpos, posix_handle);
-  luaL_argcheck (L, ud != NULL, stackpos, "compiled regexp expected");
-  return ud;
+  return (TPosix *)luaL_checkudata (L, stackpos, posix_handle);
 }
 
 static void Checkarg_new (lua_State *L, TArgComp *argC) {
   argC->pattern = luaL_checklstring (L, 1, &argC->patlen);
   argC->cflags = luaL_optint (L, 2, REG_EXTENDED);
+#ifdef REX_POSIX_EXT
+  if ((argC->cflags & REG_EXTENDED) && (argC->cflags & REG_NOSPEC)) {
+    luaL_argerror (L, 2,
+      "flags REG_EXTENDED and REG_NOSPEC must not be specified together");
+  }
+#endif
 }
 
 /* function find (s, p, [st], [cf], [ef]) */
@@ -130,15 +135,8 @@ static int posix_comp (lua_State *L, const TArgComp *argC, TPosix **pud) {
   int res;
   TPosix *ud;
 
-#ifdef REX_POSIX_EXT
-  if ((argC->cflags & REG_EXTENDED) && (argC->cflags & REG_NOSPEC)) {
-    return luaL_argerror (L, 2,
-      "flags REG_EXTENDED and REG_NOSPEC must not be specified together");
-  }
-#endif
-
   ud = (TPosix *)lua_newuserdata (L, sizeof (TPosix));
-  ud->match = NULL;
+  memset (ud, 0, sizeof (TPosix));          /* initialize all members to 0 */
 
 #ifdef REX_POSIX_EXT
   if (argC->cflags & REG_PEND)
@@ -146,7 +144,7 @@ static int posix_comp (lua_State *L, const TArgComp *argC, TPosix **pud) {
 #endif
 
   res = regcomp (&ud->r, argC->pattern, argC->cflags);
-  if (res) {
+  if (res != 0) {
     size_t sz = regerror (res, &ud->r, NULL, 0);
     char *errbuf = (char *) lua_newuserdata (L, sz+1);
     regerror (res, &ud->r, errbuf, sz);
@@ -458,8 +456,9 @@ static int posix_oldgmatch_method (lua_State *L) {
 }
 
 static int posix_gc (lua_State *L) {
-  TPosix *ud = (TPosix *)luaL_checkudata (L, 1, posix_handle);
-  if (ud) {
+  TPosix *ud = CheckUD (L, 1);
+  if (ud->freed == 0) {           /* precaution against "manual" __gc calling */
+    ud->freed = 1;
     regfree (&ud->r);
     if (ud->match)
       free (ud->match);

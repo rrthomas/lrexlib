@@ -22,8 +22,8 @@ extern int Lpcre_get_flags (lua_State *L);
 #  define REX_OPENLIB luaopen_rex_pcre
 #endif
 
-const char pcre_handle[] = REX_LIBNAME"?regex_handle";
 const char pcre_typename[] = REX_LIBNAME"_regex";
+const char *pcre_handle = pcre_typename;
 
 /*  Data Types
  ******************************************************************************
@@ -35,6 +35,7 @@ typedef struct {
   int        * match;
   int          ncapt;
   const unsigned char * tables;
+  int          freed;
 } TPcre;
 
 typedef struct {             /* pcre_compile arguments */
@@ -68,9 +69,7 @@ typedef struct {
  */
 
 static TPcre* CheckUD (lua_State *L, int stackpos) {
-  TPcre *ud = (TPcre *)luaL_checkudata (L, stackpos, pcre_handle);
-  luaL_argcheck (L, ud != NULL, stackpos, "compiled regexp expected");
-  return ud;
+  return (TPcre *)luaL_checkudata (L, stackpos, pcre_handle);
 }
 
 static void Checkarg_new (lua_State *L, TArgComp *argC) {
@@ -151,21 +150,18 @@ static int Lpcre_comp (lua_State *L, const TArgComp *argC, TPcre **pud) {
   const char *error;
   int erroffset;
   TPcre *ud;
-  const unsigned char *tables = NULL;
+
+  ud = (TPcre*)lua_newuserdata (L, sizeof (TPcre));
+  memset (ud, 0, sizeof (TPcre));           /* initialize all members to 0 */
+  luaL_getmetatable (L, pcre_handle);
+  lua_setmetatable (L, -2);
 
   if (argC->locale) {
-    if (Lpcre_maketables (argC->locale, &tables) != 0)
+    if (Lpcre_maketables (argC->locale, &ud->tables) != 0)
       return luaL_error (L, "cannot set locale");
   }
 
-  ud = (TPcre*)lua_newuserdata (L, sizeof (TPcre));
-  luaL_getmetatable (L, pcre_handle);
-  lua_setmetatable (L, -2);
-  ud->match = NULL;
-  ud->extra = NULL;
-  ud->tables = tables; /* keep this for eventual freeing */
-
-  ud->pr = pcre_compile (argC->pattern, argC->cflags, &error, &erroffset, tables);
+  ud->pr = pcre_compile (argC->pattern, argC->cflags, &error, &erroffset, ud->tables);
   if (!ud->pr) {
     return luaL_error (L, "%s (pattern offset: %d)", error, erroffset+1);
                          /* show offset 1-based as it's common in Lua */
@@ -551,8 +547,9 @@ static int Lpcre_oldgmatch_method (lua_State *L)
 }
 
 static int Lpcre_gc (lua_State *L) {
-  TPcre *ud = (TPcre *)luaL_checkudata (L, 1, pcre_handle);
-  if (ud) {
+  TPcre *ud = CheckUD (L, 1);
+  if (ud->freed == 0) {           /* precaution against "manual" __gc calling */
+    ud->freed = 1;
     if (ud->pr)      pcre_free (ud->pr);
     if (ud->extra)   pcre_free (ud->extra);
     if (ud->tables)  pcre_free ((void *)ud->tables);
