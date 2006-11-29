@@ -1,3 +1,11 @@
+2006-11-29  Shmuel
+
+	* test/*.lua: refactoring.
+
+2006-11-28  Shmuel
+
+	* lpcre.c (Lpcre_dfa_exec): one Lmalloc call instead of two.
+
 2006-11-27  Shmuel
 
 	* common.c (plainfind_func): rewritten to not use memicmp
