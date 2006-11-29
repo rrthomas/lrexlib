@@ -68,34 +68,46 @@ function run_method (r, name, par)
     or packNT(r[name] (r, par))
 end
 
-function test_func (lib, set) -- returns number of tests failed
-  print (set.SetName or "Unnamed set")
-  assert (type (set.FMName) == "string")
-  local func = lib[set.FMName]
-  assert (type(func) == "function")
-  local nfail = 0
-  for i,v in ipairs (set) do
-    assert (type(v) == "table")
-    if not eq (run_func (func, v[1]), v[2]) then
-      nfail = nfail + 1
-      print ("  Test " .. i)
+-- returns: a list of failed tests numbers
+function test (lib, set)
+  local list = {}
+
+  if set.Test == "function" then
+    assert (type (set.FMName) == "string")
+    local func = lib[set.FMName]
+    assert (type(func) == "function")
+    for i,v in ipairs (set) do
+      assert (type(v) == "table")
+      if not eq (run_func (func, v[1]), v[2]) then
+        table.insert (list, i)
+      end
     end
+
+  elseif set.Test == "method" then
+    assert (type (set.FMName) == "string")
+    for i,v in ipairs (set) do
+      assert (type(v) == "table")
+      local r = new (lib, v[1])
+      if not eq (run_method (r, set.FMName, v[2]), v[3]) then
+        table.insert (list, i)
+      end
+    end
+
+  elseif set.Test == "custom" then
+    assert (type (set.Func) == "function")
+    if set.Func (lib) ~= 0 then table.insert (list, 1) end
   end
-  return nfail
+
+  return list
 end
 
-function test_method (lib, set) -- returns number of tests failed
+-- returns: number of failures
+function test2 (lib, set)
   print (set.SetName or "Unnamed set")
-  assert (type (set.FMName) == "string")
-  local nfail = 0
-  for i,v in ipairs (set) do
-    assert (type(v) == "table")
-    local r = new (lib, v[1])
-    if not eq (run_method (r, set.FMName, v[2]), v[3]) then
-      nfail = nfail + 1
-      print ("  Test " .. i)
-    end
+  local err = test (lib, set)
+  for _,v in ipairs (err) do
+    print ("  Test " .. v)
   end
-  return nfail
+  return #err
 end
 

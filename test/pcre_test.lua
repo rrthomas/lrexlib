@@ -4,76 +4,7 @@ module (..., package.seeall)
 
 local fw = require "framework"
 
--- gmatch (s, p, [cf], [ef], [lo])
-local function test_func_gmatch (lib)
-  print ("Function gmatch")
-  local rep = 10
-  local subj = string.rep ("abcd", rep)
-  for a, b in lib.gmatch (subj, "(.)b.(d)") do
-    if a == "a" and b == "d" then rep = rep - 1 end
-  end
-  if rep ~= 0 then print ("  FAIL") return 1 end
-  return 0
-end
-
--- r:gmatch (s, [ef])
-local function test_method_gmatch (lib)
-  print ("Method gmatch")
-  local rep = 10
-  local subj = string.rep ("abcd", rep)
-  local r = lib.new ("(.)b.(d)")
-  for a, b in r:gmatch (subj) do
-    if a == "a" and b == "d" then rep = rep - 1 end
-  end
-  if rep ~= 0 then print ("  FAIL") return 1 end
-  return 0
-end
-
--- r:oldgmatch (s, f, [n], [ef])
-local function test_method_oldgmatch (lib)
-  print ("Method oldgmatch")
-  local r = lib.new ("(.)b.(d)")
-  local subj = string.rep ("abcd", 10)
-  local rep, n
-  -------- 1:  simple case
-  rep = 10
-  local decr = function (m, t)
-    if m == "abcd" and fw.eq (t, {"a","d"}) then rep = rep - 1 end
-  end
-  r:oldgmatch (subj, decr)
-  if rep ~= 0 then print ("  FAIL") return 1 end
-  -------- 2:  limiting number of matches in advance
-  rep, n = 10, 4
-  r:oldgmatch (subj, decr, n)
-  if rep + n ~= 10 then print ("  FAIL") return 1 end
-  -------- 3:  break iterations from the callback
-  rep = 10
-  local f2 = function (m, t)
-    decr (m, t)
-    if rep == 3 then return true end
-  end
-  r:oldgmatch (subj, f2)
-  if rep ~= 3 then print ("  FAIL") return 1 end
-  -------- 4: named subpatterns
-  r = lib.new ("(?P<dog>.)b.(?P<cat>d)")
-  rep = r:oldgmatch (subj,
-    function (m, t)
-      if t.dog ~= "a" or t.cat ~= "d" then return true end
-    end)
-  if rep ~= 10 then print ("  FAIL") return 1 end
-  return 0
-end
-
-local function test_named_subpatterns (lib)
-  print ("Named Subpatterns (method oldmatch)")
-  local r = lib.new ("(?P<dog>.)b.(?P<cat>d)")
-  local _,_,caps = r:oldmatch ("abcd")
-  if caps.dog ~= "a" or caps.cat ~= "d" then print ("  FAIL") return 1 end
-  return 0
-end
-
 function testlib (libname)
-
   print ("[Library: " .. libname .. "]")
   local lib = require (libname)
   lib:flags()
@@ -89,9 +20,90 @@ function testlib (libname)
     return t
   end
 
+  local set_f_gmatch = {
+  -- gmatch (s, p, [cf], [ef], [lo])
+    SetName = "Function gmatch",
+    Test = "custom",
+    Func = function (lib)
+      local rep = 10
+      local subj = string.rep ("abcd", rep)
+      for a, b in lib.gmatch (subj, "(.)b.(d)") do
+        if a == "a" and b == "d" then rep = rep - 1 end
+      end
+      if rep ~= 0 then return 1 end
+      return 0
+    end
+  }
+
+  local set_m_gmatch = {
+  -- r:gmatch (s, [ef])
+    SetName = "Method gmatch",
+    Test = "custom",
+    Func = function (lib)
+      local rep = 10
+      local subj = string.rep ("abcd", rep)
+      local r = lib.new ("(.)b.(d)")
+      for a, b in r:gmatch (subj) do
+        if a == "a" and b == "d" then rep = rep - 1 end
+      end
+      if rep ~= 0 then return 1 end
+      return 0
+    end
+  }
+
+  local set_m_oldgmatch = {
+    -- r:oldgmatch (s, f, [n], [ef])
+    SetName = "Method oldgmatch",
+    Test = "custom",
+    Func = function (lib)
+      local r = lib.new ("(.)b.(d)")
+      local subj = string.rep ("abcd", 10)
+      local rep, n
+      -------- 1:  simple case
+      rep = 10
+      local decr = function (m, t)
+        if m == "abcd" and fw.eq (t, {"a","d"}) then rep = rep - 1 end
+      end
+      r:oldgmatch (subj, decr)
+      if rep ~= 0 then return 1 end
+      -------- 2:  limiting number of matches in advance
+      rep, n = 10, 4
+      r:oldgmatch (subj, decr, n)
+      if rep + n ~= 10 then return 1 end
+      -------- 3:  break iterations from the callback
+      rep = 10
+      local f2 = function (m, t)
+        decr (m, t)
+        if rep == 3 then return true end
+      end
+      r:oldgmatch (subj, f2)
+      if rep ~= 3 then return 1 end
+      -------- 4: named subpatterns
+      r = lib.new ("(?P<dog>.)b.(?P<cat>d)")
+      rep = r:oldgmatch (subj,
+        function (m, t)
+          if t.dog ~= "a" or t.cat ~= "d" then return true end
+        end)
+      if rep ~= 10 then return 1 end
+      return 0
+    end
+  }
+
+  local set_named_subpatterns = {
+    SetName = "Named Subpatterns (method oldmatch)",
+    Test = "custom",
+    Func = function (lib)
+      local r = lib.new ("(?P<dog>.)b.(?P<cat>d)")
+      local _,_,caps = r:oldmatch ("abcd")
+      if caps.dog ~= "a" or caps.cat ~= "d" then return 1 end
+      return 0
+    end
+  }
+
   local set_f_find = {
     SetName = "Function find",
     FMName = "find",
+    Test = "function",
   --  { subj,  patt,  st, cf, ef, lo, co }      { results }
     { {"abcd", ".+"},                           { 1,4 }   }, -- [none]
     { {"abcd", ".+",  2},                       { 2,4 }   }, -- positive st
@@ -112,6 +124,7 @@ function testlib (libname)
   local set_m_find = {
     SetName = "Method find",
     FMName = "find",
+    Test = "method",
   --  {patt,cf,lo},         {subj,st,ef,co}          { results }
     { {".+"},               {"abcd"},                { 1,4 }   }, -- [none]
     { {".+"},               {"abcd",2},              { 2,4 }   }, -- positive st
@@ -132,6 +145,7 @@ function testlib (libname)
   local set_f_match = {
     SetName = "Function match",
     FMName = "match",
+    Test = "function",
   --  { subj,  patt,  st, cf, ef, lo, co }      { results }
     { {"abcd", ".+"},                           {"abcd"}  }, -- [none]
     { {"abcd", ".+",  2},                       { "bcd"}  }, -- positive st
@@ -152,6 +166,7 @@ function testlib (libname)
   local set_m_match = {
     SetName = "Method match",
     FMName = "match",
+    Test = "method",
   --  {patt,cf,lo},         {subj,st,ef,co}          { results }
     { {".+"},               {"abcd"},                 {"abcd"}  }, -- [none]
     { {".+"},               {"abcd",2},               { "bcd"}  }, -- positive st
@@ -172,6 +187,7 @@ function testlib (libname)
   local set_m_exec = {
     SetName = "Method exec",
     FMName = "exec",
+    Test = "method",
   --  {patt,cf,lo},         {subj,st,ef,co}          { results }
     { {".+"},               {"abcd"},                 {1,4,{},1}  }, -- [none]
     { {".+"},               {"abcd",2},               {2,4,{},1}  }, -- positive st
@@ -192,6 +208,7 @@ function testlib (libname)
   local set_m_oldmatch = {
     SetName = "Method oldmatch",
     FMName = "oldmatch",
+    Test = "method",
   --  {patt,cf,lo},         {subj,st,ef,co}          { results }
     { {".+"},               {"abcd"},                 {1,4,{},1}  }, -- [none]
     { {".+"},               {"abcd",2},               {2,4,{},1}  }, -- positive st
@@ -212,6 +229,7 @@ function testlib (libname)
   local set_m_dfa_exec = {
     SetName = "Method dfa_exec",
     FMName = "dfa_exec",
+    Test = "method",
   --  {patt,cf,lo},         {subj,st,ef,co,os,ws}     { results }
     { {".+"},               {"abcd"},                 {1,{4,3,2,1},4} }, -- [none]
     { {".+"},               {"abcd",2},               {2,{4,3,2},  3} }, -- positive st
@@ -235,6 +253,7 @@ function testlib (libname)
   local set_f_plainfind = {
     SetName = "Function plainfind",
     FMName = "plainfind",
+    Test = "function",
   --  { subj,  patt,  st, ci }    { results }
     { {"abcd", "bc"},             {2,3} }, -- [none]
     { {"abcd", "dc"},             {N}   }, -- [none]
@@ -251,20 +270,20 @@ function testlib (libname)
 
   do
     local n = 0 -- number of failures
-    n = n + fw.test_func (lib, set_f_match)
-    n = n + fw.test_func (lib, set_f_find)
-    n = n + fw.test_func (lib, set_f_plainfind)
-    n = n + test_func_gmatch (lib)
+    n = n + fw.test2 (lib, set_f_match)
+    n = n + fw.test2 (lib, set_f_find)
+    n = n + fw.test2 (lib, set_f_plainfind)
+    n = n + fw.test2 (lib, set_m_match)
+    n = n + fw.test2 (lib, set_m_find)
+    n = n + fw.test2 (lib, set_m_exec)
+    n = n + fw.test2 (lib, set_m_oldmatch)
+    n = n + fw.test2 (lib, set_f_gmatch)
+    n = n + fw.test2 (lib, set_m_gmatch)
+    n = n + fw.test2 (lib, set_m_oldgmatch)
+    n = n + fw.test2 (lib, set_named_subpatterns)
 
-    n = n + fw.test_method (lib, set_m_match)
-    n = n + fw.test_method (lib, set_m_find)
-    n = n + fw.test_method (lib, set_m_exec)
-    n = n + fw.test_method (lib, set_m_oldmatch)
-    n = n + test_method_gmatch (lib)
-    n = n + test_method_oldgmatch (lib)
-    n = n + test_named_subpatterns (lib)
     if lib.MAJOR >= 6 then
-      n = n + fw.test_method (lib, set_m_dfa_exec)
+      n = n + fw.test2 (lib, set_m_dfa_exec)
     end
     print ""
     return n
