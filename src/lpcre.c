@@ -347,11 +347,12 @@ static int Lpcre_dfa_exec (lua_State *L)
   TArgExec argE;
   TExecData ed;
   int res;
-  int *ovector, *wspace;
+  int *buf, *ovector, *wspace;
 
   Checkarg_dfa_exec_method (L, &argE);
-  ovector = (int*) Lmalloc (L, argE.ovecsize * sizeof(int));
-  wspace = (int*) Lmalloc (L, argE.wscount * sizeof(int));
+  buf = (int*) Lmalloc (L, (argE.ovecsize + argE.wscount) * sizeof(int));
+  ovector = buf;
+  wspace = buf + argE.ovecsize;
 
   LpcreSetExecData (L, &argE, &ed);
   res = pcre_dfa_exec (argE.ud->pr, ed.ptr_extra, argE.text, (int)argE.textlen,
@@ -374,8 +375,7 @@ static int Lpcre_dfa_exec (lua_State *L)
     lua_pushinteger (L, res);
     res = 2;
   }
-  free (wspace);
-  free (ovector);
+  free (buf);
   return res;
 }
 #endif /* #if PCRE_MAJOR >= 6 */
