@@ -2,6 +2,9 @@
 
 	* test/*.lua: refactoring.
 	* lpcre.c, lposix.c: refactoring.
+	* lpcre.c, lposix.c (oldmatch): renamed to tfind.
+	* lpcre.c, lposix.c (oldgmatch): renamed to tgfind.
+	* */*.lua: renamed: oldmatch -> tfind; oldgmatch -> tgfind.
 
 2006-11-28  Shmuel
 
