@@ -1,6 +1,7 @@
 2006-11-29  Shmuel
 
 	* test/*.lua: refactoring.
+	* lpcre.c, lposix.c: refactoring.
 
 2006-11-28  Shmuel
 
