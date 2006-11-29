@@ -127,8 +127,8 @@ static void Checkarg_gmatch_func (lua_State *L, TArgComp *argC, TArgExec *argE) 
   argC->locale = luaL_optstring (L, 5, NULL);
 }
 
-/* method r:oldgmatch (s, f, [n], [ef]) */
-static void Checkarg_oldgmatch_method (lua_State *L, TArgExec *argE) {
+/* method r:tgfind (s, f, [n], [ef]) */
+static void Checkarg_tgfind_method (lua_State *L, TArgExec *argE) {
   argE->ud = CheckUD (L, 1);
   argE->text = luaL_checklstring (L, 2, &argE->textlen);
   argE->funcpos = CheckFunction (L, 3);
@@ -314,7 +314,7 @@ static void LpcreSetExecData (lua_State *L, const TArgExec *argE, TExecData *trg
 
 typedef void (*fptrPushMatches) (lua_State *L, const TArgExec *argE);
 
-static int Lpcre_oldmatch_generic (lua_State *L, fptrPushMatches push_matches) {
+static int Lpcre_tfind_generic (lua_State *L, fptrPushMatches push_matches) {
   TArgExec argE;
   TExecData ed;
   int res;
@@ -376,12 +376,12 @@ static int Lpcre_dfa_exec (lua_State *L)
 }
 #endif /* #if PCRE_MAJOR >= 6 */
 
-static int Lpcre_oldmatch_method (lua_State *L) {
-  return Lpcre_oldmatch_generic (L, Lpcre_push_substrings);
+static int Lpcre_tfind_method (lua_State *L) {
+  return Lpcre_tfind_generic (L, Lpcre_push_substrings);
 }
 
 static int Lpcre_exec_method (lua_State *L) {
-  return Lpcre_oldmatch_generic (L, Lpcre_push_offsets);
+  return Lpcre_tfind_generic (L, Lpcre_push_offsets);
 }
 
 static int Lpcre_gmatch_iter (lua_State *L) {
@@ -513,14 +513,14 @@ static int Lpcre_match_func (lua_State *L) {
   return Lpcre_findmatch_func (L, 0);
 }
 
-static int Lpcre_oldgmatch_method (lua_State *L)
+static int Lpcre_tgfind_method (lua_State *L)
 {
   int res, nmatch=0, startoffset=0;
   size_t len;
   TPcre *ud;
 
   TArgExec argE;
-  Checkarg_oldgmatch_method (L, &argE);
+  Checkarg_tgfind_method (L, &argE);
   ud = argE.ud;
 
   while (argE.maxmatch <= 0 || nmatch < argE.maxmatch) {
@@ -602,8 +602,8 @@ static const luaL_reg pcremeta[] = {
   { "match",      Lpcre_match_method },
   { "find",       Lpcre_find_method },
   { "exec",       Lpcre_exec_method },
-  { "oldmatch",   Lpcre_oldmatch_method },
-  { "oldgmatch",  Lpcre_oldgmatch_method },
+  { "tfind",      Lpcre_tfind_method },    /* old match */
+  { "tgfind",     Lpcre_tgfind_method },   /* old gmatch */
   { "__gc",       Lpcre_gc },
   { "__tostring", Lpcre_tostring },
 #if PCRE_MAJOR >= 6

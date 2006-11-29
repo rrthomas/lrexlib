@@ -51,9 +51,9 @@ function testlib (libname)
     end
   }
 
-  local set_m_oldgmatch = {
-    -- r:oldgmatch (s, f, [n], [ef])
-    SetName = "Method oldgmatch",
+  local set_m_tgfind = {
+    -- r:tgfind (s, f, [n], [ef])
+    SetName = "Method tgfind",
     Test = "custom",
     Func = function (lib)
       local r = lib.new ("(.)b.(d)")
@@ -64,11 +64,11 @@ function testlib (libname)
       local decr = function (m, t)
         if m == "abcd" and fw.eq (t, {"a","d"}) then rep = rep - 1 end
       end
-      r:oldgmatch (subj, decr)
+      r:tgfind (subj, decr)
       if rep ~= 0 then return 1 end
       -------- 2:  limiting number of matches in advance
       rep, n = 10, 4
-      r:oldgmatch (subj, decr, n)
+      r:tgfind (subj, decr, n)
       if rep + n ~= 10 then return 1 end
       -------- 3:  break iterations from the callback
       rep = 10
@@ -76,11 +76,11 @@ function testlib (libname)
         decr (m, t)
         if rep == 3 then return true end
       end
-      r:oldgmatch (subj, f2)
+      r:tgfind (subj, f2)
       if rep ~= 3 then return 1 end
       -------- 4: named subpatterns
       r = lib.new ("(?P<dog>.)b.(?P<cat>d)")
-      rep = r:oldgmatch (subj,
+      rep = r:tgfind (subj,
         function (m, t)
           if t.dog ~= "a" or t.cat ~= "d" then return true end
         end)
@@ -90,11 +90,11 @@ function testlib (libname)
   }
 
   local set_named_subpatterns = {
-    SetName = "Named Subpatterns (method oldmatch)",
+    SetName = "Named Subpatterns (method tfind)",
     Test = "custom",
     Func = function (lib)
       local r = lib.new ("(?P<dog>.)b.(?P<cat>d)")
-      local _,_,caps = r:oldmatch ("abcd")
+      local _,_,caps = r:tfind ("abcd")
       if caps.dog ~= "a" or caps.cat ~= "d" then return 1 end
       return 0
     end
@@ -205,9 +205,9 @@ function testlib (libname)
     { { "(.)b.(d)"},        {"abcd"},                 {1,4,{1,1,4,4},3}},--[captures]
   }
 
-  local set_m_oldmatch = {
-    SetName = "Method oldmatch",
-    FMName = "oldmatch",
+  local set_m_tfind = {
+    SetName = "Method tfind",
+    FMName = "tfind",
     Test = "method",
   --  {patt,cf,lo},         {subj,st,ef,co}          { results }
     { {".+"},               {"abcd"},                 {1,4,{},1}  }, -- [none]
@@ -276,10 +276,10 @@ function testlib (libname)
     n = n + fw.test2 (lib, set_m_match)
     n = n + fw.test2 (lib, set_m_find)
     n = n + fw.test2 (lib, set_m_exec)
-    n = n + fw.test2 (lib, set_m_oldmatch)
+    n = n + fw.test2 (lib, set_m_tfind)
     n = n + fw.test2 (lib, set_f_gmatch)
     n = n + fw.test2 (lib, set_m_gmatch)
-    n = n + fw.test2 (lib, set_m_oldgmatch)
+    n = n + fw.test2 (lib, set_m_tgfind)
     n = n + fw.test2 (lib, set_named_subpatterns)
 
     if lib.MAJOR >= 6 then

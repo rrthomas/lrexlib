@@ -58,7 +58,7 @@ function gsub (s, p, f, n, cf, ef, lo)
   local efr = bit.bor (ef or 0, NOTEMPTY, ANCHORED)
   local retry
   while (not n) or reps < n do
-    local from, to, cap = reg:oldmatch (s, st, retry and efr or ef)
+    local from, to, cap = reg:tfind (s, st, retry and efr or ef)
     if from then
       table.insert (r, string.sub (s, st, from - 1))
       if #cap == 0 then

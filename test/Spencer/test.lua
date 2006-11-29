@@ -134,7 +134,7 @@ local function DoOneTest(line, lineno)
   end
 
   local function Match(expr)
-    local s,e,t = expr:oldmatch(Prop.f3, Start, Eflags)
+    local s,e,t = expr:tfind(Prop.f3, Start, Eflags)
     if Mustfail and s or not Mustfail and not s then
       return Error("match result is not as expected")
     end

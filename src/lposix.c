@@ -122,8 +122,8 @@ static void Checkarg_gmatch_func (lua_State *L, TArgComp *argC, TArgExec *argE) 
   argE->eflags = luaL_optint (L, 4, EFLAGS_DEFAULT);
 }
 
-/* method r:oldgmatch (s, f, [n], [ef]) */
-static void Checkarg_oldgmatch_method (lua_State *L, TArgExec *argE) {
+/* method r:tgfind (s, f, [n], [ef]) */
+static void Checkarg_tgfind_method (lua_State *L, TArgExec *argE) {
   argE->ud = CheckUD (L, 1);
   argE->text = luaL_checklstring (L, 2, &argE->textlen);
   argE->funcpos = CheckFunction (L, 3);
@@ -221,7 +221,7 @@ static void CheckStartEnd (TArgExec *argE) {
 #endif
 }
 
-static int posix_oldmatch_generic (lua_State *L, posix_push_matches push_matches)
+static int posix_tfind_generic (lua_State *L, posix_push_matches push_matches)
 {
   size_t elen;
   int res;
@@ -246,14 +246,14 @@ static int posix_oldmatch_generic (lua_State *L, posix_push_matches push_matches
   return 2;
 }
 
-static int posix_oldmatch_method (lua_State *L)
+static int posix_tfind_method (lua_State *L)
 {
-  return posix_oldmatch_generic (L, posix_push_substrings);
+  return posix_tfind_generic (L, posix_push_substrings);
 }
 
 static int posix_exec_method (lua_State *L)
 {
-  return posix_oldmatch_generic (L, posix_push_offsets);
+  return posix_tfind_generic (L, posix_push_offsets);
 }
 
 static int posix_gmatch_iter (lua_State *L)
@@ -410,12 +410,12 @@ static int posix_match_func (lua_State *L) {
   return posix_findmatch_func (L, 0);
 }
 
-static int posix_oldgmatch_method (lua_State *L) {
+static int posix_tgfind_method (lua_State *L) {
   int res, nmatch=0, limit=0;
   TArgExec argE;
   TPosix *ud;
 
-  Checkarg_oldgmatch_method (L, &argE);
+  Checkarg_tgfind_method (L, &argE);
   ud = argE.ud;
 
   if (argE.maxmatch > 0) /* this must be stated in the docs */
@@ -512,12 +512,12 @@ static int posix_get_flags (lua_State *L) {
 }
 
 static const luaL_reg posixmeta[] = {
-  { "exec",       posix_exec_method },
-  { "oldmatch",   posix_oldmatch_method },
-  { "oldgmatch",  posix_oldgmatch_method },
   { "gmatch",     posix_gmatch_method },
-  { "find",       posix_find_method },
   { "match",      posix_match_method },
+  { "find",       posix_find_method },
+  { "exec",       posix_exec_method },
+  { "tfind",      posix_tfind_method },    /* old match */
+  { "tgfind",     posix_tgfind_method },   /* old gmatch */
   { "__gc",       posix_gc },
   { "__tostring", posix_tostring },
   { NULL, NULL}

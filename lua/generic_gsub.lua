@@ -68,7 +68,7 @@ function generic_gsub (new, str, pat, repl, n, cflags, eflags)
 
   while not n or n > reps do
 
-    local from,to,cap = reg:oldmatch(str, start, eflags)
+    local from,to,cap = reg:tfind(str, start, eflags)
     if not from then break end
     insert( tb_out, sub(str, start, from-1) )
 

@@ -4,8 +4,13 @@ require "posix_test"
 require "pcre_test"
 
 do
+  local arg1 = ...
+  local verbose = (arg1 == "-v")
   local oldprint = print
-  print = function() end -- make it silent
+  if not verbose then
+    print = function() end
+  end
+
   local n = 0
   n = n + pcre_test.testlib ("rex_pcre")
   n = n + pcre_test.testlib ("rex_pcre_nr")
