@@ -62,7 +62,7 @@ typedef struct {
   pcre_extra * ptr_extra;     /* pointer to used pcre_extra block */
   lua_State  * L;             /* lua state */
   int          funcpos;       /* function position on Lua stack */
-} TExecData;
+} TCallout;
 
 /*  Functions
  ******************************************************************************
@@ -254,16 +254,16 @@ static void put_integer (lua_State *L, const char *key, int value) {
 }
 
 static int Lpcre_callout (pcre_callout_block *blk) {
-  TExecData *data;
+  TCallout *co;
   lua_State *L;
   int result;
 
   if (!blk || !blk->callout_data)
     return 0;
 
-  data = (TExecData*) blk->callout_data;
-  L = data->L;
-  lua_pushvalue (L, data->funcpos);
+  co = (TCallout*) blk->callout_data;
+  L = co->L;
+  lua_pushvalue (L, co->funcpos);
   lua_newtable (L);
   put_integer (L, "version", blk->version);                       /* version */
   put_integer (L, "callout_number", blk->callout_number);         /* callout number */
@@ -291,24 +291,18 @@ static int Lpcre_callout (pcre_callout_block *blk) {
   return result;
 }
 
-static void LpcreSetExecData (lua_State *L, const TArgExec *argE, TExecData *trg) {
-  /* check callout and initialize if required */
-  trg->funcpos = 0;
-  trg->ptr_extra = argE->ud->extra;
+static void SetupCallout (lua_State *L, const TArgExec *argE, TCallout *co) {
+  memset (co, 0, sizeof (TCallout));
+  co->ptr_extra = argE->ud->extra;
   if (argE->funcpos) {
     pcre_callout = Lpcre_callout;
-    if (trg->ptr_extra == NULL) {
-      /* set up our own pcre_extra block */
-      memset (&trg->own_extra, 0, sizeof (pcre_extra));
-      trg->ptr_extra = &trg->own_extra;
+    if (co->ptr_extra == NULL) {
+      co->ptr_extra = &co->own_extra;   /* set up our own pcre_extra block */
     }
-    trg->ptr_extra->flags |= PCRE_EXTRA_CALLOUT_DATA;
-    trg->ptr_extra->callout_data = trg;
-    trg->funcpos = argE->funcpos;
-    trg->L = L;
-  }
-  else if (trg->ptr_extra) {
-    trg->ptr_extra->callout_data = NULL;
+    co->ptr_extra->flags |= PCRE_EXTRA_CALLOUT_DATA;
+    co->ptr_extra->callout_data = co;
+    co->funcpos = argE->funcpos;
+    co->L = L;
   }
 }
 
@@ -316,15 +310,14 @@ typedef void (*fptrPushMatches) (lua_State *L, const TArgExec *argE);
 
 static int Lpcre_tfind_generic (lua_State *L, fptrPushMatches push_matches) {
   TArgExec argE;
-  TExecData ed;
+  TCallout co;
   int res;
 
   Checkarg_findmatch_method (L, &argE);
-  LpcreSetExecData (L, &argE, &ed);
-  res = pcre_exec (argE.ud->pr, ed.ptr_extra, argE.text, (int)argE.textlen,
+  SetupCallout (L, &argE, &co);
+  res = pcre_exec (argE.ud->pr, co.ptr_extra, argE.text, (int)argE.textlen,
                    argE.startoffset, argE.eflags, argE.ud->match,
                    (argE.ud->ncapt + 1) * 3);
-
   if (res >= 0) {
     lua_pushinteger (L, argE.ud->match[0] + 1);
     lua_pushinteger (L, argE.ud->match[1]);
@@ -341,7 +334,7 @@ static int Lpcre_tfind_generic (lua_State *L, fptrPushMatches push_matches) {
 static int Lpcre_dfa_exec (lua_State *L)
 {
   TArgExec argE;
-  TExecData ed;
+  TCallout co;
   int res;
   int *buf, *ovector, *wspace;
 
@@ -350,8 +343,8 @@ static int Lpcre_dfa_exec (lua_State *L)
   ovector = buf;
   wspace = buf + argE.ovecsize;
 
-  LpcreSetExecData (L, &argE, &ed);
-  res = pcre_dfa_exec (argE.ud->pr, ed.ptr_extra, argE.text, (int)argE.textlen,
+  SetupCallout (L, &argE, &co);
+  res = pcre_dfa_exec (argE.ud->pr, co.ptr_extra, argE.text, (int)argE.textlen,
     argE.startoffset, argE.eflags, ovector, argE.ovecsize, wspace, argE.wscount);
 
   if (res >= 0 || res == PCRE_ERROR_PARTIAL) {
@@ -445,11 +438,11 @@ static int Lpcre_gmatch_func (lua_State *L) {
 }
 
 static int Lpcre_find_generic (lua_State *L, const TArgExec *argE,
-                               TExecData *ed, int find) {
+                               TCallout *co, int find) {
   int i, res;
   TPcre *ud = argE->ud;
 
-  res = pcre_exec (ud->pr, ed->ptr_extra, argE->text, (int)argE->textlen,
+  res = pcre_exec (ud->pr, co->ptr_extra, argE->text, (int)argE->textlen,
     argE->startoffset, argE->eflags, ud->match, (ud->ncapt + 1) * 3);
 
   if (res >= 0) {
@@ -481,10 +474,10 @@ static int Lpcre_find_generic (lua_State *L, const TArgExec *argE,
 
 static int Lpcre_findmatch_method (lua_State *L, int find) {
   TArgExec argE;
-  TExecData ed;
+  TCallout co;
   Checkarg_findmatch_method (L, &argE);
-  LpcreSetExecData (L, &argE, &ed);
-  return Lpcre_find_generic (L, &argE, &ed, find);
+  SetupCallout (L, &argE, &co);
+  return Lpcre_find_generic (L, &argE, &co, find);
 }
 
 static int Lpcre_find_method (lua_State *L) {
@@ -498,11 +491,11 @@ static int Lpcre_match_method (lua_State *L) {
 static int Lpcre_findmatch_func (lua_State *L, int find) {
   TArgComp argC;
   TArgExec argE;
-  TExecData ed;
+  TCallout co;
   Checkarg_findmatch_func (L, &argC, &argE);
   Lpcre_comp (L, &argC, &argE.ud);
-  LpcreSetExecData (L, &argE, &ed);
-  return Lpcre_find_generic (L, &argE, &ed, find);
+  SetupCallout (L, &argE, &co);
+  return Lpcre_find_generic (L, &argE, &co, find);
 }
 
 static int Lpcre_find_func (lua_State *L) {
