@@ -1,3 +1,8 @@
+2006-11-30  Shmuel
+
+	* lpcre.c (TExecData): struct renamed to TCallout.
+	* lpcre.c (LpcreSetExecData): function renamed to SetupCallout.
+
 2006-11-29  Shmuel
 
 	* test/*.lua: refactoring.
