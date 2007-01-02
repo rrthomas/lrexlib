@@ -9,8 +9,25 @@
 @import url(html4css1.css);
 
 hr.docutils {
-  width: 100% }
+  width: 100%
+}
 
 .funcdef {
   font-weight: bold ;
-  font-size: 100% }
+  font-size: 100%
+}
+
+body { 
+    margin-left: 1em ; 
+    margin-right: 1em ; 
+    font-family: "Verdana", sans-serif ;
+}
+
+table {
+  border-spacing: 0;
+}
+
+tr {
+  margin: 0;
+  padding: 0;
+}

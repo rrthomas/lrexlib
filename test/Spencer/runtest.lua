@@ -1,2 +1,2 @@
-local f = dofile("test.lua")
-f ("posix1")
+local f = dofile ("test.lua")
+f ("rex_spencer")

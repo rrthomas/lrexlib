@@ -3,7 +3,7 @@
 
    * runs tests from the file "tests" taken from the regex distribution.
 
-   * tested with Lua versions 5.0 and 5.1, Lrexlib 1.19 and 1.20.
+   * tested with Lua 5.1, Lrexlib 2.0.
 
    * author: Shmuel Zeigerman
 
@@ -13,11 +13,12 @@
      * 10 Nov 2005:      updated due to changes in Lrexlib
      * 07 Sep 2006:      when it is run, does nothing but returns a function;
                          that function accepts 3 parameters
+     * 22 Dec 2006:      got rid of getn; Lua 5.1 is required now.
 --]]------------------------------------------------------------------------
 
 local Rex, Print, Opts, Errcount
 local find, sub, gsub = string.find, string.sub, string.gsub
-local insert, getn = table.insert, table.getn
+local insert = table.insert
 
 local function DoOneTest(line, lineno)
   local Prop = {} -- line properties
@@ -152,9 +153,9 @@ local function DoOneTest(line, lineno)
         insert(t5, c)
         init = b+1
       end
-      if getn(t5) ~= getn(t) then
-        return Error("found number of subexpressions is ".. getn(t) ..
-                     "; needed ".. getn(t5))
+      if #t5 ~= #t then
+        return Error("found number of subexpressions is ".. #t ..
+                     "; needed ".. #t5)
       end
       for i,v in ipairs(t) do
         if v then
@@ -190,7 +191,7 @@ end
 ]]
 local function run (libname, testfile, silent)
   -- process parameters
-  Rex = require (libname or "rex_posix")
+  Rex = require (libname)
   testfile = testfile or "./tests"
   Print = (not silent and print) or (function() end)
 

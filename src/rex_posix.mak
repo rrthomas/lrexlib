@@ -29,20 +29,23 @@ LIB_POSIX =
 #LIB_POSIX = -lrxspencer
 
 # Common settings
-CFLAGS = -W -Wall -O2 $(INC_LUA) $(INC_POSIX) $(COMPAT51)
+MYCFLAGS = -W -Wall -O2 $(INC_LUA) $(INC_POSIX)
 AR = ar rcu
 CC = gcc
+
+# Target name
+TRG = rex_posix
 
 # ===========================================================================
 # === END OF USER SETTINGS ===
 
 V = 2.0
 
-NAME = rex_posix
-
+DEFS   = -DREX_OPENLIB=luaopen_$(TRG) -DREX_LIBNAME=\"$(TRG)\"
+CFLAGS = $(MYCFLAGS) $(DEFS)
 OBJ    = lposix.o common.o
-TRG_AR = lib$(NAME).a
-TRG_SO = $(NAME).so
+TRG_AR = lib$(TRG).a
+TRG_SO = $(TRG).so
 
 all: $(TRG_AR) $(TRG_SO)
 

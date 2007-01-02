@@ -17,20 +17,23 @@ LIB_PCRE = -lpcre
 #LIB_PCRE = -lpcre
 
 # Common settings
-CFLAGS = -W -Wall -O2 $(INC_LUA) $(INC_PCRE) $(COMPAT51)
+MYCFLAGS = -W -Wall -O2 $(INC_LUA) $(INC_PCRE)
 AR = ar rcu
 CC = gcc
+
+# Target name
+TRG = rex_pcre
 
 # ===========================================================================
 # === END OF USER SETTINGS ===
 
 V = 2.0
 
-NAME = rex_pcre
-
+DEFS   = -DREX_OPENLIB=luaopen_$(TRG) -DREX_LIBNAME=\"$(TRG)\"
+CFLAGS = $(MYCFLAGS) $(DEFS)
 OBJ    = lpcre.o lpcre_f.o common.o
-TRG_AR = lib$(NAME).a
-TRG_SO = $(NAME).so
+TRG_AR = lib$(TRG).a
+TRG_SO = $(TRG).so
 
 all: $(TRG_AR) $(TRG_SO)
 
