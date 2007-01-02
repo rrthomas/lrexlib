@@ -1,112 +1,22 @@
-                            Lua rexlib 1.20
-                            ---------------
+                            Lua rexlib 2.0
+                            --------------
 
                     by Reuben Thomas (rrt@sc3d.org)
         and Shmuel Zeigerman (shmuz@actcom.co.il) [maintainer]
 
 
-This archive contains the lrexlib regular expression library for Lua
-5.1. The Makefile provided builds it into shared libraries called
-rex_posix.so and rex_pcre.so, which can be used with require or
-loadlib.
+Lrexlib is a regular expression library for Lua 5.1. The makefiles
+provided build it into shared libraries called rex_posix.so and
+rex_pcre.so, which can be used with require or loadlib.
 
-Lrexlib is copyright Reuben Thomas 2000-2006 and copyright Shmuel
-Zeigerman 2004-2006, and is released under the MIT license, like Lua
+Lrexlib is copyright Reuben Thomas 2000-2007 and copyright Shmuel
+Zeigerman 2004-2007, and is released under the MIT license, like Lua
 (see http://www.lua.org/copyright.html for the full license; it's
 basically the same as the BSD license). There is no warranty.
 
 Please report bugs and make suggestions to the maintainer, or use the
 LuaForge trackers and mailing lists.
 
-Thanks to Thatcher Ulrich for bug and warning fixes, and to Nick
-Gammon for adding support for PCRE named subpatterns.
+Thanks to Thatcher Ulrich for bug and warning fixes,
+and to Nick Gammon for adding support for PCRE named subpatterns.
 
-
-Synopsis
---------
-
-The initialisation function (for use with loadlib) is luaopen_rex.
-
-The library provides POSIX and PCRE regular expression matching:
-
-rex.newPOSIX(p[, cf])
-        returns a POSIX regular expression object for the pattern p,
-        subject to compilation flags cf (a number).
-
-rex.flagsPOSIX()
-        returns a table with available POSIX flags (numbers) keyed by
-        their names (strings).
-
-rex.newPCRE(p[, cf[, lo]])
-        returns a PCRE regular expression object for the pattern p,
-        subject to compilation flags cf (a number) and locale lo (a
-        string).
-
-rex.flagsPCRE()
-        returns a table with available PCRE flags (numbers) keyed by
-        their names (strings).
-
-rex.versionPCRE()
-        returns a string containing version and release date of the
-        used PCRE library.
-
-r:match(s[, st[, ef[, co]]])
-        returns
-          * the start and end point of the first match of the compiled
-            regexp r in the string s, starting from offset st (a
-            number), subject to execution flags ef (a number);
-
-            * PCRE: callout function co may be specified.
-
-          * substring matches ("captures" in Lua terminology) are
-            returned as a third result, in a table (this table
-            contains false in the positions where the corresponding
-            sub-pattern did not match);
-
-            * PCRE: if named subpatterns are used then the table
-              also contains substring matches keyed by their
-              correspondent subpattern names (strings).
-
-r:exec(s[, st[, ef[, co]]])
-        This function is like r:match except that a table returned
-        as a third result contains offsets of substring matches
-        rather than substring matches themselves.
-
-          * PCRE: that table will not contain string keys, even if
-          named subpatterns are used.
-
-        For example, if the whole match is at offsets 10,20 and
-        substring matches are at offsets 12,14 and 16,19 then the
-        function returns the following: 10, 20, { 12,14,16,19 }.
-
-r:dfa_exec(s[, st[, ef[, co]]])
---PCRE 6.0 and higher only--
-
-r:gmatch(s, f[, n[, ef]])
-        Tries to match the regex r against s up to n times (or as
-        many as possible if n is either not given or is not a
-        positive number), subject to execution flags ef;
-
-        Each time there is a match, f is called as f(m, t), where m
-        is the matched string and t is a table of substring matches
-        (this table contains false in the positions where the
-        corresponding sub-pattern did not match.);
-
-          * PCRE: if "named subpatterns" are used then the table also
-            contains substring matches keyed by their correspondent
-            subpattern names (strings).
-
-        If f returns a true value, then gmatch immediately returns;
-        gmatch returns the number of matches made.
-
-Optional arguments supplied as nil are treated as if they had been
-omitted. Regular expression objects are automatically garbage
-collected.
-
-If the library is compiled against Henry Spencer's regex library, then
-regular expressions and the strings to match them against may contain
-NULs. (For PCRE, strings to be matched may contain NULs but patterns
-may not.)
-
-Easy loading and extra functionality is provided by lua/rex.lua (see
-lua/rex.html for documentation).

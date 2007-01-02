@@ -1,7 +1,145 @@
+2007-01-02  Shmuel
+
+	* common.c (CheckFunction, OptFunction): functions removed.
+	* lpcre.c (put_integer): function removed.
+
+2006-12-31  Shmuel
+
+	* common.c (udata_tostring): function removed.
+	* lpcre.c (Lpcre_tostring): added handling of deleted userdatum.
+	* lposix.c (Posix_tostring): added handling of deleted userdatum.
+	* lpcre.c: [API change] method `exec' now supports "named subpatterns".
+	* test/all_test.lua: renamed to runtest.lua.
+
+2006-12-30  Shmuel
+
+	* lpcre.c: [API change] `versionPCRE' renamed to `version'.
+
+2006-12-29  Shmuel
+
+	* lpcre.c: [API change] removed support of PCRE callout.
+	* test/pcre_sets.lua: removed testing of PCRE callout.
+
+2006-12-27  Shmuel
+
+	* lpcre_f.c (config): [API change] the function accepts one optional
+	    argument (a table), like the `flags' function.
+
+2006-12-26  Shmuel
+
+	* lpcre.c, lposix.c (gsub): [API change] method become function.
+	* test/*.lua: modifying tests to reflect methods become functions.
+	* lua/rex.lua: file deleted.
+	* lpcre.c (luaopen_rex_pcre): changed the condition for validating
+	    run-time PCRE version.
+	* lpcre_f.c: added new flags for support of PCRE 7.0.
+	* lpcre.c, lposix.c (checkarg_gsub): if the 3-rd argument is of type
+	    "number" then it is converted to string (as in string.gsub).
+
+2006-12-25  Shmuel
+
+	* lpcre.c, lposix.c (match, find, gmatch, split): [API change]
+	    methods become functions.
+
+2006-12-23  Shmuel
+
+	* test/*.lua: refactoring.
+
+2006-12-22  Shmuel
+
+	* lpcre.c, lposix.c (tfind and exec): [API change]
+	    the return value of the underlying pcre_exec/regexec call
+	    is not added in the case of successfull match.
+	* lpcre.c, lposix.c (gtfind): [API change] method removed.
+	* lpcre.c, lposix.c: Lrexlib 2.0 beta -> Lrexlib 2.0.
+	* test/luatest.lua (eq): bugfix.
+	* lua/*.lua: deleted all lua files except for rex.lua.
+	* lua/rex.lua: fully rewritten; now contains wrappers for all methods.
+
+2006-12-21  Shmuel
+
+	* test/*.lua: added tests for `split' method.
+	* test/luatest.lua (print_results): function added.
+	* test/common_sets.lua: file added.
+
+2006-12-19  Shmuel
+
+	* lpcre.lua:  `split' method added.
+	* lposix.lua: `split' method added.
+	* test/framework.lua: renamed to luatest.lua.
+
+2006-12-15  Shmuel
+
+	* test/*.lua: refactoring.
+
+2006-12-11  Shmuel
+
+	* test/*.lua: refactoring; deleting files; adding new files.
+
+2006-12-10  Shmuel
+
+	* lpcre.c, lposix.c: gmatch bug fixed. Test case added.
+	* lpcre.c, lposix.c: gtfind bug fixed. Test case added.
+
+2006-12-09  Shmuel
+
+	* lua/gsub_test.lua, gsub_tstpsx.lua: 2 files deleted.
+	* lua/posix_sets.lua, pcre_sets.lua, framework.lua, all_test.lua:
+	    4 files added.
+	* lpcre.c, lposix.c, common.c, common.h:
+	    an API alteration in gsub and gtfind methods: if a non-positive number
+	    is supplied as the 'n' parameter, then no iterations are done.
+	    Test cases added to *.lua test files.
+
+2006-12-07  Shmuel
+
+	* lpcre.c, lposix.c (gsub): if parameter rep is a function,
+	    and its 2-nd return value (if present) is a string "break",
+	    then gsub immediately returns.
+	* test/*.lua: refactoring.
+
+2006-12-06  Shmuel
+
+	* lpcre.c, lposix.c: refactoring.
+
+2006-12-05  Shmuel
+
+	* lposix.c: cosmetics.
+
+2006-12-04  Shmuel
+
+	* lpcre.c, lposix.c: introduced new macros: CAP_BEG, CAP_END and CAP_LEN.
+	* lpcre.c, lpcre_f.c, lposix.c: refactoring.
+
+2006-12-03  Shmuel
+
+	* lpcre.c (Lpcre_gsub_func): an improvement.
+	* lposix.c (posix_gsub_func): an improvement.
+	* lpcre.c, lposix.c (gmatch, match, find): functions removed.
+	* lpcre.c, lposix.c: method tgfind renamed to gtfind.
+	* lpcre.c, lposix.c: gsub function become method.
+	* test/posix_test.lua, pcre_test.lua: removed tests for removed functions.
+
+2006-12-02  Shmuel
+
+	* common.c, common.h (TBuffer): moved here from lpcre.c.
+	* common.c, common.h (TFreeList): helper class created.
+	* lpcre.c (Lpcre_gsub_func): many changes.
+	* lposix.c (posix_gsub_func): added function gsub.
+	* test/gsub_test.lua: added testing for the new written-in-C gsub.
+	* test/gsub_tstpsx.lua: file added.
+	* test/rex_.lua: file deleted.
+
+2006-12-01  Shmuel
+
+	* lpcre.c (TBuffer): helper class created.
+	* lpcre.c (Lpcre_gsub_func): many changes.
+
 2006-11-30  Shmuel
 
 	* lpcre.c (TExecData): struct renamed to TCallout.
 	* lpcre.c (LpcreSetExecData): function renamed to SetupCallout.
+	* lpcre.c (Lpcre_gsub_func): added function gsub.
 
 2006-11-29  Shmuel
 
