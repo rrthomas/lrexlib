@@ -1,0 +1,573 @@
+.. role:: funcdef(literal)
+
+Lrexlib 2.0 Reference Manual
+============================
+
+.. contents:: Table of Contents
+
+------------------------------------------------------------
+
+Introduction
+~~~~~~~~~~~~
+
+**Lrexlib** provides bindings of the two principal regular expression library
+interfaces (POSIX_ and PCRE_) to Lua_ 5.1.
+
+**Lrexlib** builds into shared libraries called by default *rex_posix.so* and
+*rex_pcre.so*, which can be used with *require*.
+
+**Lrexlib** is copyright Reuben Thomas 2000-2007 and copyright Shmuel Zeigerman
+2004-2007, and is released under the MIT license.
+
+.. _POSIX: http://www.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap09.html
+.. _PCRE: http://www.pcre.org/pcre.txt
+.. _Lua: http://www.lua.org
+
+------------------------------------------------------------
+
+Notes
+~~~~~
+
+1. Most functions and methods in Lrexlib have mandatory and optional arguments.
+   There are no dependencies between arguments in Lrexlib's functions and
+   methods. Any optional argument can be supplied as ``nil`` (or omitted if it
+   is trailing one), the library will then use the default value for that
+   argument.
+
+2. This document uses the following syntax for optional arguments: they are
+   bracketed separately, and commas are left outside brackets, e.g.::
+
+    MyFunc (arg1, arg2, [arg3], [arg4])
+
+3. Throughout this document, the identifier *rex* is used in place of either
+   *rex_posix* or *rex_pcre*, that are the default namespaces for the
+   corresponding libraries.
+
+4. All functions receiving a regular expression pattern as an argument will
+   generate an error if that pattern is found invalid by the used POSIX_ / PCRE_
+   library.
+
+------------------------------------------------------------
+
+Lrexlib Functions
+~~~~~~~~~~~~~~~~~
+
+match
+-----
+
+:funcdef:`rex.match (subj, patt, [init], [cf], [ef], [lo])`
+
+The function searches for the first match of the regexp *patt* in the string
+*subj*, starting from offset *init*, subject to flags *cf* and *ef*.
+
+PCRE: A locale *lo* may be specified.
+
+  +---------+-------------------------------+--------+-------------+
+  |Parameter|        Description            |  Type  |Default Value|
+  +=========+===============================+========+=============+
+  |  subj   |          subject              | string |     n/a     |
+  +---------+-------------------------------+--------+-------------+
+  |  patt   |regular expression pattern     | string |     n/a     |
+  +---------+-------------------------------+--------+-------------+
+  | [init]  |start offset in the subject    | number |      1      |
+  |         |(can be negative)              |        |             |
+  +---------+-------------------------------+--------+-------------+
+  |  [cf]   |compilation flags (bitwise OR) | number |      0      |
+  +---------+-------------------------------+--------+-------------+
+  |  [ef]   |  execution flags (bitwise OR) | number |      0      |
+  +---------+-------------------------------+--------+-------------+
+  |  [lo]   |[PCRE] locale                  | string |   ``nil``   |
+  +---------+-------------------------------+--------+-------------+
+
+**Returns on success:**
+  1. All substring matches ("captures"), in the order they appear in the
+     pattern. ``false`` is returned for sub-patterns that did not participate in
+     the match. If the pattern specified no captures then the whole matched
+     substring is returned.
+
+**Returns on failure:**
+  1. ``nil``
+  2. The return value of the underlying *pcre_exec*/*regexec* call (a number).
+
+------------------------------------------------------------
+
+find
+----
+
+:funcdef:`rex.find (subj, patt, [init], [cf], [ef], [lo])`
+
+The function searches for the first match of the regexp *patt* in the string
+*subj*, starting from offset *init*, subject to flags *cf* and *ef*.
+
+PCRE: A locale *lo* may be specified.
+
+  +---------+-------------------------------+--------+-------------+
+  |Parameter|        Description            |  Type  |Default Value|
+  +=========+===============================+========+=============+
+  |  subj   |          subject              | string |     n/a     |
+  +---------+-------------------------------+--------+-------------+
+  |  patt   |regular expression pattern     | string |     n/a     |
+  +---------+-------------------------------+--------+-------------+
+  | [init]  |start offset in the subject    | number |      1      |
+  |         |(can be negative)              |        |             |
+  +---------+-------------------------------+--------+-------------+
+  |  [cf]   |compilation flags (bitwise OR) | number |      0      |
+  +---------+-------------------------------+--------+-------------+
+  |  [ef]   |  execution flags (bitwise OR) | number |      0      |
+  +---------+-------------------------------+--------+-------------+
+  |  [lo]   |[PCRE] locale                  | string |   ``nil``   |
+  +---------+-------------------------------+--------+-------------+
+
+**Returns on success:**
+  1. The start point of the match (a number).
+  2. The end point of the match (a number).
+  3. All substring matches ("captures"), in the order they appear in the
+     pattern. ``false`` is returned for sub-patterns that did not participate in
+     the match.
+
+**Returns on failure:**
+  1. ``nil``
+  2. The return value of the underlying *pcre_exec*/*regexec* call (a number).
+
+------------------------------------------------------------
+
+gmatch
+------
+
+:funcdef:`rex.gmatch (subj, patt, [cf], [ef], [lo])`
+
+The function returns an iterator for repeated matching of the pattern *patt* in
+the string *subj*, subject to flags *cf* and *ef*.
+
+PCRE: A locale *lo* may be specified.
+
+  +---------+-------------------------------+------+-------------+
+  |Parameter|      Description              | Type |Default Value|
+  +=========+===============================+======+=============+
+  |  subj   |        subject                |string|     n/a     |
+  +---------+-------------------------------+------+-------------+
+  |  patt   |regular expression pattern     |string|     n/a     |
+  +---------+-------------------------------+------+-------------+
+  |  [cf]   |compilation flags (bitwise OR) |number|      0      |
+  +---------+-------------------------------+------+-------------+
+  |  [ef]   |execution flags (bitwise OR)   |number|      0      |
+  +---------+-------------------------------+------+-------------+
+  |  [lo]   |[PCRE] locale                  |string|   ``nil``   |
+  +---------+-------------------------------+------+-------------+
+
+The iterator function is called by Lua. On every iteration (that is, on every
+match), it returns all captures in the order they appear in the pattern (or the
+entire match if the pattern specified no captures). The iteration will continue
+till the subject fails to match.
+
+------------------------------------------------------------
+
+gsub
+----
+
+:funcdef:`rex.gsub (subj, patt, repl, [n], [cf], [ef], [lo])`
+
+The function searches for all matches of the pattern *patt* in the string *subj*
+and substitutes the found matches according to the parameter *repl* (see details
+below).
+
+PCRE: A locale *lo* may be specified.
+
+  +---------+-----------------------------------+-------------------------+-------------+
+  |Parameter|       Description                 |          Type           |Default Value|
+  +=========+===================================+=========================+=============+
+  |  subj   |subject                            |         string          |     n/a     |
+  +---------+-----------------------------------+-------------------------+-------------+
+  |  patt   |regular expression pattern         |         string          |     n/a     |
+  +---------+-----------------------------------+-------------------------+-------------+
+  |  repl   |substitution source                |string, function or table|     n/a     |
+  +---------+-----------------------------------+-------------------------+-------------+
+  |   [n]   |maximum number of matches to search|         number          |   ``nil``   |
+  |         |for; unlimited if not supplied     |                         |             |
+  +---------+-----------------------------------+-------------------------+-------------+
+  |  [cf]   |compilation flags (bitwise OR)     |         number          |      0      |
+  +---------+-----------------------------------+-------------------------+-------------+
+  |  [ef]   |execution flags (bitwise OR)       |         number          |      0      |
+  +---------+-----------------------------------+-------------------------+-------------+
+  |  [lo]   |[PCRE] locale                      |         string          |   ``nil``   |
+  +---------+-----------------------------------+-------------------------+-------------+
+
+**Returns:**
+  1. The subject string with the substitutions made.
+  2. Number of matches found.
+
+**Details:**
+  The parameter *repl* can be either a string, a function or a table. The
+  function behaves differently depending on the *repl* type:
+
+  1. If *repl* is a *string* then it is treated as a template for substitution,
+     where the %X occurences in *repl* are handled in a special way, depending
+     on the value of the character X:
+
+    * if X represents a digit, then each %X occurence is substituted by the
+      value of the X-th submatch (capture), with the following cases handled
+      specially:
+
+      * each %0 is substituted by the entire match
+      * if the pattern contains no captures, then each %1 is substituted by the
+        entire match
+      * any other %X where X is greater than the number of captures in the
+        pattern will generate an error ("invalid capture index")
+      * if the pattern does contain a capture with number X but that capture
+        didn't participate in the match, then %X is substituted by an empty
+        string
+
+    * if X is any non-digit character then %X is substituted by X
+    * all parts of *repl* other than %X are copied to the output string
+      verbatim.
+
+  2. If *repl* is a *function* then it gets called on each match with the
+     submatches passed as parameters (if there are no submatches then the entire
+     match is passed as the only parameter). The substitution string is derived
+     depending on the first return value of function *repl*:
+
+    * if it is a string then it is used as a substitution for the current match.
+    * if it is either of nothing, ``nil`` or ``false`` then no substitution is
+      made.
+    * values of other types generate an error.
+
+    Though gsub_ is in general consistent with the API and behavior of Lua's
+    *string.gsub*, it has one extension with regards to *string.gsub* behavior:
+
+    * if function *repl* returns more than one value and its second return value
+      is the literal string *"break"*, then gsub_ stops searching for further
+      matches in the subject and returns.
+
+  3. If *repl* is a *table* then the first submatch (or the entire match if
+     there are no submatches) is used as the key and the value stored in *repl*
+     under that key is used for substitution depending on its type.
+
+    * If no value is stored under the key but *repl* has a metatable with the
+      *__index* field set then the correspondent metamethod will be called for
+      obtaining the value.
+
+    * The obtained value is used for the substitution following exactly same
+      rules as for the first return value of *repl* described in the above
+      paragraph.
+
+------------------------------------------------------------
+
+split
+-----
+
+:funcdef:`rex.split (subj, sep, [cf], [ef], [lo])`
+
+This function is used for splitting a subject string *subj* into parts
+(*sections*). The *sep* parameter is a regular expression pattern representing
+**separators** between the sections.
+
+The function returns an iterator for repeated matching of the pattern *sep* in
+the string *subj*, subject to flags *cf* and *ef*.
+
+PCRE: A locale *lo* may be specified.
+
+  +---------+-------------------------------+------+-------------+
+  |Parameter|      Description              | Type |Default Value|
+  +=========+===============================+======+=============+
+  |  subj   |        subject                |string|     n/a     |
+  +---------+-------------------------------+------+-------------+
+  |   sep   |separator (regular expression  |string|     n/a     |
+  |         |pattern)                       |      |             |
+  +---------+-------------------------------+------+-------------+
+  |  [cf]   |compilation flags (bitwise OR) |number|      0      |
+  +---------+-------------------------------+------+-------------+
+  |  [ef]   |execution flags (bitwise OR)   |number|      0      |
+  +---------+-------------------------------+------+-------------+
+  |  [lo]   |[PCRE] locale                  |string|   ``nil``   |
+  +---------+-------------------------------+------+-------------+
+
+**On every iteration pass, the iterator returns:**
+
+  1. A subject section (can be an empty string), followed by
+  2. All captures in the order they appear in the *sep* pattern (or the entire
+     match if the *sep* pattern specified no captures). If there is no match
+     (this can occur only in the last iteration), then nothing is returned after
+     the subject section.
+
+The iteration will continue till the end of the subject. Unlike gmatch_, there
+will always be at least one iteration pass, even if there's no matches in the
+subject.
+
+------------------------------------------------------------
+
+plainfind
+---------
+
+:funcdef:`rex.plainfind (subj, patt, [init], [ci])`
+
+The function searches for the first match of the string *patt* in the subject
+*subj*, starting from offset *init*.
+
+  * The string *patt* is not regular expression, all its characters stand for
+    themselves.
+  * Both strings *subj* and *patt* can have embedded zeros.
+  * The flag *ci* specifies case-insensitive search (current locale is used).
+  * This function uses neither PCRE nor POSIX regex library.
+
+  +---------+---------------------------+--------+-------------+
+  |Parameter|        Description        |  Type  |Default Value|
+  +=========+===========================+========+=============+
+  |  subj   |          subject          | string |     n/a     |
+  +---------+---------------------------+--------+-------------+
+  |  patt   |       text to find        | string |     n/a     |
+  +---------+---------------------------+--------+-------------+
+  | [init]  |start offset in the subject| number |      1      |
+  |         |(can be negative)          |        |             |
+  +---------+---------------------------+--------+-------------+
+  |  [ci]   |case insensitive search    |boolean |  ``false``  |
+  +---------+---------------------------+--------+-------------+
+
+**Returns on success:**
+  1. The start point of the match (a number).
+  2. The end point of the match (a number).
+
+**Returns on failure:**
+  1. ``nil``
+
+------------------------------------------------------------
+
+new
+---
+
+:funcdef:`rex.new (patt, [cf], [lo])`
+
+The functions compiles regular expression *patt* into a regular expression
+object whose internal representation is correspondent to the library used (PCRE
+or POSIX regex).  The returned result then can be used by the methods `tfind`_,
+`exec`_ and `dfa_exec`_.  Regular expression objects are automatically garbage
+collected.
+
+PCRE: A locale *lo* may be specified.
+
+  +---------+-------------------------------+--------+-------------+
+  |Parameter|        Description            |  Type  |Default Value|
+  +=========+===============================+========+=============+
+  |  patt   |regular expression pattern     | string |     n/a     |
+  +---------+-------------------------------+--------+-------------+
+  |  [cf]   |compilation flags (bitwise OR) | number |      0      |
+  +---------+-------------------------------+--------+-------------+
+  |  [lo]   |[PCRE] locale                  | string |   ``nil``   |
+  +---------+-------------------------------+--------+-------------+
+
+**Returns:**
+ 1. Compiled regular expression (a userdata).
+
+------------------------------------------------------------
+
+flags
+-----
+
+:funcdef:`rex.flags ([tb])`
+
+This function returns a table containing numeric values of the constants defined
+by the used regex library (either PCRE or POSIX). Those constants are keyed by
+their names (strings). If the table argument *tb* is supplied then it is used as
+the output table, else a new table is created.
+
+The constants contained in the returned table can then be used in most functions
+and methods where *compilation flags* or *execution flags* can be specified.
+They can also be used for comparing with return codes of some functions and
+methods for determining the reason of failure. For details, see PCRE_ and POSIX_
+documentation.
+
+  +---------+--------------------------------+--------+-------------+
+  |Parameter|        Description             |  Type  |Default Value|
+  +=========+================================+========+=============+
+  |  [tb]   |a table for placing results into| table  |  ``nil``    |
+  +---------+--------------------------------+--------+-------------+
+
+**Returns:**
+ 1. A table filled with the results.
+
+------------------------------------------------------------
+
+config
+------
+
+[PCRE only. See *pcre_config* in the PCRE_ docs.]
+
+:funcdef:`rex.config ([tb])`
+
+This function returns a table containing the values of the configuration
+parameters used at PCRE library build-time. Those parameters (numbers) are
+keyed by their names (strings). If the table argument *tb* is supplied then it
+is used as the output table, else a new table is created.
+
+  +---------+--------------------------------+--------+-------------+
+  |Parameter|        Description             |  Type  |Default Value|
+  +=========+================================+========+=============+
+  |  [tb]   |a table for placing results into| table  |  ``nil``    |
+  +---------+--------------------------------+--------+-------------+
+
+**Returns:**
+ 1. A table filled with the results.
+
+------------------------------------------------------------
+
+version
+-------
+
+[PCRE only. See *pcre_version* in the PCRE_ docs.]
+
+:funcdef:`rex.version ()`
+
+This function returns a string containing the version of the used PCRE library
+and its release date.
+
+------------------------------------------------------------
+
+Lrexlib Methods
+~~~~~~~~~~~~~~~
+
+tfind
+-----
+
+:funcdef:`r:tfind (subj, [init], [ef])`
+
+The method searches for the first match of the compiled regexp *r* in the
+string *subj*, starting from offset *init*, subject to execution flags *ef*.
+
+  +---------+-----------------------------------+--------+-------------+
+  |Parameter|        Description                |  Type  |Default Value|
+  +=========+===================================+========+=============+
+  |    r    | regex object produced by new_     |userdata|     n/a     |
+  +---------+-----------------------------------+--------+-------------+
+  |  subj   |          subject                  | string |     n/a     |
+  +---------+-----------------------------------+--------+-------------+
+  | [init]  |start offset in the subject        | number |      1      |
+  |         |(can be negative)                  |        |             |
+  +---------+-----------------------------------+--------+-------------+
+  |  [ef]   |  execution flags (bitwise OR)     | number |      0      |
+  +---------+-----------------------------------+--------+-------------+
+
+**Returns on success:**
+ 1. The start point of the match (a number).
+ 2. The end point of the match (a number).
+ 3. Substring matches ("captures" in Lua terminology) are returned as a third
+    result, in a table. This table contains ``false`` in the positions where the
+    corresponding sub-pattern did not participate in the match.
+
+    1. PCRE: if *named subpatterns* are used then the table also contains
+       substring matches keyed by their correspondent subpattern names
+       (strings).
+
+**Returns on failure:**
+ 1. ``nil``
+ 2. The return value of the underlying *pcre_exec / regexec* call (a number).
+
+**Notes:**
+ 1. If *named subpatterns* (see PCRE_ docs) are used then the returned table
+    also contains substring matches keyed by their correspondent subpattern
+    names (strings).
+
+------------------------------------------------------------
+
+exec
+----
+
+:funcdef:`r:exec (subj, [init], [ef])`
+
+The method searches for the first match of the compiled regexp *r* in the
+string *subj*, starting from offset *init*, subject to execution flags *ef*.
+
+  +---------+-----------------------------------+--------+-------------+
+  |Parameter|        Description                |  Type  |Default Value|
+  +=========+===================================+========+=============+
+  |    r    | regex object produced by new_     |userdata|     n/a     |
+  +---------+-----------------------------------+--------+-------------+
+  |  subj   |          subject                  | string |     n/a     |
+  +---------+-----------------------------------+--------+-------------+
+  | [init]  |start offset in the subject        | number |      1      |
+  |         |(can be negative)                  |        |             |
+  +---------+-----------------------------------+--------+-------------+
+  |  [ef]   |  execution flags (bitwise OR)     | number |      0      |
+  +---------+-----------------------------------+--------+-------------+
+
+**Returns on success:**
+ 1. The start point of the first match (a number).
+ 2. The end point of the first match (a number).
+ 3. The offsets of substring matches ("captures" in Lua terminology) are
+    returned as a third result, in a table. This table contains ``false`` in the
+    positions where the corresponding sub-pattern did not participate in the
+    match.
+
+    1. PCRE: if *named subpatterns* are used then the table also contains
+       substring matches keyed by their correspondent subpattern names
+       (strings).
+
+**Returns on failure:**
+ 1. ``nil``
+ 2. The return value of the underlying *pcre_exec / regexec* call (a number).
+
+**Example:**
+ If the whole match is at offsets 10,20 and substring matches are at offsets
+ 12,14 and 16,19 then the function returns the following: 10, 20,
+ { 12,14,16,19 }.
+
+------------------------------------------------------------
+
+dfa_exec
+--------
+
+[PCRE 6.0 and later. See *pcre_dfa_exec* in the PCRE_ docs.]
+
+:funcdef:`r:dfa_exec (subj, [init], [ef], [ovecsize], [wscount])`
+
+The method matches a compiled regular expression *r* against a given subject
+string *subj*, using a DFA matching algorithm.
+
+  +----------+-------------------------------------+--------+-------------+
+  |Parameter |                 Description         |  Type  |Default Value|
+  +==========+=====================================+========+=============+
+  |    r     | regex object produced by new_       |userdata|     n/a     |
+  +----------+-------------------------------------+--------+-------------+
+  |  subj    |                   subject           | string |     n/a     |
+  +----------+-------------------------------------+--------+-------------+
+  | [init]   |start offset in the subject          | number |      1      |
+  |          |(can be negative)                    |        |             |
+  +----------+-------------------------------------+--------+-------------+
+  |   [ef]   |  execution flags (bitwise OR)       | number |      0      |
+  +----------+-------------------------------------+--------+-------------+
+  |[ovecsize]|size of the array for result offsets | number |     100     |
+  +----------+-------------------------------------+--------+-------------+
+  |[wscount] |number of elements in the working    | number |     50      |
+  |          |space array                          |        |             |
+  +----------+-------------------------------------+--------+-------------+
+
+**Returns on success:**
+ 1. The start point of the matches found (a number).
+ 2. A table containing the end points of the matches found, the longer matches
+    first.
+ 3. The return value of the underlying *pcre_dfa_exec* call (a number).
+
+**Returns on failure:**
+ 1. ``nil``
+ 2. The return value of the underlying *pcre_dfa_exec* call (a number).
+
+**Example:**
+ If there are 3 matches found starting at offset 10 and ending at offsets 15, 20
+ and 25 then the function returns the following: 10, { 25,20,15 }, 3.
+
+------------------------------------------------------------
+
+Incompatibilities with the Previous Version
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following changes are incompatible with Lrexlib version 1.19:
+
+  1. Lua 5.1 is required
+  #. Functions ``newPCRE`` and ``newPOSIX`` renamed to new_
+  #. Functions ``flagsPCRE`` and ``flagsPOSIX`` renamed to flags_
+  #. Function ``versionPCRE`` renamed to version_
+  #. Method ``match`` renamed to tfind_
+  #. Method ``gmatch`` removed (similar functionality is provided by function
+     gmatch_)
+  #. Methods tfind_ and exec_: 2 values are returned on failure
+  #. Method exec_: the returned table may additionally contain *named
+     subpatterns* (PCRE only)
+
