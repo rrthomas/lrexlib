@@ -2,6 +2,7 @@
 
 	* lpcre.c (Lpcre_gsub): unnecessary (though harmless) assignment removed.
 	* test/runtest.lua: extended the command-line interface.
+	* most files: the copyright notice changed to reference LICENSE file.
 
 2007-01-02  Shmuel
 
