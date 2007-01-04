@@ -1,12 +1,8 @@
 To test Lrexlib, execute the following command line:
 
-  lua ./runtest.lua {posix|pcre} [-v]
+  lua ./runtest.lua [-v] LIBRARY...
 
-Where:
+-v gives verbose output; each LIBRARY can be:
+
   posix --> test rex_posix library
   pcre  --> test rex_pcre library
-  -v    --> "verbose output"
-
-Notes:
-  * At least one library (posix or pcre) must be specified.
-  * Order of arguments does not matter
