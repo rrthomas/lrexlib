@@ -7,8 +7,7 @@ all:
 	make -C src -f rex_posix.mak
 
 test:
-	cd test && lua ./runtest.lua pcre
-	cd test && lua ./runtest.lua posix
+	cd test && lua ./runtest.lua pcre posix
 
 clean:
 	make -C src -f rex_pcre.mak clean
