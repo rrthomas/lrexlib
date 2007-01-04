@@ -30,24 +30,32 @@ local function test_library (libname, setfile, verbose)
   return n
 end
 
-local tests = {
-  { lib = "rex_posix", "common_sets", "posix_sets", },
-  { lib = "rex_pcre",  "common_sets", "pcre_sets", "pcre_sets2", },
+local avail_tests = {
+  posix = { lib = "rex_posix", "common_sets", "posix_sets", },
+  pcre  = { lib = "rex_pcre",  "common_sets", "pcre_sets", "pcre_sets2", },
 }
 
-local function test_all (verbose)
-  local n = 0
-  for _, tlib in ipairs (tests) do
-    for _, setfile in ipairs (tlib) do
-      n = n + test_library (tlib.lib, setfile, verbose)
+do
+  local verbose, tests, nerr = false, {}, 0
+  -- check arguments
+  for i = 1, select ("#", ...) do
+    local arg = select (i, ...)
+    if arg == "-v" then
+      verbose = true
+    else
+      if avail_tests[arg] then
+        tests[#tests+1] = avail_tests[arg]
+      else
+        error ("invalid argument: [" .. arg .. "]")
+      end
     end
   end
-  return n
+  assert (#tests > 0, "no library specified")
+  -- do tests
+  for _, test in ipairs (tests) do
+    for _, setfile in ipairs (test) do
+      nerr = nerr + test_library (test.lib, setfile, verbose)
+    end
+  end
+  print ("Total number of failures: " .. nerr)
 end
-
-local arg1 = ...
-local verbose = (arg1 == "-v")
-local n = test_all (verbose)
-
-print ("Total number of failures: " .. n)
-
