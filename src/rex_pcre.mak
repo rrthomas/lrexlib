@@ -3,23 +3,16 @@
 # === USER SETTINGS ===
 # ===========================================================================
 
+include common.mak
+
 # These are default values.
-INC_LUA  =
-LIB_LUA  =
 INC_PCRE =
 LIB_PCRE = -lpcre
 
 # If the default settings don't work for your system,
 # try to uncomment and edit the settings below.
-#INC_LUA  = -I/usr/local/include
-#LIB_LUA  = -llua -llualib
 #INC_PCRE = -I/usr/local/include
 #LIB_PCRE = -lpcre
-
-# Common settings
-MYCFLAGS = -W -Wall -O2 $(INC_LUA) $(INC_PCRE)
-AR = ar rcu
-CC = gcc
 
 # Target name
 TRG = rex_pcre

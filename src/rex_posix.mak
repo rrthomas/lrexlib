@@ -3,16 +3,14 @@
 # === USER SETTINGS ===
 # ===========================================================================
 
+include common.mak
+
 # These are default values.
-INC_LUA   =
-LIB_LUA   =
 INC_POSIX =
 LIB_POSIX =
 
 # If the default settings don't work for your system,
 # try to uncomment and edit the settings below.
-#INC_LUA   = -I/usr/local/include
-#LIB_LUA   = -llua -llualib
 #INC_POSIX = -I/usr/include
 #LIB_POSIX = -lc
 
@@ -27,11 +25,6 @@ LIB_POSIX =
 # under /usr (note the above warning!)
 #INC_POSIX = -I/usr/include/rxspencer
 #LIB_POSIX = -lrxspencer
-
-# Common settings
-MYCFLAGS = -W -Wall -O2 $(INC_LUA) $(INC_POSIX)
-AR = ar rcu
-CC = gcc
 
 # Target name
 TRG = rex_posix
