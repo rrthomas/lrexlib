@@ -1,4 +1,5 @@
--- -- --
+-- See Copyright Notice in the file LICENSE
+
 local luatest = require "luatest"
 local N = luatest.NT
 

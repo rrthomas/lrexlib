@@ -1,11 +1,11 @@
+-- See Copyright Notice in the file LICENSE
+
 --[[------------------------------------------------------------------------
    * A script for testing Lua binding of Henry Spencer's regex library.
 
    * runs tests from the file "tests" taken from the regex distribution.
 
    * tested with Lua 5.1, Lrexlib 2.0.
-
-   * author: Shmuel Zeigerman
 
    * history:
      * 14-18 June 2004:  initial writing

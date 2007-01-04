@@ -1,6 +1,4 @@
---[[
-  Shmuel Zeigerman: Jan-Dec 2006.
---]]
+-- See Copyright Notice in the file LICENSE
 
 local pat2pcre = require "pat2pcre"
 

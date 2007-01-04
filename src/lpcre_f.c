@@ -1,6 +1,5 @@
 /* lpcre.c - PCRE regular expression library */
-/* Copyright (C) Reuben Thomas 2000-2007 */
-/* Copyright (C) Shmuel Zeigerman 2004-2007 */
+/* See Copyright Notice in the file LICENSE */
 
 #include <pcre.h>
 #include "lua.h"

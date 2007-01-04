@@ -1,3 +1,5 @@
+-- See Copyright Notice in the file LICENSE
+
 -- This file should contain only test sets that behave identically
 -- when being run with pcre or posix regex libraries.
 

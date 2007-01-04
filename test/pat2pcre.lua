@@ -1,5 +1,6 @@
+-- See Copyright Notice in the file LICENSE
+
 -- Convert Lua regex pattern to its PCRE equivalent.
--- [ Shmuel Zeigerman: Jan-Nov 2006 ]
 
 local t_esc = {
   a = "[:alpha:]",
