@@ -1,7 +1,11 @@
-all: pcre posix
+# Makefile for lrexlib
 
-pcre:
+# See src/*.mak for user-definable settings
+
+all:
 	make -C src -f rex_pcre.mak
-
-posix:
 	make -C src -f rex_posix.mak
+
+clean:
+	make -C src -f rex_pcre.mak clean
+	make -C src -f rex_posix.mak clean
