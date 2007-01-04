@@ -1,4 +1,4 @@
-2007-01-xx  Release 2.0
+2007-01-05  Release 2.0
 
   * Added functions: match, find, gmatch, gsub, split, config, plainfind.
 
