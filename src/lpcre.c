@@ -458,7 +458,6 @@ static int Lpcre_gsub (lua_State *L) {
   /*--------------------------------------------------------------------------*/
   checkarg_gsub (L, &argC, &argE);
   compile_regex (L, &argC, &ud);
-  argE.ud = ud;
   freelist_init (&freelist);
   /*--------------------------------------------------------------------------*/
   if (argE.reptype == LUA_TSTRING) {
