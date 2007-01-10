@@ -136,7 +136,8 @@ gmatch
 
 :funcdef:`rex.gmatch (subj, patt, [cf], [ef], [lo])`
 
-The function returns an iterator for repeated matching of the pattern *patt* in
+The function is intended for use in the *generic for* Lua construct.
+It returns an iterator for repeated matching of the pattern *patt* in
 the string *subj*, subject to flags *cf* and *ef*.
 
 PCRE: A locale *lo* may be specified.
@@ -257,8 +258,9 @@ split
 
 :funcdef:`rex.split (subj, sep, [cf], [ef], [lo])`
 
-This function is used for splitting a subject string *subj* into parts
-(*sections*). The *sep* parameter is a regular expression pattern representing
+The function is intended for use in the *generic for* Lua construct.
+It is used for splitting a subject string *subj* into parts (*sections*).
+The *sep* parameter is a regular expression pattern representing
 **separators** between the sections.
 
 The function returns an iterator for repeated matching of the pattern *sep* in

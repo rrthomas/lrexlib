@@ -1,3 +1,11 @@
+2007-01-10  Shmuel
+
+	* lpcre.c, lposix.c: refactoring.
+
+2007-01-08  Shmuel
+
+	* lpcre.c, lposix.c: refactoring.
+
 2007-01-04  Reuben Thomas  <rrt@sc3d.org>
 
 	* Add a top-level Makefile with all, clean and test targets.

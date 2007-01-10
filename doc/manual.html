@@ -229,7 +229,8 @@ the match.</li>
 <div class="section">
 <h3><a class="toc-backref" href="#id6" id="gmatch" name="gmatch">gmatch</a></h3>
 <p><tt class="funcdef docutils literal"><span class="pre">rex.gmatch</span> <span class="pre">(subj,</span> <span class="pre">patt,</span> <span class="pre">[cf],</span> <span class="pre">[ef],</span> <span class="pre">[lo])</span></tt></p>
-<p>The function returns an iterator for repeated matching of the pattern <em>patt</em> in
+<p>The function is intended for use in the <em>generic for</em> Lua construct.
+It returns an iterator for repeated matching of the pattern <em>patt</em> in
 the string <em>subj</em>, subject to flags <em>cf</em> and <em>ef</em>.</p>
 <p>PCRE: A locale <em>lo</em> may be specified.</p>
 <blockquote>
@@ -422,8 +423,9 @@ paragraph.</li>
 <div class="section">
 <h3><a class="toc-backref" href="#id8" id="split" name="split">split</a></h3>
 <p><tt class="funcdef docutils literal"><span class="pre">rex.split</span> <span class="pre">(subj,</span> <span class="pre">sep,</span> <span class="pre">[cf],</span> <span class="pre">[ef],</span> <span class="pre">[lo])</span></tt></p>
-<p>This function is used for splitting a subject string <em>subj</em> into parts
-(<em>sections</em>). The <em>sep</em> parameter is a regular expression pattern representing
+<p>The function is intended for use in the <em>generic for</em> Lua construct.
+It is used for splitting a subject string <em>subj</em> into parts (<em>sections</em>).
+The <em>sep</em> parameter is a regular expression pattern representing
 <strong>separators</strong> between the sections.</p>
 <p>The function returns an iterator for repeated matching of the pattern <em>sep</em> in
 the string <em>subj</em>, subject to flags <em>cf</em> and <em>ef</em>.</p>
@@ -954,7 +956,7 @@ subpatterns</em> (PCRE only)</li>
 </div>
 <div class="footer">
 <hr class="footer" />
-Generated on: 2007-01-02 07:59 UTC.
+Generated on: 2007-01-05 21:40 UTC.
 
 </div>
 </body>
