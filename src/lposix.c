@@ -183,28 +183,24 @@ static void push_substrings (lua_State *L, TPosix *ud, const char *text) {
   }
 }
 
-typedef void (*TPushFunction) (lua_State *L, TArgExec *argE);
-
-static void push_substring_table (lua_State *L, TArgExec *argE) {
+static void push_substring_table (lua_State *L, TPosix *ud, const char *text) {
   int i;
-  TPosix *ud = argE->ud;
   lua_newtable (L);
   for (i = 1; i <= NSUB(ud); i++) {
-    PUSH_SUB_OR_FALSE (L, ud, argE->text, i);
+    PUSH_SUB_OR_FALSE (L, ud, text, i);
     lua_rawseti (L, -2, i);
   }
 }
 
-static void push_offset_table (lua_State *L, TArgExec *argE) {
+static void push_offset_table (lua_State *L, TPosix *ud, int startoffset) {
   int i, j;
-  TPosix *ud = argE->ud;
 
   lua_newtable (L);
   for (i=1, j=1; i <= NSUB(ud); i++) {
     if (SUB_VALID (ud,i)) {
-      PUSH_START (L, ud, argE->startoffset, i);
+      PUSH_START (L, ud, startoffset, i);
       lua_rawseti (L, -2, j++);
-      PUSH_END (L, ud, argE->startoffset, i);
+      PUSH_END (L, ud, startoffset, i);
       lua_rawseti (L, -2, j++);
     }
     else {
@@ -230,7 +226,7 @@ static void CheckStartEnd (TArgExec *argE) {
 #endif
 }
 
-static int generic_tfind (lua_State *L, TPushFunction pfunction) {
+static int generic_tfind (lua_State *L, int tfind) {
   int res;
   TArgExec argE;
   TPosix *ud;
@@ -243,7 +239,10 @@ static int generic_tfind (lua_State *L, TPushFunction pfunction) {
   res = regexec (&ud->r, argE.text, NSUB(ud) + 1, ud->match, argE.eflags);
   if (res == 0) {
     PUSH_OFFSETS (L, ud, argE.startoffset, 0);
-    (*pfunction) (L, &argE);
+    if (tfind)
+      push_substring_table (L, ud, argE.text);
+    else
+      push_offset_table (L, ud, argE.startoffset);
     return 3;
   }
   lua_pushnil (L);
@@ -252,11 +251,11 @@ static int generic_tfind (lua_State *L, TPushFunction pfunction) {
 }
 
 static int Posix_tfind (lua_State *L) {
-  return generic_tfind (L, push_substring_table);
+  return generic_tfind (L, 1);
 }
 
 static int Posix_exec (lua_State *L) {
-  return generic_tfind (L, push_offset_table);
+  return generic_tfind (L, 0);
 }
 
 static int gmatch_iter (lua_State *L) {
@@ -408,7 +407,7 @@ static int Posix_gsub (lua_State *L) {
   TPosix *ud;
   TArgComp argC;
   TArgExec argE;
-  int reps = 0, st = 0, res;
+  int reps = 0, st = 0;
   TBuffer BufOut, BufRep;
   TFreeList freelist;
   /*--------------------------------------------------------------------------*/
@@ -455,7 +454,7 @@ static int Posix_gsub (lua_State *L) {
   /*--------------------------------------------------------------------------*/
   buffer_init (&BufOut, 1024, L, &freelist);
   while ((argE.maxmatch < 0 || reps < argE.maxmatch) && st <= (int)argE.textlen) {
-    int from, to;
+    int from, to, res;
 #ifdef REX_POSIX_EXT
     if(argE.eflags & REG_STARTEND) {
       SUB_BEG(ud,0) = 0;

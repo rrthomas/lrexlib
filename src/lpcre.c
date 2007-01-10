@@ -202,16 +202,16 @@ static void push_substrings (lua_State *L, TPcre *ud, const char *text) {
   }
 }
 
-static void push_substr_table (lua_State *L, const TArgExec *argE) {
+static void push_substring_table (lua_State *L, TPcre *ud, const char *text) {
   int i;
   lua_newtable (L);
-  for (i = 1; i <= NSUB(argE->ud); i++) {
-    PUSH_SUB_OR_FALSE (L, argE->ud, argE->text, i);
+  for (i = 1; i <= NSUB(ud); i++) {
+    PUSH_SUB_OR_FALSE (L, ud, text, i);
     lua_rawseti (L, -2, i);
   }
 }
 
-static void push_offs_table (lua_State *L, const int *offsets, int nmax) {
+static void push_offset_table (lua_State *L, const int *offsets, int nmax) {
   int i, j, k;
   lua_newtable (L);
   for (i=1, j=1; i <= nmax; i++) {
@@ -231,13 +231,8 @@ static void push_offs_table (lua_State *L, const int *offsets, int nmax) {
   }
 }
 
-static void push_offsets (lua_State *L, const TArgExec *argE) {
-  push_offs_table (L, argE->ud->match, argE->ud->ncapt);
-}
-
-/* the table must be on stack top */
-static void do_named_subpatterns (lua_State *L, const TArgExec *argE) {
-  TPcre *ud = argE->ud;
+/* the target table must be on lua stack top */
+static void do_named_subpatterns (lua_State *L, TPcre *ud, const char *text) {
   int i, namecount, name_entry_size;
   unsigned char *name_table, *tabptr;
 
@@ -252,16 +247,14 @@ static void do_named_subpatterns (lua_State *L, const TArgExec *argE) {
     int n = (tabptr[0] << 8) | tabptr[1]; /* number of the capturing parenthesis */
     if (n > 0 && n <= NSUB(ud)) {   /* check range */
       lua_pushstring (L, tabptr + 2); /* name of the capture, zero terminated */
-      PUSH_SUB_OR_FALSE (L, ud, argE->text, n);
+      PUSH_SUB_OR_FALSE (L, ud, text, n);
       lua_rawset (L, -3);
     }
     tabptr += name_entry_size;
   }
 }
 
-typedef void (*fptrPushMatches) (lua_State *L, const TArgExec *argE);
-
-static int generic_tfind (lua_State *L, fptrPushMatches push_matches) {
+static int generic_tfind (lua_State *L, int tfind) {
   TPcre *ud;
   TArgExec argE;
   int res;
@@ -273,8 +266,11 @@ static int generic_tfind (lua_State *L, fptrPushMatches push_matches) {
                    (ud->ncapt + 1) * 3);
   if (res >= 0) {
     PUSH_OFFSETS (L, ud, 0, 0);
-    (*push_matches)(L, &argE);
-    do_named_subpatterns (L, &argE);
+    if (tfind)
+      push_substring_table (L, ud, argE.text);
+    else
+      push_offset_table (L, ud->match, ud->ncapt);
+    do_named_subpatterns (L, ud, argE.text);
     return 3;
   }
   lua_pushnil (L);
@@ -320,11 +316,11 @@ static int Lpcre_dfa_exec (lua_State *L)
 #endif /* #if PCRE_MAJOR >= 6 */
 
 static int Lpcre_tfind (lua_State *L) {
-  return generic_tfind (L, push_substr_table);
+  return generic_tfind (L, 1);
 }
 
 static int Lpcre_exec (lua_State *L) {
-  return generic_tfind (L, push_offsets);
+  return generic_tfind (L, 0);
 }
 
 static int gmatch_iter (lua_State *L) {
@@ -451,7 +447,7 @@ static int Lpcre_gsub (lua_State *L) {
   TPcre *ud;
   TArgComp argC;
   TArgExec argE;
-  int reps = 0, st = 0, res;
+  int reps = 0, st = 0;
   TBuffer BufOut, BufRep;
   TFreeList freelist;
   /*--------------------------------------------------------------------------*/
@@ -497,7 +493,7 @@ static int Lpcre_gsub (lua_State *L) {
   /*--------------------------------------------------------------------------*/
   buffer_init (&BufOut, 1024, L, &freelist);
   while ((argE.maxmatch < 0 || reps < argE.maxmatch) && st <= (int)argE.textlen) {
-    int from, to;
+    int from, to, res;
     res = pcre_exec (ud->pr, ud->extra, argE.text, (int)argE.textlen, st,
                      argE.eflags, ud->match, (NSUB(ud) + 1) * 3);
     if (res < 0)
