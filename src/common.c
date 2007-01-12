@@ -116,7 +116,7 @@ int plainfind_func (lua_State *L) {
 /*
  *  class TFreeList
  *  ***************
- *  Simple array of pointers to malloc'ed memory blocks.
+ *  Simple array of pointers to TBuffer's.
  *  The array has fixed capacity (not expanded automatically).
  */
 
@@ -124,13 +124,13 @@ void freelist_init (TFreeList *fl) {
   fl->top = 0;
 }
 
-void freelist_add (TFreeList *fl, void *p) {
-  fl->list[fl->top++] = p;
+void freelist_add (TFreeList *fl, TBuffer *buf) {
+  fl->list[fl->top++] = buf;
 }
 
 void freelist_free (TFreeList *fl) {
   while (fl->top > 0)
-    free (fl->list[--fl->top]);
+    free (fl->list[--fl->top]->arr);
 }
 
 /*
@@ -166,7 +166,7 @@ void buffer_init (TBuffer *buf, size_t sz, lua_State *L, TFreeList *fl) {
   buf->top = 0;
   buf->L = L;
   buf->freelist = fl;
-  freelist_add (fl, buf->arr);
+  freelist_add (fl, buf);
 }
 
 void buffer_pushresult (TBuffer *buf) {

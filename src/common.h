@@ -25,21 +25,26 @@ int plainfind_func (lua_State *L);
 
 /* Classes */
 
-typedef struct {
-  void      * list[32];
-  int         top;
-} TFreeList;
+struct tagFreeList; /* forward declaration */
 
-typedef struct {
+struct tagBuffer {
   size_t      size;
   size_t      top;
   char      * arr;
   lua_State * L;
-  TFreeList * freelist;
-} TBuffer;
+  struct tagFreeList * freelist;
+};
+
+struct tagFreeList {
+  struct tagBuffer * list[16];
+  int top;
+};
+
+typedef struct tagBuffer TBuffer;
+typedef struct tagFreeList TFreeList;
 
 void freelist_init (TFreeList *fl);
-void freelist_add (TFreeList *fl, void *p);
+void freelist_add (TFreeList *fl, TBuffer *buf);
 void freelist_free (TFreeList *fl);
 
 void buffer_init (TBuffer *buf, size_t sz, lua_State *L, TFreeList *fl);
