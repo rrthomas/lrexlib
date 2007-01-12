@@ -1,3 +1,8 @@
+2007-01-12  Release 2.0.1
+
+  * Bugfix in memory deallocation.
+
+
 2007-01-05  Release 2.0
 
   * Added functions: match, find, gmatch, gsub, split, config, plainfind.

@@ -1,3 +1,8 @@
+2007-01-12  Shmuel
+
+	* common.h, common.c: a nasty bug fixed.
+	* lpcre.c, lposix.c: version updated to 2.0.1.
+
 2007-01-10  Shmuel
 
 	* lpcre.c, lposix.c: refactoring.
