@@ -6,6 +6,8 @@
 
 #include "lua.h"
 
+#define REX_VERSION "Lrexlib 2.0.1"
+
 /* REX_API can be overridden from the command line or Makefile */
 #ifndef REX_API
 #  define REX_API LUALIB_API
@@ -48,6 +50,7 @@ void freelist_add (TFreeList *fl, TBuffer *buf);
 void freelist_free (TFreeList *fl);
 
 void buffer_init (TBuffer *buf, size_t sz, lua_State *L, TFreeList *fl);
+void buffer_free (TBuffer *buf);
 void buffer_addlstring (TBuffer *buf, const void *src, size_t sz);
 void buffer_addvalue (TBuffer *buf, int stackpos);
 void buffer_pushresult (TBuffer *buf);

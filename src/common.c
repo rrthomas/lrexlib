@@ -130,7 +130,7 @@ void freelist_add (TFreeList *fl, TBuffer *buf) {
 
 void freelist_free (TFreeList *fl) {
   while (fl->top > 0)
-    free (fl->list[--fl->top]->arr);
+    buffer_free (fl->list[--fl->top]);
 }
 
 /*
@@ -167,6 +167,10 @@ void buffer_init (TBuffer *buf, size_t sz, lua_State *L, TFreeList *fl) {
   buf->L = L;
   buf->freelist = fl;
   freelist_add (fl, buf);
+}
+
+void buffer_free (TBuffer *buf) {
+  free (buf->arr);
 }
 
 void buffer_pushresult (TBuffer *buf) {

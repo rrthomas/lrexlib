@@ -1,3 +1,9 @@
+2007-01-13  Shmuel
+
+	* common.c, common.h: refactoring.
+	* common.h (REX_VERSION): a new #define.
+	* lpcre.c, lposix.c (REX_OPENLIB): using REX_VERSION.
+
 2007-01-12  Shmuel
 
 	* common.h, common.c: a nasty bug fixed.

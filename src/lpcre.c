@@ -638,7 +638,7 @@ REX_API int REX_OPENLIB (lua_State *L) {
   luaL_register (L, NULL, pcremeta);
   lua_pop (L, 1);
   luaL_register (L, REX_LIBNAME, rexlib);
-  lua_pushliteral (L, "Lrexlib 2.0.1 (for PCRE)");
+  lua_pushliteral (L, REX_VERSION" (for PCRE)");
   lua_setfield (L, -2, "_VERSION");
   return 1;
 }
