@@ -413,41 +413,11 @@ static int Posix_gsub (lua_State *L) {
   /*--------------------------------------------------------------------------*/
   checkarg_gsub (L, &argC, &argE);
   compile_regex (L, &argC, &ud);
-  argE.ud = ud;
   freelist_init (&freelist);
   /*--------------------------------------------------------------------------*/
   if (argE.reptype == LUA_TSTRING) {
-    char dbuf[] = { 0, 0 };
-    size_t replen;
-    const char *p = lua_tolstring (L, argE.funcpos, &replen);
-    const char *end = p + replen;
     buffer_init (&BufRep, 256, L, &freelist);
-    while (p < end) {
-      const char *q;
-      for (q = p; q < end && *q != '%'; ++q)
-        {}
-      if (q != p)
-        bufferZ_addlstring (&BufRep, p, q - p);
-      if (q < end) {
-        if (++q < end) {  /* skip % */
-          if (isdigit (*q)) {
-            int num;
-            *dbuf = *q;
-            num = atoi (dbuf);
-            if (num == 1 && NSUB(ud) == 0)
-              num = 0;
-            else if (num > NSUB(ud)) {
-              freelist_free (&freelist);
-              return luaL_error (L, "invalid capture index");
-            }
-            bufferZ_addnum (&BufRep, num);
-          }
-          else bufferZ_addlstring (&BufRep, q, 1);
-        }
-        p = q + 1;
-      }
-      else break;
-    }
+    bufferZ_putrepstring (&BufRep, argE.funcpos, NSUB(ud));
   }
   else if (argE.reptype == LUA_TFUNCTION)
     lua_pushliteral (L, "break");

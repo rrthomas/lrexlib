@@ -1,5 +1,16 @@
+2007-01-18  Shmuel
+
+	* lpcre.c (gsub): [API change undone].
+
+2007-01-14  Shmuel
+
+	* lpcre.c (gsub): [API change]:
+	    a) 2-nd return of rep() is ignored --> API-compatible with string.gsub
+	    b) argument `n' can be a function --> API extension wrt string.gsub
+
 2007-01-13  Shmuel
 
+	* lpcre.c, lposix.c: refactoring.
 	* common.c, common.h: refactoring.
 	* common.h (REX_VERSION): a new #define.
 	* lpcre.c, lposix.c (REX_OPENLIB): using REX_VERSION.

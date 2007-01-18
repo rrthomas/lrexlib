@@ -55,8 +55,7 @@ void buffer_addlstring (TBuffer *buf, const void *src, size_t sz);
 void buffer_addvalue (TBuffer *buf, int stackpos);
 void buffer_pushresult (TBuffer *buf);
 
-void bufferZ_addlstring (TBuffer *buf, const void *src, size_t sz);
-void bufferZ_addnum (TBuffer *buf, size_t num);
+void bufferZ_putrepstring (TBuffer *buf, int reppos, int nsub);
 int  bufferZ_next (TBuffer *buf, size_t *iter, size_t *len, const char **str);
 
 #endif

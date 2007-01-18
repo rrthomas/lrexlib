@@ -70,11 +70,11 @@ void CheckStack (lua_State *L, int extraslots)
 }
 
 int OptLimit (lua_State *L, int pos) {
-  int a;
-  if (lua_isnoneornil (L, pos))
-    return -1;
-  a = luaL_checkint (L, pos);
-  return a < 0 ? 0 : a;
+  if (!lua_isnoneornil (L, pos)) {
+    int a = luaL_checkint (L, pos);
+    return a < 0 ? 0 : a;
+  }
+  return -1;
 }
 
 /* function plainfind (s, p, [st], [ci]) */
@@ -193,9 +193,8 @@ void buffer_addlstring (TBuffer *buf, const void *src, size_t sz) {
 }
 
 void buffer_addvalue (TBuffer *buf, int stackpos) {
-  const char *p;
   size_t len;
-  p = lua_tolstring (buf->L, stackpos, &len);
+  const char *p = lua_tolstring (buf->L, stackpos, &len);
   buffer_addlstring (buf, p, len);
 }
 
@@ -210,6 +209,44 @@ void bufferZ_addnum (TBuffer *buf, size_t num) {
   size_t header[2] = { ID_NUMBER };
   header[1] = num;
   buffer_addlstring (buf, header, sizeof (header));
+}
+
+/* 1. When called repeatedly on the same TBuffer, its existing data
+      is discarded and overwritten by the new data.
+   2. The TBuffer's array is never shrunk by this function.
+*/
+void bufferZ_putrepstring (TBuffer *BufRep, int reppos, int nsub) {
+  char dbuf[] = { 0, 0 };
+  size_t replen;
+  const char *p = lua_tolstring (BufRep->L, reppos, &replen);
+  const char *end = p + replen;
+  BufRep->top = 0;
+  while (p < end) {
+    const char *q;
+    for (q = p; q < end && *q != '%'; ++q)
+      {}
+    if (q != p)
+      bufferZ_addlstring (BufRep, p, q - p);
+    if (q < end) {
+      if (++q < end) {  /* skip % */
+        if (isdigit (*q)) {
+          int num;
+          *dbuf = *q;
+          num = atoi (dbuf);
+          if (num == 1 && nsub == 0)
+            num = 0;
+          else if (num > nsub) {
+            freelist_free (BufRep->freelist);
+            luaL_error (BufRep->L, "invalid capture index");
+          }
+          bufferZ_addnum (BufRep, num);
+        }
+        else bufferZ_addlstring (BufRep, q, 1);
+      }
+      p = q + 1;
+    }
+    else break;
+  }
 }
 
 /******************************************************************************

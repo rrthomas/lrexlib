@@ -456,37 +456,8 @@ static int Lpcre_gsub (lua_State *L) {
   freelist_init (&freelist);
   /*--------------------------------------------------------------------------*/
   if (argE.reptype == LUA_TSTRING) {
-    char dbuf[] = { 0, 0 };
-    size_t replen;
-    const char *p = lua_tolstring (L, argE.funcpos, &replen);
-    const char *end = p + replen;
     buffer_init (&BufRep, 256, L, &freelist);
-    while (p < end) {
-      const char *q;
-      for (q = p; q < end && *q != '%'; ++q)
-        {}
-      if (q != p)
-        bufferZ_addlstring (&BufRep, p, q - p);
-      if (q < end) {
-        if (++q < end) {  /* skip % */
-          if (isdigit (*q)) {
-            int num;
-            *dbuf = *q;
-            num = atoi (dbuf);
-            if (num == 1 && NSUB(ud) == 0)
-              num = 0;
-            else if (num > NSUB(ud)) {
-              freelist_free (&freelist);
-              return luaL_error (L, "invalid capture index");
-            }
-            bufferZ_addnum (&BufRep, num);
-          }
-          else bufferZ_addlstring (&BufRep, q, 1);
-        }
-        p = q + 1;
-      }
-      else break;
-    }
+    bufferZ_putrepstring (&BufRep, argE.funcpos, NSUB(ud));
   }
   else if (argE.reptype == LUA_TFUNCTION)
     lua_pushliteral (L, "break");
@@ -508,16 +479,10 @@ static int Lpcre_gsub (lua_State *L) {
       size_t iter = 0, num;
       const char *str;
       while (bufferZ_next (&BufRep, &iter, &num, &str)) {
-        if (str == NULL) {  /* got number in variable 'num' */
-          if (num == 0)         /* %0 : add the entire match    */
-            buffer_addlstring (&BufOut, argE.text + from, to - from);
-          else {                /* add captured substring */
-            if (SUB_VALID (ud,num))
-              buffer_addlstring (&BufOut, argE.text + SUB_BEG(ud,num),
-                                 SUB_LEN(ud,num));
-          }
-        }
-        else buffer_addlstring (&BufOut, str, num);
+        if (str)
+          buffer_addlstring (&BufOut, str, num);
+        else if (num == 0 || SUB_VALID (ud,num))
+          buffer_addlstring (&BufOut, argE.text + SUB_BEG(ud,num), SUB_LEN(ud,num));
       }
     }
     /*------------------------------------------------------------------------*/
