@@ -1,6 +1,13 @@
+2007-01-27  Reuben Thomas  <rrt@sc3d.org>
+
+	* lpcre.c, lposix.c (gsub): bugfix:
+	    - it was incorrectly assumed that the value on Lua stack was a string;
+	    - luaL_error was used where lua_error was more appropriate;
+
 2007-01-18  Shmuel
 
 	* lpcre.c (gsub): [API change undone].
+	* all source files: refactoring.
 
 2007-01-14  Shmuel
 
