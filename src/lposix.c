@@ -478,7 +478,7 @@ static int Posix_gsub (lua_State *L) {
       }
       if (0 != lua_pcall (L, narg, 2, 0)) {
         freelist_free (&freelist);
-        luaL_error (L, lua_tostring (L, -1));
+        return lua_error (L);  /* re-raise the error */
       }
     }
     /*------------------------------------------------------------------------*/
