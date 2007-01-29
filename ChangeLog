@@ -1,6 +1,12 @@
+2007-01-29  Shmuel
+
+	* lposix.c (checkarg_find_f): [bugfix] incorrect default for eflags.
+	* lposix.c (generic_find): [bugfix] dereferencing uninitialized pointer.
+	* common.h (REX_VERSION): updated to "2.0.2".
+
 2007-01-27  Reuben Thomas  <rrt@sc3d.org>
 
-	* lpcre.c, lposix.c (gsub): bugfix:
+	* lpcre.c, lposix.c (gsub): [bugfix]
 	    - it was incorrectly assumed that the value on Lua stack was a string;
 	    - luaL_error was used where lua_error was more appropriate;
 
