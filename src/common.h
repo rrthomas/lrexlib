@@ -6,7 +6,7 @@
 
 #include "lua.h"
 
-#define REX_VERSION "Lrexlib 2.0.1"
+#define REX_VERSION "Lrexlib 2.0.2"
 
 /* REX_API can be overridden from the command line or Makefile */
 #ifndef REX_API
