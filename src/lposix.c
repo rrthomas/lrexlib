@@ -35,6 +35,7 @@
 #  endif
 #endif
 
+#define CFLAGS_DEFAULT REG_EXTENDED
 #ifdef REX_POSIX_EXT
 #  define EFLAGS_DEFAULT REG_STARTEND
 #else
@@ -98,7 +99,7 @@ static TPosix* check_ud (lua_State *L, int stackpos) {
 
 static void checkarg_new (lua_State *L, TArgComp *argC) {
   argC->pattern = luaL_checklstring (L, 1, &argC->patlen);
-  argC->cflags = luaL_optint (L, 2, REG_EXTENDED);
+  argC->cflags = luaL_optint (L, 2, CFLAGS_DEFAULT);
 }
 
 /* function gsub (s, patt, f, [n], [cf], [ef]) */
@@ -113,7 +114,7 @@ static void checkarg_gsub (lua_State *L, TArgComp *argC, TArgExec *argE) {
   }
   argE->funcpos = 3;
   argE->maxmatch = OptLimit (L, 4);
-  argC->cflags = luaL_optint (L, 5, REG_EXTENDED);
+  argC->cflags = luaL_optint (L, 5, CFLAGS_DEFAULT);
   argE->eflags = luaL_optint (L, 6, EFLAGS_DEFAULT);
 }
 
@@ -132,8 +133,8 @@ static void checkarg_find_f (lua_State *L, TArgComp *argC, TArgExec *argE) {
   argE->text = luaL_checklstring (L, 1, &argE->textlen);
   argC->pattern = luaL_checklstring (L, 2, &argC->patlen);
   argE->startoffset = get_startoffset (L, 3, argE->textlen);
-  argC->cflags = luaL_optint (L, 4, REG_EXTENDED);
-  argE->eflags = luaL_optint (L, 5, 0);
+  argC->cflags = luaL_optint (L, 4, CFLAGS_DEFAULT);
+  argE->eflags = luaL_optint (L, 5, EFLAGS_DEFAULT);
 }
 
 /* function gmatch (s, patt, [cf], [ef]) */
@@ -141,7 +142,7 @@ static void checkarg_find_f (lua_State *L, TArgComp *argC, TArgExec *argE) {
 static void checkarg_gmatch_split (lua_State *L, TArgComp *argC, TArgExec *argE) {
   argE->text = luaL_checklstring (L, 1, &argE->textlen);
   argC->pattern = luaL_checklstring (L, 2, &argC->patlen);
-  argC->cflags = luaL_optint (L, 3, REG_EXTENDED);
+  argC->cflags = luaL_optint (L, 3, CFLAGS_DEFAULT);
   argE->eflags = luaL_optint (L, 4, EFLAGS_DEFAULT);
 }
 
@@ -233,9 +234,9 @@ static int generic_tfind (lua_State *L, int tfind) {
 
   checkarg_tfind (L, &argE);
   CheckStartEnd (&argE);
+  ud = argE.ud; /* avoid too many redirections */
 
   /* execute the search */
-  ud = argE.ud; /* avoid too many redirections */
   res = regexec (&ud->r, argE.text, NSUB(ud) + 1, ud->match, argE.eflags);
   if (res == 0) {
     PUSH_OFFSETS (L, ud, argE.startoffset, 0);
@@ -375,8 +376,9 @@ static int generic_find (lua_State *L, int find) {
   TArgExec argE;
 
   checkarg_find_f (L, &argC, &argE);
-  compile_regex (L, &argC, &ud);
+  compile_regex (L, &argC, &argE.ud);
   CheckStartEnd (&argE);
+  ud = argE.ud;
 
   res = regexec (&ud->r, argE.text, NSUB(ud) + 1, ud->match, argE.eflags);
   if (res == 0) {
