@@ -1,3 +1,10 @@
+2007-01-30  Release 2.0.2
+
+  * 3 bugfixes.
+
+  * Corrections in the Reference Manual.
+
+
 2007-01-12  Release 2.0.1
 
   * Bugfix in memory deallocation.
