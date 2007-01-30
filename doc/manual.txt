@@ -47,6 +47,24 @@ Notes
    generate an error if that pattern is found invalid by the used POSIX_ / PCRE_
    library.
 
+.. _cf:
+
+5. The default value for *compilation flags* (*cf*) that Lrexlib uses when
+   the parameter is not supplied or ``nil``, is:
+
+     * 0 for PCRE
+     * REG_EXTENDED for POSIX regex library
+
+.. _ef:
+
+6. The default value for *execution flags* (*ef*) that Lrexlib uses when
+   the parameter is not supplied or ``nil``, is:
+
+     * 0 for PCRE
+     * 0 for standard POSIX regex library
+     * REG_STARTEND for those POSIX regex libraries that support it,
+       e.g. Spencer's.
+
 ------------------------------------------------------------
 
 Lrexlib Functions
@@ -72,9 +90,9 @@ PCRE: A locale *lo* may be specified.
   | [init]  |start offset in the subject    | number |      1      |
   |         |(can be negative)              |        |             |
   +---------+-------------------------------+--------+-------------+
-  |  [cf]   |compilation flags (bitwise OR) | number |      0      |
+  |  [cf]   |compilation flags (bitwise OR) | number |     cf_     |
   +---------+-------------------------------+--------+-------------+
-  |  [ef]   |  execution flags (bitwise OR) | number |      0      |
+  |  [ef]   |  execution flags (bitwise OR) | number |     ef_     |
   +---------+-------------------------------+--------+-------------+
   |  [lo]   |[PCRE] locale                  | string |   ``nil``   |
   +---------+-------------------------------+--------+-------------+
@@ -111,9 +129,9 @@ PCRE: A locale *lo* may be specified.
   | [init]  |start offset in the subject    | number |      1      |
   |         |(can be negative)              |        |             |
   +---------+-------------------------------+--------+-------------+
-  |  [cf]   |compilation flags (bitwise OR) | number |      0      |
+  |  [cf]   |compilation flags (bitwise OR) | number |      cf_    |
   +---------+-------------------------------+--------+-------------+
-  |  [ef]   |  execution flags (bitwise OR) | number |      0      |
+  |  [ef]   |  execution flags (bitwise OR) | number |      ef_    |
   +---------+-------------------------------+--------+-------------+
   |  [lo]   |[PCRE] locale                  | string |   ``nil``   |
   +---------+-------------------------------+--------+-------------+
@@ -149,9 +167,9 @@ PCRE: A locale *lo* may be specified.
   +---------+-------------------------------+------+-------------+
   |  patt   |regular expression pattern     |string|     n/a     |
   +---------+-------------------------------+------+-------------+
-  |  [cf]   |compilation flags (bitwise OR) |number|      0      |
+  |  [cf]   |compilation flags (bitwise OR) |number|     cf_     |
   +---------+-------------------------------+------+-------------+
-  |  [ef]   |execution flags (bitwise OR)   |number|      0      |
+  |  [ef]   |execution flags (bitwise OR)   |number|     ef_     |
   +---------+-------------------------------+------+-------------+
   |  [lo]   |[PCRE] locale                  |string|   ``nil``   |
   +---------+-------------------------------+------+-------------+
@@ -186,9 +204,9 @@ PCRE: A locale *lo* may be specified.
   |   [n]   |maximum number of matches to search|         number          |   ``nil``   |
   |         |for; unlimited if not supplied     |                         |             |
   +---------+-----------------------------------+-------------------------+-------------+
-  |  [cf]   |compilation flags (bitwise OR)     |         number          |      0      |
+  |  [cf]   |compilation flags (bitwise OR)     |         number          |     cf_     |
   +---------+-----------------------------------+-------------------------+-------------+
-  |  [ef]   |execution flags (bitwise OR)       |         number          |      0      |
+  |  [ef]   |execution flags (bitwise OR)       |         number          |     ef_     |
   +---------+-----------------------------------+-------------------------+-------------+
   |  [lo]   |[PCRE] locale                      |         string          |   ``nil``   |
   +---------+-----------------------------------+-------------------------+-------------+
@@ -276,9 +294,9 @@ PCRE: A locale *lo* may be specified.
   |   sep   |separator (regular expression  |string|     n/a     |
   |         |pattern)                       |      |             |
   +---------+-------------------------------+------+-------------+
-  |  [cf]   |compilation flags (bitwise OR) |number|      0      |
+  |  [cf]   |compilation flags (bitwise OR) |number|     cf_     |
   +---------+-------------------------------+------+-------------+
-  |  [ef]   |execution flags (bitwise OR)   |number|      0      |
+  |  [ef]   |execution flags (bitwise OR)   |number|     ef_     |
   +---------+-------------------------------+------+-------------+
   |  [lo]   |[PCRE] locale                  |string|   ``nil``   |
   +---------+-------------------------------+------+-------------+
@@ -351,7 +369,7 @@ PCRE: A locale *lo* may be specified.
   +=========+===============================+========+=============+
   |  patt   |regular expression pattern     | string |     n/a     |
   +---------+-------------------------------+--------+-------------+
-  |  [cf]   |compilation flags (bitwise OR) | number |      0      |
+  |  [cf]   |compilation flags (bitwise OR) | number |     cf_     |
   +---------+-------------------------------+--------+-------------+
   |  [lo]   |[PCRE] locale                  | string |   ``nil``   |
   +---------+-------------------------------+--------+-------------+
@@ -444,7 +462,7 @@ string *subj*, starting from offset *init*, subject to execution flags *ef*.
   | [init]  |start offset in the subject        | number |      1      |
   |         |(can be negative)                  |        |             |
   +---------+-----------------------------------+--------+-------------+
-  |  [ef]   |  execution flags (bitwise OR)     | number |      0      |
+  |  [ef]   |  execution flags (bitwise OR)     | number |     ef_     |
   +---------+-----------------------------------+--------+-------------+
 
 **Returns on success:**
@@ -487,7 +505,7 @@ string *subj*, starting from offset *init*, subject to execution flags *ef*.
   | [init]  |start offset in the subject        | number |      1      |
   |         |(can be negative)                  |        |             |
   +---------+-----------------------------------+--------+-------------+
-  |  [ef]   |  execution flags (bitwise OR)     | number |      0      |
+  |  [ef]   |  execution flags (bitwise OR)     | number |     ef_     |
   +---------+-----------------------------------+--------+-------------+
 
 **Returns on success:**
@@ -533,7 +551,7 @@ string *subj*, using a DFA matching algorithm.
   | [init]   |start offset in the subject          | number |      1      |
   |          |(can be negative)                    |        |             |
   +----------+-------------------------------------+--------+-------------+
-  |   [ef]   |  execution flags (bitwise OR)       | number |      0      |
+  |   [ef]   |  execution flags (bitwise OR)       | number |     ef_     |
   +----------+-------------------------------------+--------+-------------+
   |[ovecsize]|size of the array for result offsets | number |     100     |
   +----------+-------------------------------------+--------+-------------+

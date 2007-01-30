@@ -73,6 +73,30 @@ generate an error if that pattern is found invalid by the used <a class="referen
 library.</p>
 </li>
 </ol>
+<ol class="arabic" id="cf" start="5">
+<li><p class="first">The default value for <em>compilation flags</em> (<em>cf</em>) that Lrexlib uses when
+the parameter is not supplied or <tt class="docutils literal"><span class="pre">nil</span></tt>, is:</p>
+<blockquote>
+<ul class="simple">
+<li>0 for PCRE</li>
+<li>REG_EXTENDED for POSIX regex library</li>
+</ul>
+</blockquote>
+</li>
+</ol>
+<ol class="arabic" id="ef" start="6">
+<li><p class="first">The default value for <em>execution flags</em> (<em>ef</em>) that Lrexlib uses when
+the parameter is not supplied or <tt class="docutils literal"><span class="pre">nil</span></tt>, is:</p>
+<blockquote>
+<ul class="simple">
+<li>0 for PCRE</li>
+<li>0 for standard POSIX regex library</li>
+<li>REG_STARTEND for those POSIX regex libraries that support it,
+e.g. Spencer's.</li>
+</ul>
+</blockquote>
+</li>
+</ol>
 </div>
 <hr class="docutils" />
 <div class="section">
@@ -118,12 +142,12 @@ library.</p>
 <tr><td>[cf]</td>
 <td>compilation flags (bitwise OR)</td>
 <td>number</td>
-<td>0</td>
+<td><a class="reference" href="#cf">cf</a></td>
 </tr>
 <tr><td>[ef]</td>
 <td>execution flags (bitwise OR)</td>
 <td>number</td>
-<td>0</td>
+<td><a class="reference" href="#ef">ef</a></td>
 </tr>
 <tr><td>[lo]</td>
 <td>[PCRE] locale</td>
@@ -192,12 +216,12 @@ substring is returned.</li>
 <tr><td>[cf]</td>
 <td>compilation flags (bitwise OR)</td>
 <td>number</td>
-<td>0</td>
+<td><a class="reference" href="#cf">cf</a></td>
 </tr>
 <tr><td>[ef]</td>
 <td>execution flags (bitwise OR)</td>
 <td>number</td>
-<td>0</td>
+<td><a class="reference" href="#ef">ef</a></td>
 </tr>
 <tr><td>[lo]</td>
 <td>[PCRE] locale</td>
@@ -262,12 +286,12 @@ the string <em>subj</em>, subject to flags <em>cf</em> and <em>ef</em>.</p>
 <tr><td>[cf]</td>
 <td>compilation flags (bitwise OR)</td>
 <td>number</td>
-<td>0</td>
+<td><a class="reference" href="#cf">cf</a></td>
 </tr>
 <tr><td>[ef]</td>
 <td>execution flags (bitwise OR)</td>
 <td>number</td>
-<td>0</td>
+<td><a class="reference" href="#ef">ef</a></td>
 </tr>
 <tr><td>[lo]</td>
 <td>[PCRE] locale</td>
@@ -330,12 +354,12 @@ for; unlimited if not supplied</td>
 <tr><td>[cf]</td>
 <td>compilation flags (bitwise OR)</td>
 <td>number</td>
-<td>0</td>
+<td><a class="reference" href="#cf">cf</a></td>
 </tr>
 <tr><td>[ef]</td>
 <td>execution flags (bitwise OR)</td>
 <td>number</td>
-<td>0</td>
+<td><a class="reference" href="#ef">ef</a></td>
 </tr>
 <tr><td>[lo]</td>
 <td>[PCRE] locale</td>
@@ -460,12 +484,12 @@ pattern)</td>
 <tr><td>[cf]</td>
 <td>compilation flags (bitwise OR)</td>
 <td>number</td>
-<td>0</td>
+<td><a class="reference" href="#cf">cf</a></td>
 </tr>
 <tr><td>[ef]</td>
 <td>execution flags (bitwise OR)</td>
 <td>number</td>
-<td>0</td>
+<td><a class="reference" href="#ef">ef</a></td>
 </tr>
 <tr><td>[lo]</td>
 <td>[PCRE] locale</td>
@@ -590,7 +614,7 @@ collected.</p>
 <tr><td>[cf]</td>
 <td>compilation flags (bitwise OR)</td>
 <td>number</td>
-<td>0</td>
+<td><a class="reference" href="#cf">cf</a></td>
 </tr>
 <tr><td>[lo]</td>
 <td>[PCRE] locale</td>
@@ -746,7 +770,7 @@ string <em>subj</em>, starting from offset <em>init</em>, subject to execution f
 <tr><td>[ef]</td>
 <td>execution flags (bitwise OR)</td>
 <td>number</td>
-<td>0</td>
+<td><a class="reference" href="#ef">ef</a></td>
 </tr>
 </tbody>
 </table>
@@ -822,7 +846,7 @@ string <em>subj</em>, starting from offset <em>init</em>, subject to execution f
 <tr><td>[ef]</td>
 <td>execution flags (bitwise OR)</td>
 <td>number</td>
-<td>0</td>
+<td><a class="reference" href="#ef">ef</a></td>
 </tr>
 </tbody>
 </table>
@@ -897,7 +921,7 @@ string <em>subj</em>, using a DFA matching algorithm.</p>
 <tr><td>[ef]</td>
 <td>execution flags (bitwise OR)</td>
 <td>number</td>
-<td>0</td>
+<td><a class="reference" href="#ef">ef</a></td>
 </tr>
 <tr><td>[ovecsize]</td>
 <td>size of the array for result offsets</td>
@@ -956,7 +980,7 @@ subpatterns</em> (PCRE only)</li>
 </div>
 <div class="footer">
 <hr class="footer" />
-Generated on: 2007-01-05 21:40 UTC.
+Generated on: 2007-01-30 07:54 UTC.
 
 </div>
 </body>
