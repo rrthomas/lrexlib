@@ -6,7 +6,7 @@
 
 #include "lua.h"
 
-#define REX_VERSION "Lrexlib 2.0.2"
+#define REX_VERSION "Lrexlib 2.1.0"
 
 /* REX_API can be overridden from the command line or Makefile */
 #ifndef REX_API
@@ -18,7 +18,8 @@
 typedef struct { const char* key; int val; } flag_pair;
 
 void createmeta (lua_State *L, const char *name);
-int get_flags (lua_State *L, const flag_pair *arr);
+int get_flags (lua_State *L, const flag_pair **arr);
+const char *get_flag_key (const flag_pair *fp, int val);
 int get_startoffset (lua_State *L, int stackpos, size_t len);
 void *Lmalloc (lua_State *L, size_t size);
 void CheckStack (lua_State *L, int extraslots);

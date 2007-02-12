@@ -45,6 +45,8 @@
 const char posix_typename[] = REX_LIBNAME"_regex";
 const char *posix_handle = posix_typename;
 
+#define CODE_NOMATCH    REG_NOMATCH
+#define IS_MATCH(res)   ((res) == 0)
 #define SUB_BEG(ud,n)   ud->match[n].rm_so
 #define SUB_END(ud,n)   ud->match[n].rm_eo
 #define SUB_LEN(ud,n)   (SUB_END(ud,n) - SUB_BEG(ud,n))
@@ -146,6 +148,12 @@ static void checkarg_gmatch_split (lua_State *L, TArgComp *argC, TArgExec *argE)
   argE->eflags = luaL_optint (L, 4, EFLAGS_DEFAULT);
 }
 
+int generate_error (lua_State *L, const TPosix *ud, int errcode) {
+  char errbuf[80];
+  regerror (errcode, &ud->r, errbuf, sizeof (errbuf));
+  return luaL_error (L, "%s", errbuf);
+}
+
 static int compile_regex (lua_State *L, const TArgComp *argC, TPosix **pud) {
   int res;
   TPosix *ud;
@@ -159,12 +167,8 @@ static int compile_regex (lua_State *L, const TArgComp *argC, TPosix **pud) {
 #endif
 
   res = regcomp (&ud->r, argC->pattern, argC->cflags);
-  if (res != 0) {
-    size_t sz = regerror (res, &ud->r, NULL, 0);
-    char *errbuf = (char *) lua_newuserdata (L, sz + 1);
-    regerror (res, &ud->r, errbuf, sz);
-    return luaL_error (L, "%s", errbuf);
-  }
+  if (res != 0)
+    return generate_error (L, ud, res);
 
   if (argC->cflags & REG_NOSUB)
     ud->r.re_nsub = 0;
@@ -238,7 +242,7 @@ static int generic_tfind (lua_State *L, int tfind) {
 
   /* execute the search */
   res = regexec (&ud->r, argE.text, NSUB(ud) + 1, ud->match, argE.eflags);
-  if (res == 0) {
+  if (IS_MATCH (res)) {
     PUSH_OFFSETS (L, ud, argE.startoffset, 0);
     if (tfind)
       push_substring_table (L, ud, argE.text);
@@ -246,9 +250,10 @@ static int generic_tfind (lua_State *L, int tfind) {
       push_offset_table (L, ud, argE.startoffset);
     return 3;
   }
-  lua_pushnil (L);
-  lua_pushinteger (L, res);
-  return 2;
+  else if (res == CODE_NOMATCH)
+    return lua_pushnil (L), 1;
+  else
+    return generate_error (L, ud, res);
 }
 
 static int Posix_tfind (lua_State *L) {
@@ -260,6 +265,7 @@ static int Posix_exec (lua_State *L) {
 }
 
 static int gmatch_iter (lua_State *L) {
+  int res;
   size_t textlen;
   int incr;
   TPosix *ud       = (TPosix*) lua_touserdata (L, lua_upvalueindex (1));
@@ -279,7 +285,8 @@ static int gmatch_iter (lua_State *L) {
 
   /* execute the search */
   text += startoffset;
-  if (0 == regexec (&ud->r, text, NSUB(ud) + 1, ud->match, eflags)) {
+  res = regexec (&ud->r, text, NSUB(ud) + 1, ud->match, eflags);
+  if (IS_MATCH (res)) {
     /* push either captures or entire match */
     if (NSUB(ud))
       push_substrings (L, ud, text);
@@ -290,10 +297,14 @@ static int gmatch_iter (lua_State *L) {
     lua_replace (L, lua_upvalueindex (4));
     return NSUB(ud) ? NSUB(ud) : 1;
   }
-  return 0;
+  else if (res == CODE_NOMATCH)
+    return 0;
+  else
+    return generate_error (L, ud, res);
 }
 
 static int split_iter (lua_State *L) {
+  int res;
   size_t textlen;
   int newoffset;
   TPosix *ud       = (TPosix*) lua_touserdata (L, lua_upvalueindex (1));
@@ -312,7 +323,8 @@ static int split_iter (lua_State *L) {
 #endif
 
     /* execute the search */
-    if (0 == regexec (&ud->r, text + newoffset, NSUB(ud) + 1, ud->match, eflags)) {
+    res = regexec (&ud->r, text + newoffset, NSUB(ud) + 1, ud->match, eflags);
+    if (IS_MATCH (res)) {
       if (SUB_LEN(ud,0)) {
         PUSH_END (L, ud, newoffset, 0);             /* update start offset */
         lua_replace (L, lua_upvalueindex (4));
@@ -326,8 +338,10 @@ static int split_iter (lua_State *L) {
         return NSUB(ud) ? NSUB(ud)+1 : 2;
       }
     }
-    else
+    else if (res == CODE_NOMATCH)
       break;
+    else
+      return generate_error (L, ud, res);
   }
   lua_pushinteger (L, textlen);             /* mark as last iteration */
   lua_replace (L, lua_upvalueindex (4));    /* update start offset */
@@ -381,7 +395,7 @@ static int generic_find (lua_State *L, int find) {
   ud = argE.ud;
 
   res = regexec (&ud->r, argE.text, NSUB(ud) + 1, ud->match, argE.eflags);
-  if (res == 0) {
+  if (IS_MATCH (res)) {
     if (find)
       PUSH_OFFSETS (L, ud, argE.startoffset, 0);
     if (NSUB(ud))      /* push captures */
@@ -392,9 +406,10 @@ static int generic_find (lua_State *L, int find) {
     }
     return find ? NSUB(ud) + 2 : NSUB(ud);
   }
-  lua_pushnil (L);
-  lua_pushinteger (L, res);
-  return 2;
+  else if (res == CODE_NOMATCH)
+    return lua_pushnil (L), 1;
+  else
+    return generate_error (L, ud, res);
 }
 
 static int Posix_find (lua_State *L) {
@@ -434,8 +449,12 @@ static int Posix_gsub (lua_State *L) {
     }
 #endif
     res = regexec (&ud->r, argE.text+st, NSUB(ud)+1, ud->match, argE.eflags);
-    if (res != 0)
+    if (res == CODE_NOMATCH)
       break;
+    else if (!IS_MATCH (res)) {
+      freelist_free (&freelist);
+      return generate_error (L, ud, res);
+    }
     ++reps;
     from = st + SUB_BEG(ud,0);
     to = st + SUB_END(ud,0);
@@ -550,6 +569,10 @@ static flag_pair posix_flags[] =
   { "NOTBOL",   REG_NOTBOL },
   { "NOTEOL",   REG_NOTEOL },
 /*---------------------------------------------------------------------------*/
+  { NULL, 0 }
+};
+
+static flag_pair posix_error_flags[] = {
   { "NOMATCH",  REG_NOMATCH },
   { "BADPAT",   REG_BADPAT },
   { "ECOLLATE", REG_ECOLLATE },
@@ -573,7 +596,8 @@ static flag_pair posix_flags[] =
 };
 
 static int Posix_get_flags (lua_State *L) {
-  return get_flags (L, posix_flags);
+  const flag_pair* fps[] = { posix_flags, posix_error_flags, NULL };
+  return get_flags (L, fps);
 }
 
 static const luaL_reg posixmeta[] = {

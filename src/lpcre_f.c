@@ -3,6 +3,7 @@
 
 #include <pcre.h>
 #include "lua.h"
+#include "lauxlib.h"
 #include "common.h"
 
 #define VERSION_PCRE (PCRE_MAJOR*100 + PCRE_MINOR)
@@ -46,6 +47,42 @@ static flag_pair pcre_flags[] = {
   { "NEWLINE_ANY",                   PCRE_NEWLINE_ANY },
 #endif
 /*---------------------------------------------------------------------------*/
+  { "INFO_OPTIONS",                  PCRE_INFO_OPTIONS },
+  { "INFO_SIZE",                     PCRE_INFO_SIZE },
+  { "INFO_CAPTURECOUNT",             PCRE_INFO_CAPTURECOUNT },
+  { "INFO_BACKREFMAX",               PCRE_INFO_BACKREFMAX },
+#if VERSION_PCRE >= 400
+  { "INFO_FIRSTBYTE",                PCRE_INFO_FIRSTBYTE },
+#endif
+  { "INFO_FIRSTCHAR",                PCRE_INFO_FIRSTCHAR },
+  { "INFO_FIRSTTABLE",               PCRE_INFO_FIRSTTABLE },
+  { "INFO_LASTLITERAL",              PCRE_INFO_LASTLITERAL },
+#if VERSION_PCRE >= 400
+  { "INFO_NAMEENTRYSIZE",            PCRE_INFO_NAMEENTRYSIZE },
+  { "INFO_NAMECOUNT",                PCRE_INFO_NAMECOUNT },
+  { "INFO_NAMETABLE",                PCRE_INFO_NAMETABLE },
+  { "INFO_STUDYSIZE",                PCRE_INFO_STUDYSIZE },
+#endif
+#if VERSION_PCRE >= 500
+  { "INFO_DEFAULT_TABLES",           PCRE_INFO_DEFAULT_TABLES },
+#endif
+/*---------------------------------------------------------------------------*/
+#if VERSION_PCRE >= 400
+  { "EXTRA_STUDY_DATA",              PCRE_EXTRA_STUDY_DATA },
+  { "EXTRA_MATCH_LIMIT",             PCRE_EXTRA_MATCH_LIMIT },
+  { "EXTRA_CALLOUT_DATA",            PCRE_EXTRA_CALLOUT_DATA },
+#endif
+#if VERSION_PCRE >= 500
+  { "EXTRA_TABLES",                  PCRE_EXTRA_TABLES },
+#endif
+#ifdef PCRE_EXTRA_MATCH_LIMIT_RECURSION
+  { "EXTRA_MATCH_LIMIT_RECURSION",   PCRE_EXTRA_MATCH_LIMIT_RECURSION },
+#endif
+/*---------------------------------------------------------------------------*/
+  { NULL, 0 }
+};
+
+static flag_pair pcre_error_flags[] = {
   { "ERROR_NOMATCH",                 PCRE_ERROR_NOMATCH },
   { "ERROR_NULL",                    PCRE_ERROR_NULL },
   { "ERROR_BADOPTION",               PCRE_ERROR_BADOPTION },
@@ -83,38 +120,6 @@ static flag_pair pcre_flags[] = {
   { "ERROR_BADNEWLINE",              PCRE_ERROR_BADNEWLINE },
 #endif
 /*---------------------------------------------------------------------------*/
-  { "INFO_OPTIONS",                  PCRE_INFO_OPTIONS },
-  { "INFO_SIZE",                     PCRE_INFO_SIZE },
-  { "INFO_CAPTURECOUNT",             PCRE_INFO_CAPTURECOUNT },
-  { "INFO_BACKREFMAX",               PCRE_INFO_BACKREFMAX },
-#if VERSION_PCRE >= 400
-  { "INFO_FIRSTBYTE",                PCRE_INFO_FIRSTBYTE },
-#endif
-  { "INFO_FIRSTCHAR",                PCRE_INFO_FIRSTCHAR },
-  { "INFO_FIRSTTABLE",               PCRE_INFO_FIRSTTABLE },
-  { "INFO_LASTLITERAL",              PCRE_INFO_LASTLITERAL },
-#if VERSION_PCRE >= 400
-  { "INFO_NAMEENTRYSIZE",            PCRE_INFO_NAMEENTRYSIZE },
-  { "INFO_NAMECOUNT",                PCRE_INFO_NAMECOUNT },
-  { "INFO_NAMETABLE",                PCRE_INFO_NAMETABLE },
-  { "INFO_STUDYSIZE",                PCRE_INFO_STUDYSIZE },
-#endif
-#if VERSION_PCRE >= 500
-  { "INFO_DEFAULT_TABLES",           PCRE_INFO_DEFAULT_TABLES },
-#endif
-/*---------------------------------------------------------------------------*/
-#if VERSION_PCRE >= 400
-  { "EXTRA_STUDY_DATA",              PCRE_EXTRA_STUDY_DATA },
-  { "EXTRA_MATCH_LIMIT",             PCRE_EXTRA_MATCH_LIMIT },
-  { "EXTRA_CALLOUT_DATA",            PCRE_EXTRA_CALLOUT_DATA },
-#endif
-#if VERSION_PCRE >= 500
-  { "EXTRA_TABLES",                  PCRE_EXTRA_TABLES },
-#endif
-#ifdef PCRE_EXTRA_MATCH_LIMIT_RECURSION
-  { "EXTRA_MATCH_LIMIT_RECURSION",   PCRE_EXTRA_MATCH_LIMIT_RECURSION },
-#endif
-/*---------------------------------------------------------------------------*/
   { NULL, 0 }
 };
 
@@ -138,7 +143,8 @@ static flag_pair pcre_config_flags[] = {
 };
 
 int Lpcre_get_flags (lua_State *L) {
-  return get_flags (L, pcre_flags);
+  const flag_pair* fps[] = { pcre_flags, pcre_error_flags, NULL };
+  return get_flags (L, fps);
 }
 
 int Lpcre_config (lua_State *L) {
@@ -155,5 +161,13 @@ int Lpcre_config (lua_State *L) {
     }
   }
   return 1;
+}
+
+int generate_error (lua_State *L, int errcode) {
+  const char *key = get_flag_key (pcre_error_flags, errcode);
+  if (key)
+    return luaL_error (L, "error PCRE_%s", key);
+  else
+    return luaL_error (L, "PCRE error code %d", errcode);
 }
 

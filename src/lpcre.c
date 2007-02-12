@@ -12,6 +12,7 @@
 #include "common.h"
 extern int Lpcre_get_flags (lua_State *L);
 extern int Lpcre_config (lua_State *L);
+extern int generate_error (lua_State *L, int err_code);
 
 /* These 2 settings may be redefined from the command-line or the makefile.
  * They should be kept in sync between themselves and with the target name.
@@ -26,6 +27,8 @@ extern int Lpcre_config (lua_State *L);
 const char pcre_typename[] = REX_LIBNAME"_regex";
 const char *pcre_handle = pcre_typename;
 
+#define CODE_NOMATCH    PCRE_ERROR_NOMATCH
+#define IS_MATCH(res)   ((res) >= 0)
 #define SUB_BEG(ud,n)   ud->match[n+n]
 #define SUB_END(ud,n)   ud->match[n+n+1]
 #define SUB_LEN(ud,n)   (SUB_END(ud,n) - SUB_BEG(ud,n))
@@ -264,7 +267,7 @@ static int generic_tfind (lua_State *L, int tfind) {
   res = pcre_exec (ud->pr, ud->extra, argE.text, (int)argE.textlen,
                    argE.startoffset, argE.eflags, ud->match,
                    (ud->ncapt + 1) * 3);
-  if (res >= 0) {
+  if (IS_MATCH (res)) {
     PUSH_OFFSETS (L, ud, 0, 0);
     if (tfind)
       push_substring_table (L, ud, argE.text);
@@ -273,9 +276,10 @@ static int generic_tfind (lua_State *L, int tfind) {
     do_named_subpatterns (L, ud, argE.text);
     return 3;
   }
-  lua_pushnil (L);
-  lua_pushinteger (L, res);
-  return 2;
+  else if (res == CODE_NOMATCH)
+    return lua_pushnil (L), 1;
+  else
+    return generate_error(L, res);
 }
 
 #if PCRE_MAJOR >= 6
@@ -293,7 +297,7 @@ static int Lpcre_dfa_exec (lua_State *L)
   res = pcre_dfa_exec (argE.ud->pr, argE.ud->extra, argE.text, (int)argE.textlen,
     argE.startoffset, argE.eflags, ovector, argE.ovecsize, wspace, argE.wscount);
 
-  if (res >= 0 || res == PCRE_ERROR_PARTIAL) {
+  if (IS_MATCH (res) || res == PCRE_ERROR_PARTIAL) {
     int i;
     int max = (res>0) ? res : (res==0) ? (int)argE.ovecsize/2 : 1;
     lua_pushinteger (L, ovector[0] + 1);         /* 1-st return value */
@@ -303,15 +307,16 @@ static int Lpcre_dfa_exec (lua_State *L)
       lua_rawseti (L, -2, i+1);
     }
     lua_pushinteger (L, res);                    /* 3-rd return value */
-    res = 3;
+    free (buf);
+    return 3;
   }
   else {
-    lua_pushnil (L);
-    lua_pushinteger (L, res);
-    res = 2;
+    free (buf);
+    if (res == CODE_NOMATCH)
+      return lua_pushnil (L), 1;
+    else
+      return generate_error (L, res);
   }
-  free (buf);
-  return res;
 }
 #endif /* #if PCRE_MAJOR >= 6 */
 
@@ -324,6 +329,7 @@ static int Lpcre_exec (lua_State *L) {
 }
 
 static int gmatch_iter (lua_State *L) {
+  int res;
   size_t textlen;
   TPcre *ud        = (TPcre*) lua_touserdata (L, lua_upvalueindex (1));
   const char *text = lua_tolstring (L, lua_upvalueindex (2), &textlen);
@@ -332,8 +338,9 @@ static int gmatch_iter (lua_State *L) {
 
   if (startoffset > (int)textlen)
     return 0;
-  if (0 <= pcre_exec (ud->pr, ud->extra, text, textlen, startoffset, eflags,
-                      ud->match, (NSUB(ud) + 1) * 3)) {
+  res = pcre_exec (ud->pr, ud->extra, text, textlen, startoffset, eflags,
+                   ud->match, (NSUB(ud) + 1) * 3);
+  if (IS_MATCH (res)) {
     int incr = (SUB_LEN(ud,0) == 0) ? 1 : 0;  /* prevent endless loop */
     PUSH_END (L, ud, incr, 0);                /* update start offset */
     lua_replace (L, lua_upvalueindex (4));
@@ -347,10 +354,14 @@ static int gmatch_iter (lua_State *L) {
       return 1;
     }
   }
-  return 0;
+  else if (res == CODE_NOMATCH)
+    return 0;
+  else
+    return generate_error(L, res);
 }
 
 static int split_iter (lua_State *L) {
+  int res;
   size_t textlen;
   TPcre *ud        = (TPcre*) lua_touserdata (L, lua_upvalueindex (1));
   const char *text = lua_tolstring (L, lua_upvalueindex (2), &textlen);
@@ -361,8 +372,9 @@ static int split_iter (lua_State *L) {
   if (startoffset >= (int)textlen)
     return 0;
   for (newoffset = startoffset; newoffset < (int)textlen; ++newoffset) {
-    if (0 <= pcre_exec (ud->pr, ud->extra, text, textlen, newoffset, eflags,
-                        ud->match, (NSUB(ud) + 1) * 3)) {
+    res = pcre_exec (ud->pr, ud->extra, text, textlen, newoffset, eflags,
+                     ud->match, (NSUB(ud) + 1) * 3);
+    if (IS_MATCH (res)) {
       if (SUB_LEN(ud,0)) {
         PUSH_END (L, ud, 0, 0);                   /* update start offset */
         lua_replace (L, lua_upvalueindex (4));
@@ -379,8 +391,10 @@ static int split_iter (lua_State *L) {
         }
       }
     }
-    else
+    else if (res == CODE_NOMATCH)
       break;
+    else
+      return generate_error (L, res);
   }
   lua_pushinteger (L, textlen);             /* mark as last iteration */
   lua_replace (L, lua_upvalueindex (4));    /* update start offset */
@@ -419,7 +433,7 @@ static int generic_find (lua_State *L, int find) {
   compile_regex (L, &argC, &ud);
   res = pcre_exec (ud->pr, ud->extra, argE.text, argE.textlen, argE.startoffset,
     argE.eflags, ud->match, (NSUB(ud) + 1) * 3);
-  if (res >= 0) {
+  if (IS_MATCH (res)) {
     if (find)
       PUSH_OFFSETS (L, ud, 0, 0);
     if (NSUB(ud))    /* push captures */
@@ -430,9 +444,10 @@ static int generic_find (lua_State *L, int find) {
     }
     return find ? NSUB(ud) + 2 : NSUB(ud);
   }
-  lua_pushnil (L);
-  lua_pushinteger (L, res);
-  return 2;
+  else if (res == CODE_NOMATCH)
+    return lua_pushnil (L), 1;
+  else
+    return generate_error (L, res);
 }
 
 static int Lpcre_find (lua_State *L) {
@@ -467,8 +482,12 @@ static int Lpcre_gsub (lua_State *L) {
     int from, to, res;
     res = pcre_exec (ud->pr, ud->extra, argE.text, (int)argE.textlen, st,
                      argE.eflags, ud->match, (NSUB(ud) + 1) * 3);
-    if (res < 0)
+    if (res == CODE_NOMATCH)
       break;
+    else if (!IS_MATCH (res)) {
+      freelist_free (&freelist);
+      return generate_error (L, res);
+    }
     ++reps;
     from = SUB_BEG(ud,0);
     to = SUB_END(ud,0);

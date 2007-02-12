@@ -8,10 +8,10 @@ return {
   Name = "Function find",
   Func = lib.find,
   --{subj,   patt,      st,cf,ef},           { results }
-  { {"abcd", ".+",      5},                  { N,flg.NOMATCH }}, -- failing st
+  { {"abcd", ".+",      5},                  { N }     }, -- failing st
   { {"abc",  "aBC",     N, flg.ICASE},       { 1,3 }   }, -- cf
   { {"abc",  "^abc"},                        { 1,3 }   }, -- anchor
-  { {"^abc", "^abc",    N,N,flg.NOTBOL},     { N,flg.NOMATCH }}, -- anchor + ef
+  { {"^abc", "^abc",    N,N,flg.NOTBOL},     { N }     }, -- anchor + ef
 }
 end
 
@@ -20,10 +20,10 @@ return {
   Name = "Function match",
   Func = lib.match,
   --{subj,   patt,      st,cf,ef},           { results }
-  { {"abcd", ".+",      5},                  { N,flg.NOMATCH }}, -- failing st
-  { {"abc",  "aBC",     N, flg.ICASE},       {"abc" }  }, -- cf
-  { {"abc",  "^abc"},                        {"abc" }  }, -- anchor
-  { {"^abc", "^abc",    N,N,flg.NOTBOL},     { N,flg.NOMATCH }}, -- anchor + ef
+  { {"abcd", ".+",      5},                  { N }    }, -- failing st
+  { {"abc",  "aBC",     N, flg.ICASE},       {"abc" } }, -- cf
+  { {"abc",  "^abc"},                        {"abc" } }, -- anchor
+  { {"^abc", "^abc",    N,N,flg.NOTBOL},     { N }    }, -- anchor + ef
 }
 end
 
@@ -32,10 +32,10 @@ return {
   Name = "Method exec",
   Method = "exec",
 --  {patt,cf},         {subj,st,ef}           { results }
-  { {".+"},            {"abcd",5},            { N,flg.NOMATCH }}, -- failing st
-  { {"aBC",flg.ICASE}, {"abc"},               {1,3,{}}  }, -- cf
-  { {"^abc"},          {"abc"},               {1,3,{}}  }, -- anchor
-  { {"^abc"},          {"^abc",N,flg.NOTBOL}, { N,flg.NOMATCH }}, -- anchor + ef
+  { {".+"},            {"abcd",5},            { N }    }, -- failing st
+  { {"aBC",flg.ICASE}, {"abc"},               {1,3,{}} }, -- cf
+  { {"^abc"},          {"abc"},               {1,3,{}} }, -- anchor
+  { {"^abc"},          {"^abc",N,flg.NOTBOL}, { N }    }, -- anchor + ef
 }
 end
 
@@ -44,10 +44,10 @@ return {
   Name = "Method tfind",
   Method = "tfind",
 --  {patt,cf},         {subj,st,ef}           { results }
-  { {".+"},            {"abcd",5},            { N,flg.NOMATCH }}, -- failing st
-  { {"aBC",flg.ICASE}, {"abc"},               {1,3,{}}  }, -- cf
-  { {"^abc"},          {"abc"},               {1,3,{}}  }, -- anchor
-  { {"^abc"},          {"^abc",N,flg.NOTBOL}, { N,flg.NOMATCH }}, -- anchor + ef
+  { {".+"},            {"abcd",5},            { N }    }, -- failing st
+  { {"aBC",flg.ICASE}, {"abc"},               {1,3,{}} }, -- cf
+  { {"^abc"},          {"abc"},               {1,3,{}} }, -- anchor
+  { {"^abc"},          {"^abc",N,flg.NOTBOL}, { N }    }, -- anchor + ef
 }
 end
 

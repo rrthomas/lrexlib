@@ -4,12 +4,12 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
-<title>Lrexlib 2.0 Reference Manual</title>
+<title>Lrexlib 2.1 Reference Manual</title>
 <link rel="stylesheet" href="lrexlib.css" type="text/css" />
 </head>
 <body>
-<div class="document" id="lrexlib-2-0-reference-manual">
-<h1 class="title">Lrexlib 2.0 Reference Manual</h1>
+<div class="document" id="lrexlib-2-1-reference-manual">
+<h1 class="title">Lrexlib 2.1 Reference Manual</h1>
 
 <div class="contents topic">
 <p class="topic-title first"><a id="table-of-contents" name="table-of-contents">Table of Contents</a></p>
@@ -35,7 +35,7 @@
 <li><a class="reference" href="#dfa-exec" id="id17" name="id17">dfa_exec</a></li>
 </ul>
 </li>
-<li><a class="reference" href="#incompatibilities-with-the-previous-version" id="id18" name="id18">Incompatibilities with the Previous Version</a></li>
+<li><a class="reference" href="#incompatibilities-with-the-previous-versions" id="id18" name="id18">Incompatibilities with the Previous Versions</a></li>
 </ul>
 </div>
 <hr class="docutils" />
@@ -169,7 +169,6 @@ substring is returned.</li>
 <dt><strong>Returns on failure:</strong></dt>
 <dd><ol class="first last arabic simple">
 <li><tt class="docutils literal"><span class="pre">nil</span></tt></li>
-<li>The return value of the underlying <em>pcre_exec</em>/<em>regexec</em> call (a number).</li>
 </ol>
 </dd>
 </dl>
@@ -244,7 +243,6 @@ the match.</li>
 <dt><strong>Returns on failure:</strong></dt>
 <dd><ol class="first last arabic simple">
 <li><tt class="docutils literal"><span class="pre">nil</span></tt></li>
-<li>The return value of the underlying <em>pcre_exec</em>/<em>regexec</em> call (a number).</li>
 </ol>
 </dd>
 </dl>
@@ -793,7 +791,6 @@ substring matches keyed by their correspondent subpattern names
 <dt><strong>Returns on failure:</strong></dt>
 <dd><ol class="first last arabic simple">
 <li><tt class="docutils literal"><span class="pre">nil</span></tt></li>
-<li>The return value of the underlying <em>pcre_exec / regexec</em> call (a number).</li>
 </ol>
 </dd>
 <dt><strong>Notes:</strong></dt>
@@ -870,7 +867,6 @@ substring matches keyed by their correspondent subpattern names
 <dt><strong>Returns on failure:</strong></dt>
 <dd><ol class="first last arabic simple">
 <li><tt class="docutils literal"><span class="pre">nil</span></tt></li>
-<li>The return value of the underlying <em>pcre_exec / regexec</em> call (a number).</li>
 </ol>
 </dd>
 <dt><strong>Example:</strong></dt>
@@ -938,7 +934,7 @@ space array</td>
 </table>
 </blockquote>
 <dl class="docutils">
-<dt><strong>Returns on success:</strong></dt>
+<dt><strong>Returns on success (either full or partial match):</strong></dt>
 <dd><ol class="first last arabic simple">
 <li>The start point of the matches found (a number).</li>
 <li>A table containing the end points of the matches found, the longer matches
@@ -946,10 +942,9 @@ first.</li>
 <li>The return value of the underlying <em>pcre_dfa_exec</em> call (a number).</li>
 </ol>
 </dd>
-<dt><strong>Returns on failure:</strong></dt>
+<dt><strong>Returns on failure (no match):</strong></dt>
 <dd><ol class="first last arabic simple">
 <li><tt class="docutils literal"><span class="pre">nil</span></tt></li>
-<li>The return value of the underlying <em>pcre_dfa_exec</em> call (a number).</li>
 </ol>
 </dd>
 <dt><strong>Example:</strong></dt>
@@ -960,8 +955,8 @@ and 25 then the function returns the following: 10, { 25,20,15 }, 3.</dd>
 </div>
 <hr class="docutils" />
 <div class="section">
-<h2><a class="toc-backref" href="#id18" id="incompatibilities-with-the-previous-version" name="incompatibilities-with-the-previous-version">Incompatibilities with the Previous Version</a></h2>
-<p>The following changes are incompatible with Lrexlib version 1.19:</p>
+<h2><a class="toc-backref" href="#id18" id="incompatibilities-with-the-previous-versions" name="incompatibilities-with-the-previous-versions">Incompatibilities with the Previous Versions</a></h2>
+<p><strong>The following changes are incompatible with Lrexlib version 1.19:</strong></p>
 <blockquote>
 <ol class="arabic simple">
 <li>Lua 5.1 is required</li>
@@ -971,16 +966,23 @@ and 25 then the function returns the following: 10, { 25,20,15 }, 3.</dd>
 <li>Method <tt class="docutils literal"><span class="pre">match</span></tt> renamed to <a class="reference" href="#tfind">tfind</a></li>
 <li>Method <tt class="docutils literal"><span class="pre">gmatch</span></tt> removed (similar functionality is provided by function
 <a class="reference" href="#gmatch">gmatch</a>)</li>
-<li>Methods <a class="reference" href="#tfind">tfind</a> and <a class="reference" href="#exec">exec</a>: 2 values are returned on failure</li>
 <li>Method <a class="reference" href="#exec">exec</a>: the returned table may additionally contain <em>named
 subpatterns</em> (PCRE only)</li>
+</ol>
+</blockquote>
+<p><strong>The following changes are incompatible with Lrexlib version 2.0:</strong></p>
+<blockquote>
+<ol class="arabic simple">
+<li><a class="reference" href="#match">match</a>, <a class="reference" href="#find">find</a>, <a class="reference" href="#tfind">tfind</a>, <a class="reference" href="#exec">exec</a>, <a class="reference" href="#dfa-exec">dfa_exec</a>: only one value (a <tt class="docutils literal"><span class="pre">nil</span></tt>) is
+returned when the subject does not match the pattern. Any other failure
+generates an error.</li>
 </ol>
 </blockquote>
 </div>
 </div>
 <div class="footer">
 <hr class="footer" />
-Generated on: 2007-01-30 07:54 UTC.
+Generated on: 2007-02-12 18:37 UTC.
 
 </div>
 </body>

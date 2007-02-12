@@ -1,6 +1,6 @@
 .. role:: funcdef(literal)
 
-Lrexlib 2.0 Reference Manual
+Lrexlib 2.1 Reference Manual
 ============================
 
 .. contents:: Table of Contents
@@ -105,7 +105,6 @@ PCRE: A locale *lo* may be specified.
 
 **Returns on failure:**
   1. ``nil``
-  2. The return value of the underlying *pcre_exec*/*regexec* call (a number).
 
 ------------------------------------------------------------
 
@@ -145,7 +144,6 @@ PCRE: A locale *lo* may be specified.
 
 **Returns on failure:**
   1. ``nil``
-  2. The return value of the underlying *pcre_exec*/*regexec* call (a number).
 
 ------------------------------------------------------------
 
@@ -478,7 +476,6 @@ string *subj*, starting from offset *init*, subject to execution flags *ef*.
 
 **Returns on failure:**
  1. ``nil``
- 2. The return value of the underlying *pcre_exec / regexec* call (a number).
 
 **Notes:**
  1. If *named subpatterns* (see PCRE_ docs) are used then the returned table
@@ -522,7 +519,6 @@ string *subj*, starting from offset *init*, subject to execution flags *ef*.
 
 **Returns on failure:**
  1. ``nil``
- 2. The return value of the underlying *pcre_exec / regexec* call (a number).
 
 **Example:**
  If the whole match is at offsets 10,20 and substring matches are at offsets
@@ -559,15 +555,14 @@ string *subj*, using a DFA matching algorithm.
   |          |space array                          |        |             |
   +----------+-------------------------------------+--------+-------------+
 
-**Returns on success:**
+**Returns on success (either full or partial match):**
  1. The start point of the matches found (a number).
  2. A table containing the end points of the matches found, the longer matches
     first.
  3. The return value of the underlying *pcre_dfa_exec* call (a number).
 
-**Returns on failure:**
+**Returns on failure (no match):**
  1. ``nil``
- 2. The return value of the underlying *pcre_dfa_exec* call (a number).
 
 **Example:**
  If there are 3 matches found starting at offset 10 and ending at offsets 15, 20
@@ -575,10 +570,10 @@ string *subj*, using a DFA matching algorithm.
 
 ------------------------------------------------------------
 
-Incompatibilities with the Previous Version
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Incompatibilities with the Previous Versions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The following changes are incompatible with Lrexlib version 1.19:
+**The following changes are incompatible with Lrexlib version 1.19:**
 
   1. Lua 5.1 is required
   #. Functions ``newPCRE`` and ``newPOSIX`` renamed to new_
@@ -587,7 +582,12 @@ The following changes are incompatible with Lrexlib version 1.19:
   #. Method ``match`` renamed to tfind_
   #. Method ``gmatch`` removed (similar functionality is provided by function
      gmatch_)
-  #. Methods tfind_ and exec_: 2 values are returned on failure
   #. Method exec_: the returned table may additionally contain *named
      subpatterns* (PCRE only)
+
+**The following changes are incompatible with Lrexlib version 2.0:**
+
+  1. match_, find_, tfind_, exec_, dfa_exec_: only one value (a ``nil``) is
+     returned when the subject does not match the pattern. Any other failure
+     generates an error.
 

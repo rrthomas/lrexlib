@@ -33,9 +33,10 @@ int get_startoffset(lua_State *L, int stackpos, size_t len)
    The table can be passed as the 1-st lua-function parameter,
    otherwise it is created. The return value is the filled table.
 */
-int get_flags (lua_State *L, const flag_pair *arr)
+int get_flags (lua_State *L, const flag_pair **arrs)
 {
   const flag_pair *p;
+  const flag_pair **pp;
   int nparams = lua_gettop(L);
 
   if(nparams == 0)
@@ -47,12 +48,22 @@ int get_flags (lua_State *L, const flag_pair *arr)
       lua_pushvalue(L, 1);
   }
 
-  for(p=arr; p->key != NULL; p++) {
-    lua_pushstring(L, p->key);
-    lua_pushinteger(L, p->val);
-    lua_rawset(L, -3);
+  for(pp=arrs; *pp; ++pp) {
+    for(p=*pp; p->key != NULL; ++p) {
+      lua_pushstring(L, p->key);
+      lua_pushinteger(L, p->val);
+      lua_rawset(L, -3);
+    }
   }
   return 1;
+}
+
+const char *get_flag_key (const flag_pair *fp, int val) {
+  for (; fp->key; ++fp) {
+    if (fp->val == val)
+      return fp->key;
+  }
+  return NULL;
 }
 
 void createmeta(lua_State *L, const char *name)
