@@ -49,7 +49,7 @@ int get_flags (lua_State *L, const flag_pair **arrs)
   }
 
   for(pp=arrs; *pp; ++pp) {
-    for(p=*pp; p->key != NULL; ++p) {
+    for(p=*pp; p->key; ++p) {
       lua_pushstring(L, p->key);
       lua_pushinteger(L, p->val);
       lua_rawset(L, -3);

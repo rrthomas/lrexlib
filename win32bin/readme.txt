@@ -16,6 +16,6 @@ readme.txt
 The included binary files correspond to the following packages:
    rxspencer.dll      -->    rxspencer-3.8.g.3-1
    pcre.dll           -->    pcre-7.0
-   rex_spencer.dll    -->    lrexlib-2.0.2
-   rex_pcre.dll       -->    lrexlib-2.0.2
+   rex_spencer.dll    -->    lrexlib-2.1.0
+   rex_pcre.dll       -->    lrexlib-2.1.0
 
