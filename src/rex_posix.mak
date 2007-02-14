@@ -32,7 +32,7 @@ TRG = rex_posix
 # ===========================================================================
 # === END OF USER SETTINGS ===
 
-V = 2.0
+V = 2.1
 
 DEFS   = -DREX_OPENLIB=luaopen_$(TRG) -DREX_LIBNAME=\"$(TRG)\"
 CFLAGS = $(MYCFLAGS) $(DEFS)
