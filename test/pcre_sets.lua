@@ -107,8 +107,10 @@ return function (libname)
     set_f_find   (lib, flags),
     set_m_exec   (lib, flags),
     set_m_tfind  (lib, flags),
-    set_named_subpatterns (lib, flags),
   }
+  if flags.MAJOR >= 4 then
+    table.insert (sets, set_named_subpatterns (lib, flags))
+  end
   if flags.MAJOR >= 6 then
     table.insert (sets, set_m_dfa_exec (lib, flags))
   end

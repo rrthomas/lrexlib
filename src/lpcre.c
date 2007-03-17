@@ -12,7 +12,7 @@
 #include "common.h"
 extern int Lpcre_get_flags (lua_State *L);
 extern int Lpcre_config (lua_State *L);
-extern int generate_error (lua_State *L, int err_code);
+extern flag_pair pcre_error_flags[];
 
 /* These 2 settings may be redefined from the command-line or the makefile.
  * They should be kept in sync between themselves and with the target name.
@@ -24,8 +24,8 @@ extern int generate_error (lua_State *L, int err_code);
 #  define REX_OPENLIB luaopen_rex_pcre
 #endif
 
-const char pcre_typename[] = REX_LIBNAME"_regex";
-const char *pcre_handle = pcre_typename;
+#define CFLAGS_DEFAULT 0
+#define EFLAGS_DEFAULT 0
 
 #define CODE_NOMATCH    PCRE_ERROR_NOMATCH
 #define IS_MATCH(res)   ((res) >= 0)
@@ -45,9 +45,15 @@ const char *pcre_handle = pcre_typename;
 #define PUSH_END(L,ud,offs,n)     lua_pushinteger(L, (offs) + SUB_END(ud,n))
 #define PUSH_OFFSETS(L,ud,offs,n) (PUSH_START(L,ud,offs,n), PUSH_END(L,ud,offs,n))
 
-/*  Data Types
- ******************************************************************************
- */
+#define BASE(st)               0
+#define PULL(st,from)          (st = (from))
+#define OPTLOCALE(trg,L,pos)   (trg = luaL_optstring (L, pos, NULL))
+#if PCRE_MAJOR >= 4
+#  define DO_NAMED_SUBPATTERNS do_named_subpatterns
+#else
+#  define DO_NAMED_SUBPATTERNS(L,ud,text) ((void)L)
+#endif
+
 
 typedef struct {
   pcre       * pr;
@@ -58,94 +64,36 @@ typedef struct {
   int          freed;
 } TPcre;
 
-typedef struct {            /* pcre_compile arguments */
-  const char * pattern;
-  size_t       patlen;
-  int          cflags;
-  const char * locale;
-} TArgComp;
+#define TUserdata TPcre
+#include "algo.h"
 
-typedef struct {            /* pcre_exec arguments */
-  TPcre      * ud;
-  const char * text;
-  size_t       textlen;
-  int          startoffset;
-  int          eflags;
-  int          funcpos;
-  int          maxmatch;
-  int          reptype;       /* used with gsub */
-  size_t       ovecsize;      /* used with dfa_exec */
-  size_t       wscount;       /* used with dfa_exec */
-} TArgExec;
+const char pcre_typename[] = REX_LIBNAME"_regex";
+const char *pcre_handle = pcre_typename;
 
 /*  Functions
  ******************************************************************************
  */
 
+static int generate_error (lua_State *L, const TPcre *ud, int errcode) {
+  const char *key = get_flag_key (pcre_error_flags, errcode);
+  (void) ud;
+  if (key)
+    return luaL_error (L, "error PCRE_%s", key);
+  else
+    return luaL_error (L, "PCRE error code %d", errcode);
+}
+
 static TPcre* check_ud (lua_State *L, int stackpos) {
   return (TPcre *)luaL_checkudata (L, stackpos, pcre_handle);
 }
 
-static void checkarg_new (lua_State *L, TArgComp *argC) {
-  argC->pattern = luaL_checkstring (L, 1);
-  argC->cflags = luaL_optint (L, 2, 0);
-  argC->locale = luaL_optstring (L, 3, NULL);
-}
-
-/* function gsub (s, patt, f, [n], [cf], [ef], [lo]) */
-static void checkarg_gsub (lua_State *L, TArgComp *argC, TArgExec *argE) {
-  argE->text = luaL_checklstring (L, 1, &argE->textlen);
-  argC->pattern = luaL_checkstring (L, 2);
-  lua_tostring (L, 3);    /* converts number (if any) to string */
-  argE->reptype = lua_type (L, 3);
-  if (argE->reptype != LUA_TSTRING && argE->reptype != LUA_TTABLE &&
-      argE->reptype != LUA_TFUNCTION) {
-    luaL_argerror (L, 3, "must be string, table or function");
-  }
-  argE->funcpos = 3;
-  argE->maxmatch = OptLimit (L, 4);
-  argC->cflags = luaL_optint (L, 5, 0);
-  argE->eflags = luaL_optint (L, 6, 0);
-  argC->locale = luaL_optstring (L, 7, NULL);
-}
-
-/* method r:tfind (s, [st], [ef]) */
-/* method r:exec  (s, [st], [ef]) */
-static void checkarg_tfind (lua_State *L, TArgExec *argE) {
-  argE->ud = check_ud (L, 1);
-  argE->text = luaL_checklstring (L, 2, &argE->textlen);
-  argE->startoffset = get_startoffset (L, 3, argE->textlen);
-  argE->eflags = luaL_optint (L, 4, 0);
-}
-
-/* function find  (s, patt, [st], [cf], [ef], [lo]) */
-/* function match (s, patt, [st], [cf], [ef], [lo]) */
-static void checkarg_find_f (lua_State *L, TArgComp *argC, TArgExec *argE) {
-  argE->text = luaL_checklstring (L, 1, &argE->textlen);
-  argC->pattern = luaL_checkstring (L, 2);
-  argE->startoffset = get_startoffset (L, 3, argE->textlen);
-  argC->cflags = luaL_optint (L, 4, 0);
-  argE->eflags = luaL_optint (L, 5, 0);
-  argC->locale = luaL_optstring (L, 6, NULL);
-}
-
-/* function gmatch (s, patt, [cf], [ef], [lo]) */
-/* function split  (s, patt, [cf], [ef], [lo]) */
-static void checkarg_gmatch_split (lua_State *L, TArgComp *argC, TArgExec *argE) {
-  argE->text = luaL_checklstring (L, 1, &argE->textlen);
-  argC->pattern = luaL_checkstring (L, 2);
-  argC->cflags = luaL_optint (L, 3, 0);
-  argE->eflags = luaL_optint (L, 4, 0);
-  argC->locale = luaL_optstring (L, 5, NULL);
-}
-
 #if PCRE_MAJOR >= 6
 /* method r:dfa_exec (s, [st], [ef], [ovecsize], [wscount]) */
-static void checkarg_dfa_exec (lua_State *L, TArgExec *argE) {
-  argE->ud = check_ud (L, 1);
+static void checkarg_dfa_exec (lua_State *L, TArgExec *argE, TPcre **ud) {
+  *ud = check_ud (L, 1);
   argE->text = luaL_checklstring (L, 2, &argE->textlen);
   argE->startoffset = get_startoffset (L, 3, argE->textlen);
-  argE->eflags = luaL_optint (L, 4, 0);
+  argE->eflags = luaL_optint (L, 4, EFLAGS_DEFAULT);
   argE->ovecsize = luaL_optint (L, 5, 100);
   argE->wscount = luaL_optint (L, 6, 50);
 }
@@ -191,49 +139,7 @@ static int compile_regex (lua_State *L, const TArgComp *argC, TPcre **pud) {
   return 1;
 }
 
-static int Lpcre_new (lua_State *L) {
-  TArgComp argC;
-  checkarg_new (L, &argC);
-  return compile_regex (L, &argC, NULL);
-}
-
-static void push_substrings (lua_State *L, TPcre *ud, const char *text) {
-  int i;
-  CheckStack (L, NSUB(ud));
-  for (i = 1; i <= NSUB(ud); i++) {
-    PUSH_SUB_OR_FALSE (L, ud, text, i);
-  }
-}
-
-static void push_substring_table (lua_State *L, TPcre *ud, const char *text) {
-  int i;
-  lua_newtable (L);
-  for (i = 1; i <= NSUB(ud); i++) {
-    PUSH_SUB_OR_FALSE (L, ud, text, i);
-    lua_rawseti (L, -2, i);
-  }
-}
-
-static void push_offset_table (lua_State *L, const int *offsets, int nmax) {
-  int i, j, k;
-  lua_newtable (L);
-  for (i=1, j=1; i <= nmax; i++) {
-    k = i * 2;
-    if (offsets[k] >= 0) {
-      lua_pushinteger (L, offsets[k] + 1);
-      lua_rawseti (L, -2, j++);
-      lua_pushinteger (L, offsets[k+1]);
-      lua_rawseti (L, -2, j++);
-    }
-    else {
-      lua_pushboolean (L, 0);
-      lua_rawseti (L, -2, j++);
-      lua_pushboolean (L, 0);
-      lua_rawseti (L, -2, j++);
-    }
-  }
-}
-
+#if PCRE_MAJOR >= 4
 /* the target table must be on lua stack top */
 static void do_named_subpatterns (lua_State *L, TPcre *ud, const char *text) {
   int i, namecount, name_entry_size;
@@ -256,45 +162,27 @@ static void do_named_subpatterns (lua_State *L, TPcre *ud, const char *text) {
     tabptr += name_entry_size;
   }
 }
+#endif /* #if PCRE_MAJOR >= 4 */
 
-static int generic_tfind (lua_State *L, int tfind) {
-  TPcre *ud;
-  TArgExec argE;
-  int res;
-
-  checkarg_tfind (L, &argE);
-  ud = argE.ud;
-  res = pcre_exec (ud->pr, ud->extra, argE.text, (int)argE.textlen,
-                   argE.startoffset, argE.eflags, ud->match,
-                   (ud->ncapt + 1) * 3);
-  if (IS_MATCH (res)) {
-    PUSH_OFFSETS (L, ud, 0, 0);
-    if (tfind)
-      push_substring_table (L, ud, argE.text);
-    else
-      push_offset_table (L, ud->match, ud->ncapt);
-    do_named_subpatterns (L, ud, argE.text);
-    return 3;
-  }
-  else if (res == CODE_NOMATCH)
-    return lua_pushnil (L), 1;
-  else
-    return generate_error(L, res);
+static int tfind_exec (TPcre *ud, TArgExec *argE) {
+  return pcre_exec (ud->pr, ud->extra, argE->text, (int)argE->textlen,
+              argE->startoffset, argE->eflags, ud->match, (ud->ncapt + 1) * 3);
 }
 
 #if PCRE_MAJOR >= 6
 static int Lpcre_dfa_exec (lua_State *L)
 {
   TArgExec argE;
+  TPcre *ud;
   int res;
   int *buf, *ovector, *wspace;
 
-  checkarg_dfa_exec (L, &argE);
+  checkarg_dfa_exec (L, &argE, &ud);
   buf = (int*) Lmalloc (L, (argE.ovecsize + argE.wscount) * sizeof(int));
   ovector = buf;
   wspace = buf + argE.ovecsize;
 
-  res = pcre_dfa_exec (argE.ud->pr, argE.ud->extra, argE.text, (int)argE.textlen,
+  res = pcre_dfa_exec (ud->pr, ud->extra, argE.text, (int)argE.textlen,
     argE.startoffset, argE.eflags, ovector, argE.ovecsize, wspace, argE.wscount);
 
   if (IS_MATCH (res) || res == PCRE_ERROR_PARTIAL) {
@@ -315,250 +203,33 @@ static int Lpcre_dfa_exec (lua_State *L)
     if (res == CODE_NOMATCH)
       return lua_pushnil (L), 1;
     else
-      return generate_error (L, res);
+      return generate_error (L, ud, res);
   }
 }
 #endif /* #if PCRE_MAJOR >= 6 */
 
-static int Lpcre_tfind (lua_State *L) {
-  return generic_tfind (L, 1);
+static int gmatch_exec (TUserdata *ud, TArgExec *argE) {
+  return pcre_exec (ud->pr, ud->extra, argE->text, argE->textlen,
+    argE->startoffset, argE->eflags, ud->match, (NSUB(ud) + 1) * 3);
 }
 
-static int Lpcre_exec (lua_State *L) {
-  return generic_tfind (L, 0);
+static void gmatch_pushsubject (lua_State *L, TArgExec *argE) {
+  lua_pushlstring (L, argE->text, argE->textlen);
 }
 
-static int gmatch_iter (lua_State *L) {
-  int res;
-  size_t textlen;
-  TPcre *ud        = (TPcre*) lua_touserdata (L, lua_upvalueindex (1));
-  const char *text = lua_tolstring (L, lua_upvalueindex (2), &textlen);
-  int eflags       = lua_tointeger (L, lua_upvalueindex (3));
-  int startoffset  = lua_tointeger (L, lua_upvalueindex (4));
-
-  if (startoffset > (int)textlen)
-    return 0;
-  res = pcre_exec (ud->pr, ud->extra, text, textlen, startoffset, eflags,
-                   ud->match, (NSUB(ud) + 1) * 3);
-  if (IS_MATCH (res)) {
-    int incr = (SUB_LEN(ud,0) == 0) ? 1 : 0;  /* prevent endless loop */
-    PUSH_END (L, ud, incr, 0);                /* update start offset */
-    lua_replace (L, lua_upvalueindex (4));
-    /* push either captures or entire match */
-    if (NSUB(ud)) {
-      push_substrings (L, ud, text);
-      return NSUB(ud);
-    }
-    else {
-      PUSH_SUB (L, ud, text, 0);
-      return 1;
-    }
-  }
-  else if (res == CODE_NOMATCH)
-    return 0;
-  else
-    return generate_error(L, res);
+static int findmatch_exec (TPcre *ud, TArgExec *argE) {
+  return pcre_exec (ud->pr, ud->extra, argE->text, argE->textlen,
+    argE->startoffset, argE->eflags, ud->match, (NSUB(ud) + 1) * 3);
 }
 
-static int split_iter (lua_State *L) {
-  int res;
-  size_t textlen;
-  TPcre *ud        = (TPcre*) lua_touserdata (L, lua_upvalueindex (1));
-  const char *text = lua_tolstring (L, lua_upvalueindex (2), &textlen);
-  int eflags       = lua_tointeger (L, lua_upvalueindex (3));
-  int startoffset  = lua_tointeger (L, lua_upvalueindex (4));
-  int newoffset;
-
-  if (startoffset >= (int)textlen)
-    return 0;
-  for (newoffset = startoffset; newoffset < (int)textlen; ++newoffset) {
-    res = pcre_exec (ud->pr, ud->extra, text, textlen, newoffset, eflags,
-                     ud->match, (NSUB(ud) + 1) * 3);
-    if (IS_MATCH (res)) {
-      if (SUB_LEN(ud,0)) {
-        PUSH_END (L, ud, 0, 0);                   /* update start offset */
-        lua_replace (L, lua_upvalueindex (4));
-        /* push text preceding the match */
-        lua_pushlstring (L, text + startoffset, SUB_BEG(ud,0) - startoffset);
-        /* push either captures or entire match */
-        if (NSUB(ud)) {
-          push_substrings (L, ud, text);
-          return 1 + NSUB(ud);
-        }
-        else {
-          PUSH_SUB (L, ud, text, 0);
-          return 2;
-        }
-      }
-    }
-    else if (res == CODE_NOMATCH)
-      break;
-    else
-      return generate_error (L, res);
-  }
-  lua_pushinteger (L, textlen);             /* mark as last iteration */
-  lua_replace (L, lua_upvalueindex (4));    /* update start offset */
-  lua_pushlstring (L, text + startoffset, textlen - startoffset);
-  return 1;
+static int gsub_exec (TPcre *ud, TArgExec *argE, int st) {
+  return pcre_exec (ud->pr, ud->extra, argE->text, (int)argE->textlen,
+    st, argE->eflags, ud->match, (NSUB(ud) + 1) * 3);
 }
 
-static int generic_gmatch (lua_State *L, lua_CFunction iter)
-{
-  TArgComp argC;
-  TArgExec argE;
-  checkarg_gmatch_split (L, &argC, &argE);
-  compile_regex (L, &argC, &argE.ud);            /* 1-st upvalue: ud */
-  lua_pushlstring (L, argE.text, argE.textlen);  /* 2-nd upvalue: s  */
-  lua_pushinteger (L, argE.eflags);              /* 3-rd upvalue: ef */
-  lua_pushinteger (L, 0);                        /* 4-th upvalue: startoffset */
-  lua_pushcclosure (L, iter, 4);
-  return 1;
-}
-
-static int Lpcre_gmatch (lua_State *L) {
-  return generic_gmatch (L, gmatch_iter);
-}
-
-static int Lpcre_split (lua_State *L) {
-  return generic_gmatch (L, split_iter);
-}
-
-static int generic_find (lua_State *L, int find) {
-  int res;
-  TPcre *ud;
-  TArgComp argC;
-  TArgExec argE;
-
-  checkarg_find_f (L, &argC, &argE);
-  compile_regex (L, &argC, &ud);
-  res = pcre_exec (ud->pr, ud->extra, argE.text, argE.textlen, argE.startoffset,
-    argE.eflags, ud->match, (NSUB(ud) + 1) * 3);
-  if (IS_MATCH (res)) {
-    if (find)
-      PUSH_OFFSETS (L, ud, 0, 0);
-    if (NSUB(ud))    /* push captures */
-      push_substrings (L, ud, argE.text);
-    else if (!find) {
-      PUSH_SUB (L, ud, argE.text, 0);
-      return 1;
-    }
-    return find ? NSUB(ud) + 2 : NSUB(ud);
-  }
-  else if (res == CODE_NOMATCH)
-    return lua_pushnil (L), 1;
-  else
-    return generate_error (L, res);
-}
-
-static int Lpcre_find (lua_State *L) {
-  return generic_find (L, 1);
-}
-
-static int Lpcre_match (lua_State *L) {
-  return generic_find (L, 0);
-}
-
-static int Lpcre_gsub (lua_State *L) {
-  TPcre *ud;
-  TArgComp argC;
-  TArgExec argE;
-  int reps = 0, st = 0;
-  TBuffer BufOut, BufRep;
-  TFreeList freelist;
-  /*--------------------------------------------------------------------------*/
-  checkarg_gsub (L, &argC, &argE);
-  compile_regex (L, &argC, &ud);
-  freelist_init (&freelist);
-  /*--------------------------------------------------------------------------*/
-  if (argE.reptype == LUA_TSTRING) {
-    buffer_init (&BufRep, 256, L, &freelist);
-    bufferZ_putrepstring (&BufRep, argE.funcpos, NSUB(ud));
-  }
-  else if (argE.reptype == LUA_TFUNCTION)
-    lua_pushliteral (L, "break");
-  /*--------------------------------------------------------------------------*/
-  buffer_init (&BufOut, 1024, L, &freelist);
-  while ((argE.maxmatch < 0 || reps < argE.maxmatch) && st <= (int)argE.textlen) {
-    int from, to, res;
-    res = pcre_exec (ud->pr, ud->extra, argE.text, (int)argE.textlen, st,
-                     argE.eflags, ud->match, (NSUB(ud) + 1) * 3);
-    if (res == CODE_NOMATCH)
-      break;
-    else if (!IS_MATCH (res)) {
-      freelist_free (&freelist);
-      return generate_error (L, res);
-    }
-    ++reps;
-    from = SUB_BEG(ud,0);
-    to = SUB_END(ud,0);
-    if (from > st)
-      buffer_addlstring (&BufOut, argE.text + st, from - st);
-    /*------------------------------------------------------------------------*/
-    if (argE.reptype == LUA_TSTRING) {
-      size_t iter = 0, num;
-      const char *str;
-      while (bufferZ_next (&BufRep, &iter, &num, &str)) {
-        if (str)
-          buffer_addlstring (&BufOut, str, num);
-        else if (num == 0 || SUB_VALID (ud,num))
-          buffer_addlstring (&BufOut, argE.text + SUB_BEG(ud,num), SUB_LEN(ud,num));
-      }
-    }
-    /*------------------------------------------------------------------------*/
-    else if (argE.reptype == LUA_TTABLE) {
-      if (NSUB(ud) > 0)
-        PUSH_SUB_OR_FALSE (L, ud, argE.text, 1);
-      else
-        lua_pushlstring (L, argE.text + from, to - from);
-      lua_gettable (L, argE.funcpos);
-    }
-    /*------------------------------------------------------------------------*/
-    else if (argE.reptype == LUA_TFUNCTION) {
-      int narg;
-      lua_pushvalue (L, argE.funcpos);
-      if (NSUB(ud) > 0) {
-        push_substrings (L, ud, argE.text);
-        narg = NSUB(ud);
-      }
-      else {
-        lua_pushlstring (L, argE.text + from, to - from);
-        narg = 1;
-      }
-      if (0 != lua_pcall (L, narg, 2, 0)) {
-        freelist_free (&freelist);
-        return lua_error (L);  /* re-raise the error */
-      }
-    }
-    /*------------------------------------------------------------------------*/
-    if (argE.reptype != LUA_TSTRING) {
-      int pos = (argE.reptype == LUA_TFUNCTION) ? -2 : -1;
-      if (lua_tostring (L, pos))
-        buffer_addvalue (&BufOut, pos);
-      else if (!lua_toboolean (L, pos))
-        buffer_addlstring (&BufOut, argE.text + from, to - from);
-      else {
-        freelist_free (&freelist);
-        luaL_error (L, "invalid replacement value (a %s)", luaL_typename (L, pos));
-      }
-      if (argE.reptype == LUA_TFUNCTION && lua_equal (L, -1, -3))
-        argE.maxmatch = 0;  /* signal break from the loop */
-      lua_pop (L, -pos);
-    }
-    /*------------------------------------------------------------------------*/
-    if (from < to)
-      st = to;
-    else if (st < (int)argE.textlen) {  /* advance by 1 char (not replaced) */
-      buffer_addlstring (&BufOut, argE.text + st, 1);
-      ++st;
-    }
-    else break;
-  }
-  /*--------------------------------------------------------------------------*/
-  buffer_addlstring (&BufOut, argE.text + st, argE.textlen - st);
-  buffer_pushresult (&BufOut);
-  lua_pushinteger (L, reps);
-  freelist_free (&freelist);
-  return 2;
+static int split_exec (TPcre *ud, TArgExec *argE, int offset) {
+  return pcre_exec (ud->pr, ud->extra, argE->text, argE->textlen, offset,
+                    argE->eflags, ud->match, (NSUB(ud) + 1) * 3);
 }
 
 static int Lpcre_gc (lua_State *L) {
@@ -588,8 +259,8 @@ static int Lpcre_version (lua_State *L) {
 }
 
 static const luaL_reg pcremeta[] = {
-  { "exec",        Lpcre_exec },
-  { "tfind",       Lpcre_tfind },    /* old match */
+  { "exec",        ud_exec },
+  { "tfind",       ud_tfind },    /* old match */
 #if PCRE_MAJOR >= 6
   { "dfa_exec",    Lpcre_dfa_exec },
 #endif
@@ -599,16 +270,18 @@ static const luaL_reg pcremeta[] = {
 };
 
 static const luaL_reg rexlib[] = {
-  { "match",       Lpcre_match },
-  { "find",        Lpcre_find },
-  { "gmatch",      Lpcre_gmatch },
-  { "gsub",        Lpcre_gsub },
-  { "split",       Lpcre_split },
-  { "new",         Lpcre_new },
+  { "match",       match },
+  { "find",        find },
+  { "gmatch",      gmatch },
+  { "gsub",        gsub },
+  { "split",       split },
+  { "new",         ud_new },
   { "plainfind",   plainfind_func },
   { "flags",       Lpcre_get_flags },
-  { "config",      Lpcre_config },
   { "version",     Lpcre_version },
+#if PCRE_MAJOR >= 4
+  { "config",      Lpcre_config },
+#endif
   { NULL, NULL }
 };
 

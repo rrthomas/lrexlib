@@ -81,45 +81,15 @@ void CheckStack (lua_State *L, int extraslots)
 }
 
 int OptLimit (lua_State *L, int pos) {
-  if (!lua_isnoneornil (L, pos)) {
-    int a = luaL_checkint (L, pos);
+  if (lua_isnoneornil (L, pos))
+    return GSUB_UNLIMITED;
+  if (lua_isfunction (L, pos))
+    return GSUB_CONDITIONAL;
+  if (lua_isnumber (L, pos)) {
+    int a = lua_tointeger (L, pos);
     return a < 0 ? 0 : a;
   }
-  return -1;
-}
-
-/* function plainfind (s, p, [st], [ci]) */
-int plainfind_func (lua_State *L) {
-  size_t textlen, patlen;
-  const char *text = luaL_checklstring (L, 1, &textlen);
-  const char *pattern = luaL_checklstring (L, 2, &patlen);
-  const char *from = text + get_startoffset (L, 3, textlen);
-  int ci = lua_toboolean (L, 4);
-  const char *end = text + textlen;
-
-  for (; from + patlen <= end; ++from) {
-    const char *f = from, *p = pattern;
-    size_t len = patlen + 1;
-    if (ci) {
-      while (--len) {
-        if (toupper (*f++) != toupper (*p++))
-          break;
-      }
-    }
-    else {
-      while (--len) {
-        if (*f++ != *p++)
-          break;
-      }
-    }
-    if (len == 0) {
-      lua_pushinteger (L, from - text + 1);
-      lua_pushinteger (L, from - text + patlen);
-      return 2;
-    }
-  }
-  lua_pushnil (L);
-  return 1;
+  return luaL_argerror (L, pos, "number or function expected");
 }
 
 /* Classes */
@@ -184,8 +154,16 @@ void buffer_free (TBuffer *buf) {
   free (buf->arr);
 }
 
+void buffer_clear (TBuffer *buf) {
+  buf->top = 0;
+}
+
 void buffer_pushresult (TBuffer *buf) {
   lua_pushlstring (buf->L, buf->arr, buf->top);
+}
+
+void buffer_addbuffer (TBuffer *trg, TBuffer *src) {
+  buffer_addlstring (trg, src->arr, src->top);
 }
 
 void buffer_addlstring (TBuffer *buf, const void *src, size_t sz) {
@@ -209,14 +187,14 @@ void buffer_addvalue (TBuffer *buf, int stackpos) {
   buffer_addlstring (buf, p, len);
 }
 
-void bufferZ_addlstring (TBuffer *buf, const void *src, size_t len) {
+static void bufferZ_addlstring (TBuffer *buf, const void *src, size_t len) {
   size_t header[2] = { ID_STRING };
   header[1] = len;
   buffer_addlstring (buf, header, sizeof (header));
   buffer_addlstring (buf, src, len);
 }
 
-void bufferZ_addnum (TBuffer *buf, size_t num) {
+static void bufferZ_addnum (TBuffer *buf, size_t num) {
   size_t header[2] = { ID_NUMBER };
   header[1] = num;
   buffer_addlstring (buf, header, sizeof (header));

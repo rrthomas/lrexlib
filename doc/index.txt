@@ -1,4 +1,4 @@
-Lrexlib 2.1
+Lrexlib 2.2
 ===========
 
 |  by Reuben Thomas (rrt@sc3d.org)

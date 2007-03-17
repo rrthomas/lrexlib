@@ -1,6 +1,6 @@
 .. role:: funcdef(literal)
 
-Lrexlib 2.1 Reference Manual
+Lrexlib 2.2 Reference Manual
 ============================
 
 .. contents:: Table of Contents
@@ -184,8 +184,8 @@ gsub
 
 :funcdef:`rex.gsub (subj, patt, repl, [n], [cf], [ef], [lo])`
 
-The function searches for all matches of the pattern *patt* in the string *subj*
-and substitutes the found matches according to the parameter *repl* (see details
+This function searches for all matches of the pattern *patt* in the string
+*subj* and replaces them according to the parameters *repl* and *n* (see details
 below).
 
 PCRE: A locale *lo* may be specified.
@@ -199,8 +199,8 @@ PCRE: A locale *lo* may be specified.
   +---------+-----------------------------------+-------------------------+-------------+
   |  repl   |substitution source                |string, function or table|     n/a     |
   +---------+-----------------------------------+-------------------------+-------------+
-  |   [n]   |maximum number of matches to search|         number          |   ``nil``   |
-  |         |for; unlimited if not supplied     |                         |             |
+  |   [n]   |maximum number of matches to search| number or function      |   ``nil``   |
+  |         |for, or control function, or nil   |                         |             |
   +---------+-----------------------------------+-------------------------+-------------+
   |  [cf]   |compilation flags (bitwise OR)     |         number          |     cf_     |
   +---------+-----------------------------------+-------------------------+-------------+
@@ -212,10 +212,14 @@ PCRE: A locale *lo* may be specified.
 **Returns:**
   1. The subject string with the substitutions made.
   2. Number of matches found.
+  3. Number of substitutions made.
 
 **Details:**
-  The parameter *repl* can be either a string, a function or a table. The
-  function behaves differently depending on the *repl* type:
+  The parameter *repl* can be either a string, a function or a table.
+  On each match made, it is converted into a value *repl_out* that may be used
+  for the replacement.
+
+  *repl_out* is generated differently depending on the type of *repl*:
 
   1. If *repl* is a *string* then it is treated as a template for substitution,
      where the %X occurences in *repl* are handled in a special way, depending
@@ -235,37 +239,60 @@ PCRE: A locale *lo* may be specified.
         string
 
     * if X is any non-digit character then %X is substituted by X
-    * all parts of *repl* other than %X are copied to the output string
-      verbatim.
 
-  2. If *repl* is a *function* then it gets called on each match with the
+    All parts of *repl* other than %X are copied to *repl_out* verbatim.
+
+  2. If *repl* is a *function* then it is called on each match with the
      submatches passed as parameters (if there are no submatches then the entire
-     match is passed as the only parameter). The substitution string is derived
-     depending on the first return value of function *repl*:
+     match is passed as the only parameter). *repl_out* is the return value of
+     the *repl* call, and is interpreted as follows:
 
-    * if it is a string then it is used as a substitution for the current match.
-    * if it is either of nothing, ``nil`` or ``false`` then no substitution is
-      made.
-    * values of other types generate an error.
+    * if it is a string or a number (coerced to a string), then the replacement
+      value is that string;
+    * if it is a ``nil`` or a ``false``, then no replacement is to be done;
 
-    Though gsub_ is in general consistent with the API and behavior of Lua's
-    *string.gsub*, it has one extension with regards to *string.gsub* behavior:
+  3. If *repl* is a table then *repl_out* is *repl* [m1], where m1 is the first
+     submatch (or the entire match if there are no submatches), following the
+     same rules as for the return value of *repl* call, described in the above
+     paragraph.
 
-    * if function *repl* returns more than one value and its second return value
-      is the literal string *"break"*, then gsub_ stops searching for further
-      matches in the subject and returns.
+  Note: Under some circumstances, the value of *repl_out* may be ignored; see
+  below_.
 
-  3. If *repl* is a *table* then the first submatch (or the entire match if
-     there are no submatches) is used as the key and the value stored in *repl*
-     under that key is used for substitution depending on its type.
+  gsub behaves differently depending on the type of *n*:
 
-    * If no value is stored under the key but *repl* has a metatable with the
-      *__index* field set then the correspondent metamethod will be called for
-      obtaining the value.
+  1. If *n* is a *number* then it is treated as the maximum number of matches
+     to search for (an omitted or ``nil`` value means an unlimited number of
+     matches). On each match, the replacement value is the *repl_out* string
+     (see above).
 
-    * The obtained value is used for the substitution following exactly same
-      rules as for the first return value of *repl* described in the above
-      paragraph.
+.. _below:
+
+  2. If *n* is a function, then it is called on each match, after *repl_out* is
+     produced (so if *repl* is a function, it will be called prior to the *n*
+     call).
+
+     *n* receives 3 arguments and returns 2 values. Its arguments are:
+
+       1. The start offset of the match (a number)
+       2. The end offset of the match (a number)
+       3. *repl_out*
+
+     The type of its first return controls the replacement produced by gsub for
+     the current match:
+
+       * ``true`` -- replace/don't replace, according to *repl_out*;
+       * ``nil``/``false`` -- don't replace;
+       * a string (or a number coerced to a string) -- replace by that string;
+
+     The type of its second return controls gsub behavior after the current
+     match is handled:
+
+       * ``nil``/``false`` -- no changes: *n* will be called on the next match;
+       * ``true`` -- search for an unlimited number of matches; *n* will not be
+         called anymore;
+       * a number -- maximum number of matches to search for, beginning from the
+         next match; *n* will not be called anymore;
 
 ------------------------------------------------------------
 
@@ -407,7 +434,7 @@ documentation.
 config
 ------
 
-[PCRE only. See *pcre_config* in the PCRE_ docs.]
+[PCRE 4.0 and later. See *pcre_config* in the PCRE_ docs.]
 
 :funcdef:`rex.config ([tb])`
 
@@ -573,7 +600,7 @@ string *subj*, using a DFA matching algorithm.
 Incompatibilities with the Previous Versions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**The following changes are incompatible with Lrexlib version 1.19:**
+**Incompatibilities with the version 1.19:**
 
   1. Lua 5.1 is required
   #. Functions ``newPCRE`` and ``newPOSIX`` renamed to new_
@@ -585,9 +612,13 @@ Incompatibilities with the Previous Versions
   #. Method exec_: the returned table may additionally contain *named
      subpatterns* (PCRE only)
 
-**The following changes are incompatible with Lrexlib version 2.0:**
+**Incompatibilities with the version 2.0:**
 
   1. match_, find_, tfind_, exec_, dfa_exec_: only one value (a ``nil``) is
      returned when the subject does not match the pattern. Any other failure
      generates an error.
+
+**Incompatibilities with the version 2.1:**
+
+  1. gsub_: a special "break" return of *repl* function is deprecated.
 

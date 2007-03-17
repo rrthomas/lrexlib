@@ -4,12 +4,12 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
-<title>Lrexlib 2.1 Reference Manual</title>
+<title>Lrexlib 2.2 Reference Manual</title>
 <link rel="stylesheet" href="lrexlib.css" type="text/css" />
 </head>
 <body>
-<div class="document" id="lrexlib-2-1-reference-manual">
-<h1 class="title">Lrexlib 2.1 Reference Manual</h1>
+<div class="document" id="lrexlib-2-2-reference-manual">
+<h1 class="title">Lrexlib 2.2 Reference Manual</h1>
 
 <div class="contents topic">
 <p class="topic-title first"><a id="table-of-contents" name="table-of-contents">Table of Contents</a></p>
@@ -308,8 +308,8 @@ till the subject fails to match.</p>
 <div class="section">
 <h3><a class="toc-backref" href="#id7" id="gsub" name="gsub">gsub</a></h3>
 <p><tt class="funcdef docutils literal"><span class="pre">rex.gsub</span> <span class="pre">(subj,</span> <span class="pre">patt,</span> <span class="pre">repl,</span> <span class="pre">[n],</span> <span class="pre">[cf],</span> <span class="pre">[ef],</span> <span class="pre">[lo])</span></tt></p>
-<p>The function searches for all matches of the pattern <em>patt</em> in the string <em>subj</em>
-and substitutes the found matches according to the parameter <em>repl</em> (see details
+<p>This function searches for all matches of the pattern <em>patt</em> in the string
+<em>subj</em> and replaces them according to the parameters <em>repl</em> and <em>n</em> (see details
 below).</p>
 <p>PCRE: A locale <em>lo</em> may be specified.</p>
 <blockquote>
@@ -345,8 +345,8 @@ below).</p>
 </tr>
 <tr><td>[n]</td>
 <td>maximum number of matches to search
-for; unlimited if not supplied</td>
-<td>number</td>
+for, or control function, or nil</td>
+<td>number or function</td>
 <td><tt class="docutils literal"><span class="pre">nil</span></tt></td>
 </tr>
 <tr><td>[cf]</td>
@@ -372,11 +372,14 @@ for; unlimited if not supplied</td>
 <dd><ol class="first last arabic simple">
 <li>The subject string with the substitutions made.</li>
 <li>Number of matches found.</li>
+<li>Number of substitutions made.</li>
 </ol>
 </dd>
 <dt><strong>Details:</strong></dt>
-<dd><p class="first">The parameter <em>repl</em> can be either a string, a function or a table. The
-function behaves differently depending on the <em>repl</em> type:</p>
+<dd><p class="first">The parameter <em>repl</em> can be either a string, a function or a table.
+On each match made, it is converted into a value <em>repl_out</em> that may be used
+for the replacement.</p>
+<p><em>repl_out</em> is generated differently depending on the type of <em>repl</em>:</p>
 <ol class="arabic simple">
 <li>If <em>repl</em> is a <em>string</em> then it is treated as a template for substitution,
 where the %X occurences in <em>repl</em> are handled in a special way, depending
@@ -398,48 +401,75 @@ string</li>
 </ul>
 </li>
 <li>if X is any non-digit character then %X is substituted by X</li>
-<li>all parts of <em>repl</em> other than %X are copied to the output string
-verbatim.</li>
 </ul>
+<p>All parts of <em>repl</em> other than %X are copied to <em>repl_out</em> verbatim.</p>
 </blockquote>
 <ol class="arabic simple" start="2">
-<li>If <em>repl</em> is a <em>function</em> then it gets called on each match with the
+<li>If <em>repl</em> is a <em>function</em> then it is called on each match with the
 submatches passed as parameters (if there are no submatches then the entire
-match is passed as the only parameter). The substitution string is derived
-depending on the first return value of function <em>repl</em>:</li>
+match is passed as the only parameter). <em>repl_out</em> is the return value of
+the <em>repl</em> call, and is interpreted as follows:</li>
 </ol>
 <blockquote>
 <ul class="simple">
-<li>if it is a string then it is used as a substitution for the current match.</li>
-<li>if it is either of nothing, <tt class="docutils literal"><span class="pre">nil</span></tt> or <tt class="docutils literal"><span class="pre">false</span></tt> then no substitution is
-made.</li>
-<li>values of other types generate an error.</li>
-</ul>
-<p>Though <a class="reference" href="#gsub">gsub</a> is in general consistent with the API and behavior of Lua's
-<em>string.gsub</em>, it has one extension with regards to <em>string.gsub</em> behavior:</p>
-<ul class="simple">
-<li>if function <em>repl</em> returns more than one value and its second return value
-is the literal string <em>&quot;break&quot;</em>, then <a class="reference" href="#gsub">gsub</a> stops searching for further
-matches in the subject and returns.</li>
+<li>if it is a string or a number (coerced to a string), then the replacement
+value is that string;</li>
+<li>if it is a <tt class="docutils literal"><span class="pre">nil</span></tt> or a <tt class="docutils literal"><span class="pre">false</span></tt>, then no replacement is to be done;</li>
 </ul>
 </blockquote>
 <ol class="arabic simple" start="3">
-<li>If <em>repl</em> is a <em>table</em> then the first submatch (or the entire match if
-there are no submatches) is used as the key and the value stored in <em>repl</em>
-under that key is used for substitution depending on its type.</li>
-</ol>
-<blockquote class="last">
-<ul class="simple">
-<li>If no value is stored under the key but <em>repl</em> has a metatable with the
-<em>__index</em> field set then the correspondent metamethod will be called for
-obtaining the value.</li>
-<li>The obtained value is used for the substitution following exactly same
-rules as for the first return value of <em>repl</em> described in the above
+<li>If <em>repl</em> is a table then <em>repl_out</em> is <em>repl</em> [m1], where m1 is the first
+submatch (or the entire match if there are no submatches), following the
+same rules as for the return value of <em>repl</em> call, described in the above
 paragraph.</li>
-</ul>
-</blockquote>
+</ol>
+<p>Note: Under some circumstances, the value of <em>repl_out</em> may be ignored; see
+<a class="reference" href="#below">below</a>.</p>
+<p>gsub behaves differently depending on the type of <em>n</em>:</p>
+<ol class="last arabic simple">
+<li>If <em>n</em> is a <em>number</em> then it is treated as the maximum number of matches
+to search for (an omitted or <tt class="docutils literal"><span class="pre">nil</span></tt> value means an unlimited number of
+matches). On each match, the replacement value is the <em>repl_out</em> string
+(see above).</li>
+</ol>
 </dd>
 </dl>
+<blockquote id="below">
+<ol class="arabic" start="2">
+<li><p class="first">If <em>n</em> is a function, then it is called on each match, after <em>repl_out</em> is
+produced (so if <em>repl</em> is a function, it will be called prior to the <em>n</em>
+call).</p>
+<p><em>n</em> receives 3 arguments and returns 2 values. Its arguments are:</p>
+<blockquote>
+<ol class="arabic simple">
+<li>The start offset of the match (a number)</li>
+<li>The end offset of the match (a number)</li>
+<li><em>repl_out</em></li>
+</ol>
+</blockquote>
+<p>The type of its first return controls the replacement produced by gsub for
+the current match:</p>
+<blockquote>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">true</span></tt> -- replace/don't replace, according to <em>repl_out</em>;</li>
+<li><tt class="docutils literal"><span class="pre">nil</span></tt>/<tt class="docutils literal"><span class="pre">false</span></tt> -- don't replace;</li>
+<li>a string (or a number coerced to a string) -- replace by that string;</li>
+</ul>
+</blockquote>
+<p>The type of its second return controls gsub behavior after the current
+match is handled:</p>
+<blockquote>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">nil</span></tt>/<tt class="docutils literal"><span class="pre">false</span></tt> -- no changes: <em>n</em> will be called on the next match;</li>
+<li><tt class="docutils literal"><span class="pre">true</span></tt> -- search for an unlimited number of matches; <em>n</em> will not be
+called anymore;</li>
+<li>a number -- maximum number of matches to search for, beginning from the
+next match; <em>n</em> will not be called anymore;</li>
+</ul>
+</blockquote>
+</li>
+</ol>
+</blockquote>
 </div>
 <hr class="docutils" />
 <div class="section">
@@ -678,7 +708,7 @@ documentation.</p>
 <hr class="docutils" />
 <div class="section">
 <h3><a class="toc-backref" href="#id12" id="config" name="config">config</a></h3>
-<p>[PCRE only. See <em>pcre_config</em> in the <a class="reference" href="http://www.pcre.org/pcre.txt">PCRE</a> docs.]</p>
+<p>[PCRE 4.0 and later. See <em>pcre_config</em> in the <a class="reference" href="http://www.pcre.org/pcre.txt">PCRE</a> docs.]</p>
 <p><tt class="funcdef docutils literal"><span class="pre">rex.config</span> <span class="pre">([tb])</span></tt></p>
 <p>This function returns a table containing the values of the configuration
 parameters used at PCRE library build-time. Those parameters (numbers) are
@@ -956,7 +986,7 @@ and 25 then the function returns the following: 10, { 25,20,15 }, 3.</dd>
 <hr class="docutils" />
 <div class="section">
 <h2><a class="toc-backref" href="#id18" id="incompatibilities-with-the-previous-versions" name="incompatibilities-with-the-previous-versions">Incompatibilities with the Previous Versions</a></h2>
-<p><strong>The following changes are incompatible with Lrexlib version 1.19:</strong></p>
+<p><strong>Incompatibilities with the version 1.19:</strong></p>
 <blockquote>
 <ol class="arabic simple">
 <li>Lua 5.1 is required</li>
@@ -970,7 +1000,7 @@ and 25 then the function returns the following: 10, { 25,20,15 }, 3.</dd>
 subpatterns</em> (PCRE only)</li>
 </ol>
 </blockquote>
-<p><strong>The following changes are incompatible with Lrexlib version 2.0:</strong></p>
+<p><strong>Incompatibilities with the version 2.0:</strong></p>
 <blockquote>
 <ol class="arabic simple">
 <li><a class="reference" href="#match">match</a>, <a class="reference" href="#find">find</a>, <a class="reference" href="#tfind">tfind</a>, <a class="reference" href="#exec">exec</a>, <a class="reference" href="#dfa-exec">dfa_exec</a>: only one value (a <tt class="docutils literal"><span class="pre">nil</span></tt>) is
@@ -978,11 +1008,17 @@ returned when the subject does not match the pattern. Any other failure
 generates an error.</li>
 </ol>
 </blockquote>
+<p><strong>Incompatibilities with the version 2.1:</strong></p>
+<blockquote>
+<ol class="arabic simple">
+<li><a class="reference" href="#gsub">gsub</a>: a special &quot;break&quot; return of <em>repl</em> function is deprecated.</li>
+</ol>
+</blockquote>
 </div>
 </div>
 <div class="footer">
 <hr class="footer" />
-Generated on: 2007-02-12 18:37 UTC.
+Generated on: 2007-03-17 09:55 UTC.
 
 </div>
 </body>

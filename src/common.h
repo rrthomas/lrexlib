@@ -6,7 +6,7 @@
 
 #include "lua.h"
 
-#define REX_VERSION "Lrexlib 2.1.0"
+#define REX_VERSION "Lrexlib 2.2.0 beta"
 
 /* REX_API can be overridden from the command line or Makefile */
 #ifndef REX_API
@@ -24,9 +24,28 @@ int get_startoffset (lua_State *L, int stackpos, size_t len);
 void *Lmalloc (lua_State *L, size_t size);
 void CheckStack (lua_State *L, int extraslots);
 int OptLimit (lua_State *L, int pos);
-int plainfind_func (lua_State *L);
 
 /* Classes */
+
+typedef struct {            /* compile arguments */
+  const char * pattern;
+  size_t       patlen;
+  int          cflags;
+  const char * locale;
+} TArgComp;
+
+typedef struct {            /* exec arguments */
+  const char * text;
+  size_t       textlen;
+  int          startoffset;
+  int          eflags;
+  int          funcpos;
+  int          maxmatch;
+  int          funcpos2;      /* used with gsub */
+  int          reptype;       /* used with gsub */
+  size_t       ovecsize;      /* used with dfa_exec */
+  size_t       wscount;       /* used with dfa_exec */
+} TArgExec;
 
 struct tagFreeList; /* forward declaration */
 
@@ -52,11 +71,19 @@ void freelist_free (TFreeList *fl);
 
 void buffer_init (TBuffer *buf, size_t sz, lua_State *L, TFreeList *fl);
 void buffer_free (TBuffer *buf);
+void buffer_clear (TBuffer *buf);
+void buffer_addbuffer (TBuffer *trg, TBuffer *src);
 void buffer_addlstring (TBuffer *buf, const void *src, size_t sz);
 void buffer_addvalue (TBuffer *buf, int stackpos);
 void buffer_pushresult (TBuffer *buf);
 
 void bufferZ_putrepstring (TBuffer *buf, int reppos, int nsub);
 int  bufferZ_next (TBuffer *buf, size_t *iter, size_t *len, const char **str);
+
+/*  These are the special values for maxmatch in gsub.
+ *  They all must be negative.
+ */
+#define GSUB_UNLIMITED   -1
+#define GSUB_CONDITIONAL -2
 
 #endif

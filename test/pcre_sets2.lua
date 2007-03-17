@@ -13,15 +13,16 @@ local function set_f_gsub4 (lib, flg)
   local set = {
     Name = "Function gsub, set4",
     Func = get_gsub (lib),
-  --{ s,           p,              f, n,  res1,       res2 },
-    { {"/* */ */", "%/%*(.*)%*%/", "#" }, {"#",         1} },
-    { {"a2c3",     ".-",           "#" }, {"#a#2#c#3#", 5} }, -- test .-
-    { {"/**/",     "%/%*(.-)%*%/", "#" }, {"#",         1} },
-    { {"/* */ */", "%/%*(.-)%*%/", "#" }, {"# */",      1} },
-    { {"a2c3",     "%d",           "#" }, {"a#c#",      2} }, -- test %d
-    { {"a2c3",     "%D",           "#" }, {"#2#3",      2} }, -- test %D
-    { {"a \t\nb",  "%s",           "#" }, {"a###b",     3} }, -- test %s
-    { {"a \t\nb",  "%S",           "#" }, {"# \t\n#",   2} }, -- test %S
+  --{ s,           p,              f, n,  res1,      res2, res3 },
+    { {"/* */ */", "%/%*(.*)%*%/", "#" }, {"#",         1, 1} },
+    { {"a2c3",     ".-",           "#" }, {"#a#2#c#3#", 5, 5} }, -- test .-
+    { {"/**/",     "%/%*(.-)%*%/", "#" }, {"#",         1, 1} },
+    { {"/* */ */", "%/%*(.-)%*%/", "#" }, {"# */",      1, 1} },
+    { {"a2c3",     "%d",           "#" }, {"a#c#",      2, 2} }, -- test %d
+    { {"a2c3",     "%D",           "#" }, {"#2#3",      2, 2} }, -- test %D
+    { {"a \t\nb",  "%s",           "#" }, {"a###b",     3, 3} }, -- test %s
+    { {"a \t\nb",  "%S",           "#" }, {"# \t\n#",   2, 2} }, -- test %S
+    { {"abcd",     "\\b",          "%1"}, {"abcd",      2, 2} },
   }
   -- convert patterns: lua -> pcre
   for _, test in ipairs (set) do
@@ -157,7 +158,7 @@ local function set_f_gsub7 (lib, flg)
   -- fill in reference results
   for _,v in ipairs(set) do
     local r0, r1, r2 = pcall (string.gsub, unpack (v[1]))
-    v[2] = r0 and { r1, r2 } or { r0, r1 }
+    v[2] = r0 and { r1, r2, r2 } or { r0, r1 }
   end
   -- convert patterns: lua -> pcre
   for _, test in ipairs (set) do
@@ -169,9 +170,12 @@ end
 return function (libname)
   local lib = require (libname)
   local flags = lib.flags and lib.flags ()
-  return {
+  local sets = {
     set_f_gsub4 (lib, flags),
-    set_f_gsub7 (lib, flags),
   }
+  if flags.MAJOR*100 + flags.MINOR > 405 then
+    table.insert (sets, set_f_gsub7 (lib, flags))
+  end
+  return sets
 end
 

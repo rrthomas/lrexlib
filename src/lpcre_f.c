@@ -82,7 +82,7 @@ static flag_pair pcre_flags[] = {
   { NULL, 0 }
 };
 
-static flag_pair pcre_error_flags[] = {
+flag_pair pcre_error_flags[] = {
   { "ERROR_NOMATCH",                 PCRE_ERROR_NOMATCH },
   { "ERROR_NULL",                    PCRE_ERROR_NULL },
   { "ERROR_BADOPTION",               PCRE_ERROR_BADOPTION },
@@ -147,6 +147,7 @@ int Lpcre_get_flags (lua_State *L) {
   return get_flags (L, fps);
 }
 
+#if PCRE_MAJOR >= 4
 int Lpcre_config (lua_State *L) {
   int val;
   flag_pair *fp;
@@ -162,12 +163,5 @@ int Lpcre_config (lua_State *L) {
   }
   return 1;
 }
-
-int generate_error (lua_State *L, int errcode) {
-  const char *key = get_flag_key (pcre_error_flags, errcode);
-  if (key)
-    return luaL_error (L, "error PCRE_%s", key);
-  else
-    return luaL_error (L, "PCRE error code %d", errcode);
-}
+#endif
 

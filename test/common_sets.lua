@@ -32,6 +32,8 @@ local function set_f_gmatch (lib, flg)
   --{  subj             patt         results }
     { {("abcd"):rep(3), "(.)b.(d)"}, {{"a","d"},{"a","d"},{"a","d"}} },
     { {"abcd",          ".*" },      {{"abcd",N},{"",N}  } },--zero-length match
+    { {"a\0c",          "."  },      {{"a",N},{"\0",N},{"c",N}} },--nuls in subj
+    { {"abc",           "^." },      {{"a",N}} },--anchored pattern
   }
 end
 
@@ -58,6 +60,8 @@ local function set_f_split (lib, flg)
     { {"a,b,",          ","},     {{"a",",",N},    {"b",",",N},          } },
     { {"a,,b",          ","},     {{"a",",",N},    {"",",",N},  {"b",N,N}} },
     { {"ab<78>c", "<(.)(.)>"},    {{"ab","7","8"}, {"c",N,N},            } },
+    { {"a,\0,c",        ","},     {{"a",",",N},{"\0",",",N},{"c",N,N},   } },--nuls in subj
+    { {"abc",          "^."},     {{"", "a",N},    {"bc",N,N},           } },--anchored pattern
   }
 end
 
@@ -141,18 +145,20 @@ local function set_f_gsub1 (lib, flg)
   return {
     Name = "Function gsub, set1",
     Func = get_gsub (lib),
-  --{ s,     p,   f,   n,    res1,   res2 },
-    { {subj, pat, "",  0},   {subj,    0} }, -- test "n" + empty_replace
-    { {subj, pat, "", -1},   {subj,    0} }, -- test "n" + empty_replace
-    { {subj, pat, "",  1},   {"cdef",  1} },
-    { {subj, pat, "",  2},   {"cd",    2} },
-    { {subj, pat, "",  3},   {"cd",    2} },
-    { {subj, pat, ""    },   {"cd",    2} },
-    { {subj, pat, "#", 0},   {subj,    0} }, -- test "n" + non-empty_replace
-    { {subj, pat, "#", 1},   {"#cdef", 1} },
-    { {subj, pat, "#", 2},   {"#cd#",  2} },
-    { {subj, pat, "#", 3},   {"#cd#",  2} },
-    { {subj, pat, "#"   },   {"#cd#",  2} },
+  --{ s,       p,    f,   n,    res1,  res2, res3 },
+    { {subj,   pat,  "",  0},   {subj,    0, 0} }, -- test "n" + empty_replace
+    { {subj,   pat,  "", -1},   {subj,    0, 0} }, -- test "n" + empty_replace
+    { {subj,   pat,  "",  1},   {"cdef",  1, 1} },
+    { {subj,   pat,  "",  2},   {"cd",    2, 2} },
+    { {subj,   pat,  "",  3},   {"cd",    2, 2} },
+    { {subj,   pat,  ""    },   {"cd",    2, 2} },
+    { {subj,   pat,  "#", 0},   {subj,    0, 0} }, -- test "n" + non-empty_replace
+    { {subj,   pat,  "#", 1},   {"#cdef", 1, 1} },
+    { {subj,   pat,  "#", 2},   {"#cd#",  2, 2} },
+    { {subj,   pat,  "#", 3},   {"#cd#",  2, 2} },
+    { {subj,   pat,  "#"   },   {"#cd#",  2, 2} },
+    { {"a\0c", ".",  "#"   },   {"###",   3, 3} }, -- subj contains nuls
+    { {"abc",  "^.", "#"   },   {"#bc",   1, 1} }, -- anchored pattern
   }
 end
 
@@ -161,16 +167,16 @@ local function set_f_gsub2 (lib, flg)
   return {
     Name = "Function gsub, set2",
     Func = get_gsub (lib),
-  --{ s,     p,   f,   n,     res1,     res2 },
-    { {subj, pat, "<%1>" },   {"<a>b<c>", 2} }, -- test non-escaped chars in f
-    { {subj, pat, "%<%1%>" }, {"<a>b<c>", 2} }, -- test escaped chars in f
-    { {subj, pat, "" },       {"b",       2} }, -- test empty replace
-    { {subj, pat, "1" },      {"1b1",     2} }, -- test odd and even %'s in f
-    { {subj, pat, "%1" },     {"abc",     2} },
-    { {subj, pat, "%%1" },    {"%1b%1",   2} },
-    { {subj, pat, "%%%1" },   {"%ab%c",   2} },
-    { {subj, pat, "%%%%1" },  {"%%1b%%1", 2} },
-    { {subj, pat, "%%%%%1" }, {"%%ab%%c", 2} },
+  --{ s,     p,   f,   n,     res1,    res2, res3 },
+    { {subj, pat, "<%1>" },   {"<a>b<c>", 2, 2} }, -- test non-escaped chars in f
+    { {subj, pat, "%<%1%>" }, {"<a>b<c>", 2, 2} }, -- test escaped chars in f
+    { {subj, pat, "" },       {"b",       2, 2} }, -- test empty replace
+    { {subj, pat, "1" },      {"1b1",     2, 2} }, -- test odd and even %'s in f
+    { {subj, pat, "%1" },     {"abc",     2, 2} },
+    { {subj, pat, "%%1" },    {"%1b%1",   2, 2} },
+    { {subj, pat, "%%%1" },   {"%ab%c",   2, 2} },
+    { {subj, pat, "%%%%1" },  {"%%1b%%1", 2, 2} },
+    { {subj, pat, "%%%%%1" }, {"%%ab%%c", 2, 2} },
   }
 end
 
@@ -178,11 +184,11 @@ local function set_f_gsub3 (lib, flg)
   return {
     Name = "Function gsub, set3",
     Func = get_gsub (lib),
-  --{ s,      p,      f,  n,   res1,  res2 },
-    { {"abc", "a",    "%0" }, {"abc", 1} }, -- test (in)valid capture index
-    { {"abc", "a",    "%1" }, {"abc", 1} },
-    { {"abc", "[ac]", "%1" }, {"abc", 2} },
-    { {"abc", "(a)",  "%1" }, {"abc", 1} },
+  --{ s,      p,      f,  n,   res1,res2,res3 },
+    { {"abc", "a",    "%0" }, {"abc", 1, 1} }, -- test (in)valid capture index
+    { {"abc", "a",    "%1" }, {"abc", 1, 1} },
+    { {"abc", "[ac]", "%1" }, {"abc", 2, 2} },
+    { {"abc", "(a)",  "%1" }, {"abc", 1, 1} },
     { {"abc", "(a)",  "%2" }, "invalid capture index" },
   }
 end
@@ -191,15 +197,15 @@ local function set_f_gsub4 (lib, flg)
   return {
     Name = "Function gsub, set4",
     Func = get_gsub (lib),
-  --{ s,           p,              f, n,  res1,       res2 },
-    { {"a2c3",     ".",            "#" }, {"####",      4} }, -- test .
-    { {"a2c3",     ".+",           "#" }, {"#",         1} }, -- test .+
-    { {"a2c3",     ".*",           "#" }, {"##",        2} }, -- test .*
-    { {"/* */ */", "\\/\\*(.*)\\*\\/", "#" }, {"#",     1} },
-    { {"a2c3",     "[0-9]",        "#" }, {"a#c#",      2} }, -- test %d
-    { {"a2c3",     "[^0-9]",       "#" }, {"#2#3",      2} }, -- test %D
-    { {"a \t\nb",  "[ \t\n]",      "#" }, {"a###b",     3} }, -- test %s
-    { {"a \t\nb",  "[^ \t\n]",     "#" }, {"# \t\n#",   2} }, -- test %S
+  --{ s,           p,              f, n,  res1,      res2, res3 },
+    { {"a2c3",     ".",            "#" }, {"####",      4, 4} }, -- test .
+    { {"a2c3",     ".+",           "#" }, {"#",         1, 1} }, -- test .+
+    { {"a2c3",     ".*",           "#" }, {"##",        2, 2} }, -- test .*
+    { {"/* */ */", "\\/\\*(.*)\\*\\/", "#" }, {"#",     1, 1} },
+    { {"a2c3",     "[0-9]",        "#" }, {"a#c#",      2, 2} }, -- test %d
+    { {"a2c3",     "[^0-9]",       "#" }, {"#2#3",      2, 2} }, -- test %D
+    { {"a \t\nb",  "[ \t\n]",      "#" }, {"a###b",     3, 3} }, -- test %s
+    { {"a \t\nb",  "[^ \t\n]",     "#" }, {"# \t\n#",   2, 2} }, -- test %S
   }
 end
 
@@ -214,17 +220,17 @@ local function set_f_gsub5 (lib, flg)
   return {
     Name = "Function gsub, set5",
     Func = get_gsub (lib),
-  --{ s,     p,          f,   n,   res1,      res2 },
-    { {subj, "a(.)c(.)", frep1 }, {subj,        1} },
-    { {subj, "a(.)c(.)", frep2 }, {"#",         1} },
-    { {subj, "a(.)c(.)", frep3 }, {"2,3",       1} },
-    { {subj, "a.c.",     frep3 }, {subj,        1} },
-    { {subj, "z*",       frep1 }, {subj,        5} },
-    { {subj, "z*",       frep2 }, {"#a#2#c#3#", 5} },
-    { {subj, "z*",       frep3 }, {subj,        5} },
+  --{ s,     p,          f,   n,   res1,     res2, res3 },
+    { {subj, "a(.)c(.)", frep1 }, {subj,        1, 0} },
+    { {subj, "a(.)c(.)", frep2 }, {"#",         1, 1} },
+    { {subj, "a(.)c(.)", frep3 }, {"2,3",       1, 1} },
+    { {subj, "a.c.",     frep3 }, {subj,        1, 1} },
+    { {subj, "z*",       frep1 }, {subj,        5, 0} },
+    { {subj, "z*",       frep2 }, {"#a#2#c#3#", 5, 5} },
+    { {subj, "z*",       frep3 }, {subj,        5, 5} },
     { {subj, subj,       frep4 }, "invalid return type" },
-    { {"abc",".",        frep5 }, {"777",       3} },
-    { {"abc",".",        frep6 }, {"7bc",       1} },
+    { {"abc",".",        frep5 }, {"777",       3, 3} },
+    { {"abc",".",        frep6 }, {"777",       3, 3} },
   }
 end
 
@@ -234,13 +240,44 @@ local function set_f_gsub6 (lib, flg)
   return {
     Name = "Function gsub, set6",
     Func = get_gsub (lib),
-  --{ s,     p,          f, n,   res1, res2 },
-    { {subj, "a(.)c(.)", tab1 }, {subj,  1} },
-    { {subj, "a(.)c(.)", tab2 }, {"56",  1} },
+  --{ s,     p,          f, n,   res1,res2,res3 },
+    { {subj, "a(.)c(.)", tab1 }, {subj,  1, 0} },
+    { {subj, "a(.)c(.)", tab2 }, {"56",  1, 1} },
     { {subj, "a(.)c(.)", tab3 }, "invalid replacement type" },
-    { {subj, "a.c.",     tab1 }, {subj,  1} },
-    { {subj, "a.c.",     tab2 }, {subj,  1} },
-    { {subj, "a.c.",     tab3 }, {subj,  1} },
+    { {subj, "a.c.",     tab1 }, {subj,  1, 0} },
+    { {subj, "a.c.",     tab2 }, {subj,  1, 0} },
+    { {subj, "a.c.",     tab3 }, {subj,  1, 0} },
+  }
+end
+
+local function set_f_gsub8 (lib, flg)
+  local subj, patt, repl = "abcdef", "..", "*"
+  return {
+    Name = "Function gsub, set8",
+    Func = get_gsub (lib),
+  --{ s,     p,       f, n,                                    res1,  res2, res3 },
+    { {subj, patt, repl, function() end },                    {"abcdef", 3, 0} },
+    { {subj, patt, repl, function() return nil end },         {"abcdef", 3, 0} },
+    { {subj, patt, repl, function() return false end },       {"abcdef", 3, 0} },
+    { {subj, patt, repl, function() return true end },        {"***",    3, 3} },
+    { {subj, patt, repl, function() return {} end },          {"***",    3, 3} },
+    { {subj, patt, repl, function() return "#" end },         {"###",    3, 3} },
+    { {subj, patt, repl, function() return 57 end },          {"575757", 3, 3} },
+    { {subj, patt, repl, function (from) return from end },   {"135",    3, 3} },
+    { {subj, patt, repl, function (from, to) return to end }, {"246",    3, 3} },
+    { {subj, patt, repl, function (from,to,rep) return rep end },
+                                                              {"***",    3, 3} },
+    { {subj, patt, repl, function (from, to, rep) return rep..to..from end },
+                                                           {"*21*43*65", 3, 3} },
+    { {subj, patt, repl, function() return nil end },         {"abcdef", 3, 0} },
+    { {subj, patt, repl, function() return nil, nil end },    {"abcdef", 3, 0} },
+    { {subj, patt, repl, function() return nil, false end },  {"abcdef", 3, 0} },
+    { {subj, patt, repl, function() return nil, true end },   {"ab**",   3, 2} },
+    { {subj, patt, repl, function() return true, true end },  {"***",    3, 3} },
+    { {subj, patt, repl, function() return nil, 0 end },      {"abcdef", 1, 0} },
+    { {subj, patt, repl, function() return true, 0 end },     {"*cdef",  1, 1} },
+    { {subj, patt, repl, function() return nil, 1 end },      {"ab*ef",  2, 1} },
+    { {subj, patt, repl, function() return true, 1 end },     {"**ef",   2, 2} },
   }
 end
 
@@ -259,6 +296,7 @@ return function (libname)
     set_f_gsub4     (lib),
     set_f_gsub5     (lib),
     set_f_gsub6     (lib),
+    set_f_gsub8     (lib),
     set_f_plainfind (lib),
   }
 end
