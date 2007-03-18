@@ -24,13 +24,15 @@ body {
 }
 
 table {
-  border: 0;
   border-spacing: 0 ;
   border-top: hidden ;
+  border-left: hidden ;
+  border-right: hidden ;
+  border-bottom: 1 px black ;
 }
 
 th {
-  border-bottom: solid ;
+  border-bottom: solid black ;
   border-left: none ;
   border-right: none ;
   margin: 0 ;
