@@ -24,10 +24,25 @@ body {
 }
 
 table {
-  border-spacing: 0;
+  border: 0;
+  border-spacing: 0 ;
+  border-top: hidden ;
+}
+
+th {
+  border-bottom: solid ;
+  border-left: none ;
+  border-right: none ;
+  margin: 0 ;
+  padding: 0 ;
 }
 
 tr {
   margin: 0;
   padding: 0;
+}
+
+td {
+  border: 0 ;
+  border-style: none ;
 }
