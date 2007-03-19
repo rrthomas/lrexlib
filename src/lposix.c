@@ -76,18 +76,16 @@ typedef struct {
 } TPosix;
 
 #define TUserdata TPosix
-#include "algo.h"
 
 const char posix_typename[] = REX_LIBNAME"_regex";
 const char *posix_handle = posix_typename;
+#define UD_HANDLE posix_handle
+
+#include "algo.h"
 
 /*  Functions
  ******************************************************************************
  */
-
-static TPosix* check_ud (lua_State *L, int stackpos) {
-  return (TPosix *)luaL_checkudata (L, stackpos, posix_handle);
-}
 
 static int generate_error (lua_State *L, const TPosix *ud, int errcode) {
   char errbuf[80];
@@ -203,7 +201,7 @@ static int split_exec (TPosix *ud, TArgExec *argE, int offset) {
 }
 
 static int Posix_gc (lua_State *L) {
-  TPosix *ud = check_ud (L, 1);
+  TPosix *ud = check_ud_gc (L, 1);
   if (ud->freed == 0) {           /* precaution against "manual" __gc calling */
     ud->freed = 1;
     regfree (&ud->r);

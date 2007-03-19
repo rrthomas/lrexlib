@@ -1,3 +1,9 @@
+2007-03-19  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
+	* algo.h, lpcre.c, lposix.c, ltre.c: improved userdata check
+	    (detects bad userdata error prior to calling methods;
+		prevents crashes).
+
 2007-03-10  Shmuel Zeigerman  <shmuz@actcom.co.il>
 
 	* algo.h: many functions added.

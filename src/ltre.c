@@ -53,10 +53,12 @@ typedef struct {
 } TPosix;
 
 #define TUserdata TPosix
-#include "algo.h"
 
 const char posix_typename[] = REX_LIBNAME"_regex";
 const char *posix_handle = posix_typename;
+#define UD_HANDLE posix_handle
+
+#include "algo.h"
 
 /*  Functions
  ******************************************************************************
@@ -92,10 +94,6 @@ static void checkarg_regaparams (lua_State *L, int stackpos,  regaparams_t *argP
   argP->max_subst  = get_int_field (L, "max_subst");
   argP->max_err    = get_int_field (L, "max_err");
   lua_pop (L, 1);
-}
-
-static TPosix* check_ud (lua_State *L, int stackpos) {
-  return (TPosix *)luaL_checkudata (L, stackpos, posix_handle);
 }
 
 /* method r:atfind (s, params, [st], [ef]) */
@@ -232,7 +230,7 @@ static int Ltre_have_approx (lua_State *L) {
 }
 
 static int Ltre_gc (lua_State *L) {
-  TPosix *ud = check_ud (L, 1);
+  TPosix *ud = check_ud_gc (L, 1);
   if (ud->freed == 0) {           /* precaution against "manual" __gc calling */
     ud->freed = 1;
     regfree (&ud->r);

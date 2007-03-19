@@ -11,8 +11,20 @@ static int gsub_exec       (TUserdata *ud, TArgExec *argE, int offset);
 static int split_exec      (TUserdata *ud, TArgExec *argE, int offset);
 static int compile_regex   (lua_State *L, const TArgComp *argC, TUserdata **pud);
 static int generate_error  (lua_State *L, const TUserdata *ud, int errcode);
-static TUserdata* check_ud (lua_State *L, int stackpos);
 static void do_named_subpatterns (lua_State *L, TUserdata *ud, const char *text);
+
+
+static TUserdata* check_ud (lua_State *L, int stackpos) {
+  TUserdata *ud = (TUserdata *)luaL_checkudata(L, stackpos, UD_HANDLE);
+  luaL_argcheck (L, !ud->freed, stackpos, "attempt to access the deleted regex");
+  return ud;
+}
+
+
+/* allow access to the userdata, even if it's in the deleted state */
+static TUserdata* check_ud_gc (lua_State *L, int stackpos) {
+  return (TUserdata *)luaL_checkudata (L, stackpos, UD_HANDLE);
+}
 
 
 static void checkarg_new (lua_State *L, TArgComp *argC) {

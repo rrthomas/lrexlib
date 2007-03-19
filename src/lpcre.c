@@ -65,10 +65,12 @@ typedef struct {
 } TPcre;
 
 #define TUserdata TPcre
-#include "algo.h"
 
 const char pcre_typename[] = REX_LIBNAME"_regex";
 const char *pcre_handle = pcre_typename;
+#define UD_HANDLE pcre_handle
+
+#include "algo.h"
 
 /*  Functions
  ******************************************************************************
@@ -81,10 +83,6 @@ static int generate_error (lua_State *L, const TPcre *ud, int errcode) {
     return luaL_error (L, "error PCRE_%s", key);
   else
     return luaL_error (L, "PCRE error code %d", errcode);
-}
-
-static TPcre* check_ud (lua_State *L, int stackpos) {
-  return (TPcre *)luaL_checkudata (L, stackpos, pcre_handle);
 }
 
 #if PCRE_MAJOR >= 6
@@ -233,7 +231,7 @@ static int split_exec (TPcre *ud, TArgExec *argE, int offset) {
 }
 
 static int Lpcre_gc (lua_State *L) {
-  TPcre *ud = check_ud (L, 1);
+  TPcre *ud = check_ud_gc (L, 1);
   if (ud->freed == 0) {           /* precaution against "manual" __gc calling */
     ud->freed = 1;
     if (ud->pr)      pcre_free (ud->pr);
