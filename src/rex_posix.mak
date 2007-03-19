@@ -59,7 +59,7 @@ clean:
 	rm -f $(OBJ) $(TRG_AR) $(TRG_SO)*
 
 # Dependencies
-lposix.o: lposix.c common.h
+lposix.o: lposix.c common.h algo.h
 common.o: common.c common.h
 
 # (End of Makefile)

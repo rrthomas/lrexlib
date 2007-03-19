@@ -47,7 +47,7 @@ clean:
 	rm -f $(OBJ) $(TRG_AR) $(TRG_SO)*
 
 # Dependencies
-lpcre.o: lpcre.c common.h
+lpcre.o: lpcre.c common.h algo.h
 lpcre_f.o: lpcre_f.c common.h
 common.o: common.c common.h
 
