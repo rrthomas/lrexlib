@@ -67,7 +67,6 @@
 #define BASE(st)                        (st)
 #define PULL(st,from)                   ((void)st)
 #define OPTLOCALE(trg,L,pos)            ((void)trg)
-#define DO_NAMED_SUBPATTERNS(L,ud,text) ((void)L)
 
 typedef struct {
   regex_t      r;

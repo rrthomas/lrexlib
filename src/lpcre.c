@@ -49,9 +49,7 @@ extern flag_pair pcre_error_flags[];
 #define PULL(st,from)          (st = (from))
 #define OPTLOCALE(trg,L,pos)   (trg = luaL_optstring (L, pos, NULL))
 #if PCRE_MAJOR >= 4
-#  define DO_NAMED_SUBPATTERNS do_named_subpatterns
-#else
-#  define DO_NAMED_SUBPATTERNS(L,ud,text) ((void)L)
+#  define DO_NAMED_SUBPATTERNS 1
 #endif
 
 
@@ -153,7 +151,7 @@ static void do_named_subpatterns (lua_State *L, TPcre *ud, const char *text) {
   for (i = 0; i < namecount; i++) {
     int n = (tabptr[0] << 8) | tabptr[1]; /* number of the capturing parenthesis */
     if (n > 0 && n <= NSUB(ud)) {   /* check range */
-      lua_pushstring (L, tabptr + 2); /* name of the capture, zero terminated */
+      lua_pushstring (L, (char *)(tabptr + 2)); /* name of the capture, zero terminated */
       PUSH_SUB_OR_FALSE (L, ud, text, n);
       lua_rawset (L, -3);
     }

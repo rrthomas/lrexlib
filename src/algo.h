@@ -11,7 +11,9 @@ static int gsub_exec       (TUserdata *ud, TArgExec *argE, int offset);
 static int split_exec      (TUserdata *ud, TArgExec *argE, int offset);
 static int compile_regex   (lua_State *L, const TArgComp *argC, TUserdata **pud);
 static int generate_error  (lua_State *L, const TUserdata *ud, int errcode);
+#ifdef DO_NAMED_SUBPATTERNS
 static void do_named_subpatterns (lua_State *L, TUserdata *ud, const char *text);
+#endif
 
 
 static TUserdata* check_ud (lua_State *L, int stackpos) {
@@ -444,7 +446,9 @@ static int generic_tfind (lua_State *L, int tfind) {
       push_substring_table (L, ud, argE.text);
     else
       push_offset_table (L, ud, argE.startoffset);
-    DO_NAMED_SUBPATTERNS (L, ud, argE.text);
+#ifdef DO_NAMED_SUBPATTERNS
+    do_named_subpatterns (L, ud, argE.text);
+#endif
     return 3;
   }
   else if (res == CODE_NOMATCH)
