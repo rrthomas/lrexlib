@@ -26,6 +26,9 @@ local function set_named_subpatterns (lib, flg)
 end
 
 local function set_f_find (lib, flg)
+  local cp1251 = 
+    "ÀÁÂÃÄÅ¨ÆÇÈÉÊËÌÍÎÏĞÑÒÓÔÕÖ×ØÙÜÛÚİŞßàáâãäå¸æçèéêëìíîïğñòóôõö÷øùüûúışÿ"
+  local loc = "Russian_Russia.1251"
   return {
   Name = "Function find",
   Func = lib.find,
@@ -35,6 +38,8 @@ local function set_f_find (lib, flg)
   { {"abc",  "aBC",     N,flg.CASELESS},     { 1,3 } }, -- cf
   { {"abc",  "bc",      N,N,flg.ANCHORED},   { N   } }, -- cf
   { {"abc",  "bc",      N,N,flg.ANCHORED},   { N   } }, -- ef
+  { {cp1251, "[[:upper:]]+", N,N,N, loc},    { 1,33} }, -- locale
+  { {cp1251, "[[:lower:]]+", N,N,N, loc},    {34,66} }, -- locale
 }
 end
 
@@ -49,6 +54,53 @@ local function set_f_match (lib, flg)
   { {"abc",  "bc",      N,N,flg.ANCHORED},   { N    }}, -- cf
   { {"abc",  "bc",      N,N,flg.ANCHORED},   { N    }}, -- ef
 }
+end
+
+local function set_f_gmatch (lib, flg)
+  -- gmatch (s, p, [cf], [ef])
+  local pCSV = "(^[^,]*)|,([^,]*)"
+  local F = false
+  local function test_gmatch (subj, patt)
+    local out, guard = {}, 10
+    for a, b in lib.gmatch (subj, patt) do
+      table.insert (out, { norm(a), norm(b) })
+      guard = guard - 1
+      if guard == 0 then break end
+    end
+    return unpack (out)
+  end
+  return {
+    Name = "Function gmatch",
+    Func = test_gmatch,
+  --{  subj             patt   results }
+    { {"",              pCSV}, {{"",F}} },
+    { {"12",            pCSV}, {{"12",F}} },
+    { {",",             pCSV}, {{"", F},{F,""}} },
+    { {"12,,45",        pCSV}, {{"12",F},{F,""},{F,"45"}} },
+    { {",,12,45,,ab,",  pCSV}, {{"",F},{F,""},{F,"12"},{F,"45"},{F,""},{F,"ab"},{F,""}} },
+  }
+end
+
+local function set_f_split (lib, flg)
+  -- split (s, p, [cf], [ef])
+  local function test_split (subj, patt)
+    local out, guard = {}, 10
+    for a, b, c in lib.split (subj, patt) do
+      table.insert (out, { norm(a), norm(b), norm(c) })
+      guard = guard - 1
+      if guard == 0 then break end
+    end
+    return unpack (out)
+  end
+  return {
+    Name = "Function split",
+    Func = test_split,
+  --{  subj             patt      results }
+    { {"ab",           "$"},     {{"ab","",N}, {"",N,N},               } },
+    { {"ab",         "^|$"},     {{"", "", N}, {"ab","",N},  {"",N,N}, } },
+    { {"ab45ab","(?<=ab).*?"},   {{"ab","",N}, {"45ab","",N},{"",N,N}, } },
+    { {"ab",         "\\b"},     {{"", "", N}, {"ab","",N},  {"",N,N}, } },
+  }
 end
 
 local function set_m_exec (lib, flg)
@@ -105,6 +157,8 @@ return function (libname)
   local sets = {
     set_f_match  (lib, flags),
     set_f_find   (lib, flags),
+    set_f_gmatch (lib, flags),
+    set_f_split  (lib, flags),
     set_m_exec   (lib, flags),
     set_m_tfind  (lib, flags),
   }

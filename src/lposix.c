@@ -66,7 +66,7 @@
 
 #define BASE(st)                        (st)
 #define PULL(st,from)                   ((void)st)
-#define OPTLOCALE(trg,L,pos)            ((void)trg)
+#define OPTLOCALE(a,b,c)                ((void)a)
 
 typedef struct {
   regex_t      r;
@@ -77,8 +77,6 @@ typedef struct {
 #define TUserdata TPosix
 
 const char posix_typename[] = REX_LIBNAME"_regex";
-const char *posix_handle = posix_typename;
-#define UD_HANDLE posix_handle
 
 #include "algo.h"
 
@@ -111,7 +109,7 @@ static int compile_regex (lua_State *L, const TArgComp *argC, TPosix **pud) {
   if (argC->cflags & REG_NOSUB)
     ud->r.re_nsub = 0;
   ud->match = (regmatch_t *) Lmalloc (L, (NSUB(ud) + 1) * sizeof (regmatch_t));
-  luaL_getmetatable (L, posix_handle);
+  lua_pushvalue (L, LUA_ENVIRONINDEX);
   lua_setmetatable (L, -2);
 
   if (pud) *pud = ud;
@@ -200,7 +198,7 @@ static int split_exec (TPosix *ud, TArgExec *argE, int offset) {
 }
 
 static int Posix_gc (lua_State *L) {
-  TPosix *ud = check_ud_gc (L, 1);
+  TPosix *ud = check_ud (L);
   if (ud->freed == 0) {           /* precaution against "manual" __gc calling */
     ud->freed = 1;
     regfree (&ud->r);
@@ -211,7 +209,7 @@ static int Posix_gc (lua_State *L) {
 }
 
 static int Posix_tostring (lua_State *L) {
-  TPosix *ud = check_ud (L, 1);
+  TPosix *ud = check_ud (L);
   if (ud->freed == 0)
     lua_pushfstring (L, "%s (%p)", posix_typename, (void*)ud);
   else
@@ -288,9 +286,15 @@ static const luaL_reg rexlib[] = {
 /* Open the library */
 REX_API int REX_OPENLIB (lua_State *L)
 {
-  createmeta (L, posix_handle);
+  /* create a new function environment to serve as a metatable for methods */
+  lua_newtable (L);
+  lua_pushvalue (L, -1);
+  lua_replace (L, LUA_ENVIRONINDEX);
+  lua_pushvalue(L, -1); /* mt.__index = mt */
+  lua_setfield(L, -2, "__index");
   luaL_register (L, NULL, posixmeta);
-  lua_pop (L, 1);
+
+  /* register functions */
   luaL_register (L, REX_LIBNAME, rexlib);
   lua_pushliteral (L, REX_VERSION" (for POSIX regexes)");
   lua_setfield (L, -2, "_VERSION");

@@ -47,7 +47,7 @@ extern flag_pair pcre_error_flags[];
 
 #define BASE(st)               0
 #define PULL(st,from)          (st = (from))
-#define OPTLOCALE(trg,L,pos)   (trg = luaL_optstring (L, pos, NULL))
+
 #if PCRE_MAJOR >= 4
 #  define DO_NAMED_SUBPATTERNS 1
 #endif
@@ -63,12 +63,15 @@ typedef struct {
 } TPcre;
 
 #define TUserdata TPcre
+#define USE_RETRY
 
 const char pcre_typename[] = REX_LIBNAME"_regex";
-const char *pcre_handle = pcre_typename;
-#define UD_HANDLE pcre_handle
 
 #include "algo.h"
+
+const unsigned char *DefaultTables;
+const char tables_typename[] = "pcre_tables";
+#define push_tables_env(L) (lua_pushinteger(L,1), lua_rawget(L,LUA_ENVIRONINDEX))
 
 /*  Functions
  ******************************************************************************
@@ -86,7 +89,7 @@ static int generate_error (lua_State *L, const TPcre *ud, int errcode) {
 #if PCRE_MAJOR >= 6
 /* method r:dfa_exec (s, [st], [ef], [ovecsize], [wscount]) */
 static void checkarg_dfa_exec (lua_State *L, TArgExec *argE, TPcre **ud) {
-  *ud = check_ud (L, 1);
+  *ud = check_ud (L);
   argE->text = luaL_checklstring (L, 2, &argE->textlen);
   argE->startoffset = get_startoffset (L, 3, argE->textlen);
   argE->eflags = luaL_optint (L, 4, EFLAGS_DEFAULT);
@@ -95,32 +98,104 @@ static void checkarg_dfa_exec (lua_State *L, TArgExec *argE, TPcre **ud) {
 }
 #endif
 
+static int Lpcre_maketables (lua_State *L) {
+  *(const void**)lua_newuserdata (L, sizeof(void**)) = pcre_maketables();
+  push_tables_env (L);
+  lua_setmetatable (L, -2);
+  return 1;
+}
+
+static void **check_tables (lua_State *L, int pos) {
+  void **q;
+  /* Compare the metatable against the C function environment. */
+  if (lua_getmetatable(L, pos)) {
+    push_tables_env (L);
+    if (lua_rawequal(L, -1, -2) &&
+        (q = (void **)lua_touserdata(L, pos)) != NULL) {
+      lua_pop(L, 2);
+      return q;
+    }
+  }
+  luaL_argerror(L, pos, "not pcre_tables");
+  return NULL;
+}
+
+/* function settables ([tables]) */
+/*   Create tables for the current active locale and set them as the default
+ *   tables, instead of the PCRE built-in tables.
+ *   For proper clean-up, create a pcre_tables userdata, and put it into the
+ *   function environment at a constant key.
+ */
+static int Lpcre_settables (lua_State *L)
+{
+  lua_settop (L, 1);
+  if (!lua_toboolean (L, 1)) {
+    DefaultTables = NULL;   /* use the built-in tables */
+    lua_pushnil (L);
+  }
+  else {
+    DefaultTables = *check_tables (L, 1);
+  }
+  /* get old value (to be returned) */
+  push_tables_env (L);
+  lua_pushlightuserdata (L, &DefaultTables);
+  lua_rawget (L, -2);
+  /* set new value */
+  lua_pushlightuserdata (L, &DefaultTables);
+  lua_pushvalue (L, 1);
+  lua_rawset (L, -4);
+  return 1;
+}
+
+static int tables_gc (lua_State *L) {
+  void **ud = check_tables (L, 1);
+  if (*ud) {
+    pcre_free (*ud);
+    *ud = NULL;
+  }
+  return 0;
+}
+
+static void OPTLOCALE (TArgComp *argC, lua_State *L, int pos) {
+  argC->locale = argC->tables = NULL;
+  if (!lua_isnoneornil (L, pos)) {
+    if (lua_isstring (L, pos))
+      argC->locale = lua_tostring (L, pos);
+    else
+      argC->tables = *check_tables (L, pos);
+  }
+}
+
 static int make_tables (const char* locale, const unsigned char ** tables) {
   char old_locale[256];
   strcpy (old_locale, setlocale (LC_CTYPE, NULL)); /* store the locale */
   if (NULL == setlocale (LC_CTYPE, locale))        /* set new locale */
-    return 1;
+    return 0;
   *tables = pcre_maketables ();             /* make tables with new locale */
   setlocale (LC_CTYPE, old_locale);         /* restore the old locale */
-  return 0;
+  return 1;
 }
 
 static int compile_regex (lua_State *L, const TArgComp *argC, TPcre **pud) {
   const char *error;
   int erroffset;
   TPcre *ud;
+  const unsigned char *tables = DefaultTables;
 
   ud = (TPcre*)lua_newuserdata (L, sizeof (TPcre));
   memset (ud, 0, sizeof (TPcre));           /* initialize all members to 0 */
-  luaL_getmetatable (L, pcre_handle);
+  lua_pushvalue (L, LUA_ENVIRONINDEX);
   lua_setmetatable (L, -2);
 
   if (argC->locale) {
-    if (make_tables (argC->locale, &ud->tables) != 0)
+    if (!make_tables (argC->locale, &ud->tables))
       return luaL_error (L, "cannot set locale");
+    tables = ud->tables;
   }
+  else if (argC->tables)
+    tables = argC->tables;
 
-  ud->pr = pcre_compile (argC->pattern, argC->cflags, &error, &erroffset, ud->tables);
+  ud->pr = pcre_compile (argC->pattern, argC->cflags, &error, &erroffset, tables);
   if (!ud->pr)
     return luaL_error (L, "%s (pattern offset: %d)", error, erroffset + 1);
 
@@ -151,7 +226,7 @@ static void do_named_subpatterns (lua_State *L, TPcre *ud, const char *text) {
   for (i = 0; i < namecount; i++) {
     int n = (tabptr[0] << 8) | tabptr[1]; /* number of the capturing parenthesis */
     if (n > 0 && n <= NSUB(ud)) {   /* check range */
-      lua_pushstring (L, (char *)(tabptr + 2)); /* name of the capture, zero terminated */
+      lua_pushstring (L, (char *)tabptr + 2); /* name of the capture, zero terminated */
       PUSH_SUB_OR_FALSE (L, ud, text, n);
       lua_rawset (L, -3);
     }
@@ -204,10 +279,18 @@ static int Lpcre_dfa_exec (lua_State *L)
 }
 #endif /* #if PCRE_MAJOR >= 6 */
 
-static int gmatch_exec (TUserdata *ud, TArgExec *argE) {
-  return pcre_exec (ud->pr, ud->extra, argE->text, argE->textlen,
-    argE->startoffset, argE->eflags, ud->match, (NSUB(ud) + 1) * 3);
-}
+#ifdef USE_RETRY
+  static int gmatch_exec (TUserdata *ud, TArgExec *argE, int retry) {
+    int eflags = retry ? (argE->eflags|PCRE_NOTEMPTY|PCRE_ANCHORED) : argE->eflags;
+    return pcre_exec (ud->pr, ud->extra, argE->text, argE->textlen,
+      argE->startoffset, eflags, ud->match, (NSUB(ud) + 1) * 3);
+  }
+#else
+  static int gmatch_exec (TUserdata *ud, TArgExec *argE) {
+    return pcre_exec (ud->pr, ud->extra, argE->text, argE->textlen,
+      argE->startoffset, argE->eflags, ud->match, (NSUB(ud) + 1) * 3);
+  }
+#endif
 
 static void gmatch_pushsubject (lua_State *L, TArgExec *argE) {
   lua_pushlstring (L, argE->text, argE->textlen);
@@ -218,10 +301,18 @@ static int findmatch_exec (TPcre *ud, TArgExec *argE) {
     argE->startoffset, argE->eflags, ud->match, (NSUB(ud) + 1) * 3);
 }
 
-static int gsub_exec (TPcre *ud, TArgExec *argE, int st) {
-  return pcre_exec (ud->pr, ud->extra, argE->text, (int)argE->textlen,
-    st, argE->eflags, ud->match, (NSUB(ud) + 1) * 3);
-}
+#ifdef USE_RETRY
+  static int gsub_exec (TPcre *ud, TArgExec *argE, int st, int retry) {
+    int eflags = retry ? (argE->eflags|PCRE_NOTEMPTY|PCRE_ANCHORED) : argE->eflags;
+    return pcre_exec (ud->pr, ud->extra, argE->text, (int)argE->textlen,
+      st, eflags, ud->match, (NSUB(ud) + 1) * 3);
+  }
+#else
+  static int gsub_exec (TPcre *ud, TArgExec *argE, int st) {
+    return pcre_exec (ud->pr, ud->extra, argE->text, (int)argE->textlen,
+      st, argE->eflags, ud->match, (NSUB(ud) + 1) * 3);
+  }
+#endif
 
 static int split_exec (TPcre *ud, TArgExec *argE, int offset) {
   return pcre_exec (ud->pr, ud->extra, argE->text, argE->textlen, offset,
@@ -229,7 +320,7 @@ static int split_exec (TPcre *ud, TArgExec *argE, int offset) {
 }
 
 static int Lpcre_gc (lua_State *L) {
-  TPcre *ud = check_ud_gc (L, 1);
+  TPcre *ud = check_ud (L);
   if (ud->freed == 0) {           /* precaution against "manual" __gc calling */
     ud->freed = 1;
     if (ud->pr)      pcre_free (ud->pr);
@@ -241,7 +332,7 @@ static int Lpcre_gc (lua_State *L) {
 }
 
 static int Lpcre_tostring (lua_State *L) {
-  TPcre *ud = check_ud (L, 1);
+  TPcre *ud = check_ud (L);
   if (ud->freed == 0)
     lua_pushfstring (L, "%s (%p)", pcre_typename, (void*)ud);
   else
@@ -249,10 +340,22 @@ static int Lpcre_tostring (lua_State *L) {
   return 1;
 }
 
+static int tables_tostring (lua_State *L) {
+  void **ud = check_tables (L, 1);
+  lua_pushfstring (L, "%s (%p)", tables_typename, ud);
+  return 1;
+}
+
 static int Lpcre_version (lua_State *L) {
   lua_pushstring (L, pcre_version ());
   return 1;
 }
+
+static const luaL_reg tablesmeta[] = {
+  { "__gc",        tables_gc },
+  { "__tostring",  tables_tostring },
+  { NULL, NULL }
+};
 
 static const luaL_reg pcremeta[] = {
   { "exec",        ud_exec },
@@ -275,6 +378,8 @@ static const luaL_reg rexlib[] = {
   { "plainfind",   plainfind_func },
   { "flags",       Lpcre_get_flags },
   { "version",     Lpcre_version },
+  { "settables",   Lpcre_settables },
+  { "maketables",  Lpcre_maketables },
 #if PCRE_MAJOR >= 4
   { "config",      Lpcre_config },
 #endif
@@ -287,12 +392,26 @@ REX_API int REX_OPENLIB (lua_State *L) {
     return luaL_error (L, "%s requires at least version %d of PCRE library",
       REX_LIBNAME, (int)PCRE_MAJOR);
   }
-  createmeta (L, pcre_handle);
+  /* create a new function environment to serve as a metatable for methods */
+  lua_newtable (L);
+  lua_pushvalue (L, -1);
+  lua_replace (L, LUA_ENVIRONINDEX);
+  lua_pushvalue(L, -1); /* mt.__index = mt */
+  lua_setfield(L, -2, "__index");
   luaL_register (L, NULL, pcremeta);
-  lua_pop (L, 1);
+
+  /* register functions */
   luaL_register (L, REX_LIBNAME, rexlib);
   lua_pushliteral (L, REX_VERSION" (for PCRE)");
   lua_setfield (L, -2, "_VERSION");
+
+  /* register fenv[1] as a metatable for pcre_tables userdata */
+  lua_pushinteger (L, 1);
+  lua_newtable (L);
+  lua_pushliteral (L, "access denied");
+  lua_setfield (L, -2, "__metatable");
+  luaL_register (L, NULL, tablesmeta);
+  lua_rawset (L, LUA_ENVIRONINDEX);
   return 1;
 }
 

@@ -8,33 +8,18 @@
 #include "lauxlib.h"
 #include "common.h"
 
-void *Lmalloc(lua_State *L, size_t size)
-{
+void *Lmalloc(lua_State *L, size_t size) {
   void *p = malloc(size);
   if(p == NULL)
     luaL_error(L, "malloc failed");
   return p;
 }
 
-int get_startoffset(lua_State *L, int stackpos, size_t len)
-{
-  int startoffset = luaL_optint(L, stackpos, 1);
-  if(startoffset > 0)
-    startoffset--;
-  else if(startoffset < 0) {
-    startoffset += len;
-    if(startoffset < 0)
-      startoffset = 0;
-  }
-  return startoffset;
-}
-
 /* This function fills a table with string-number pairs.
    The table can be passed as the 1-st lua-function parameter,
    otherwise it is created. The return value is the filled table.
 */
-int get_flags (lua_State *L, const flag_pair **arrs)
-{
+int get_flags (lua_State *L, const flag_pair **arrs) {
   const flag_pair *p;
   const flag_pair **pp;
   int nparams = lua_gettop(L);
@@ -64,32 +49,6 @@ const char *get_flag_key (const flag_pair *fp, int val) {
       return fp->key;
   }
   return NULL;
-}
-
-void createmeta(lua_State *L, const char *name)
-{
-  luaL_newmetatable(L, name);   /* create new metatable */
-  lua_pushliteral(L, "__index");
-  lua_pushvalue(L, -2);         /* push metatable */
-  lua_rawset(L, -3);            /* metatable.__index = metatable, for OO-style use */
-}
-
-void CheckStack (lua_State *L, int extraslots)
-{
-  if (lua_checkstack (L, extraslots) == 0)
-    luaL_error (L, "cannot add %d stack slots", extraslots);
-}
-
-int OptLimit (lua_State *L, int pos) {
-  if (lua_isnoneornil (L, pos))
-    return GSUB_UNLIMITED;
-  if (lua_isfunction (L, pos))
-    return GSUB_CONDITIONAL;
-  if (lua_isnumber (L, pos)) {
-    int a = lua_tointeger (L, pos);
-    return a < 0 ? 0 : a;
-  }
-  return luaL_argerror (L, pos, "number or function expected");
 }
 
 /* Classes */

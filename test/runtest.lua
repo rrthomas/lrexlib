@@ -31,8 +31,16 @@ local function test_library (libname, setfile, verbose)
 end
 
 local avail_tests = {
-  posix = { lib = "rex_posix", "common_sets", "posix_sets", },
-  pcre  = { lib = "rex_pcre",  "common_sets", "pcre_sets", "pcre_sets2", },
+  posix     = { lib = "rex_posix",    "common_sets", "posix_sets", },
+  spencer   = { lib = "rex_spencer",  "common_sets", "posix_sets", "spencer_sets" },
+  posix1    = { lib = "rex_spencer",  "common_sets", "posix_sets", "spencer_sets" },
+  tre       = { lib = "rex_tre",      "common_sets", "posix_sets", "spencer_sets" },
+  lord      = { lib = "rex_lord",     "common_sets", "posix_sets"  },
+  maddock   = { lib = "rex_maddock",  "common_sets", "posix_sets", },
+  pcreposix = { lib = "rex_pcreposix","common_sets", "posix_sets", },
+  pcre      = { lib = "rex_pcre",     "common_sets", "pcre_sets", "pcre_sets2", },
+  pcre_nr   = { lib = "rex_pcre_nr",  "common_sets", "pcre_sets", "pcre_sets2", },
+  pcre45    = { lib = "rex_pcre45",   "common_sets", "pcre_sets", "pcre_sets2", },
 }
 
 do

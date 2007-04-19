@@ -10,12 +10,14 @@ local function get_gsub (lib)
 end
 
 local function set_f_gsub4 (lib, flg)
+  local pCSV = "(^[^,]*)|,([^,]*)"
+  local fCSV = function (a,b) return "["..(a or b).."]" end
   local set = {
     Name = "Function gsub, set4",
     Func = get_gsub (lib),
   --{ s,           p,              f, n,  res1,      res2, res3 },
     { {"/* */ */", "%/%*(.*)%*%/", "#" }, {"#",         1, 1} },
-    { {"a2c3",     ".-",           "#" }, {"#a#2#c#3#", 5, 5} }, -- test .-
+    { {"a2c3",     ".-",           "#" }, {"#########", 9, 9} }, -- test .-
     { {"/**/",     "%/%*(.-)%*%/", "#" }, {"#",         1, 1} },
     { {"/* */ */", "%/%*(.-)%*%/", "#" }, {"# */",      1, 1} },
     { {"a2c3",     "%d",           "#" }, {"a#c#",      2, 2} }, -- test %d
@@ -23,6 +25,11 @@ local function set_f_gsub4 (lib, flg)
     { {"a \t\nb",  "%s",           "#" }, {"a###b",     3, 3} }, -- test %s
     { {"a \t\nb",  "%S",           "#" }, {"# \t\n#",   2, 2} }, -- test %S
     { {"abcd",     "\\b",          "%1"}, {"abcd",      2, 2} },
+    { {"",                    pCSV,fCSV}, {"[]",        1, 1} },
+    { {"123",                 pCSV,fCSV}, {"[123]",     1, 1} },
+    { {",",                   pCSV,fCSV}, {"[][]",      2, 2} },
+    { {"123,,456",            pCSV,fCSV}, {"[123][][456]", 3, 3}},
+    { {",,123,456,,abc,789,", pCSV,fCSV}, {"[][][123][456][][abc][789][]", 8, 8}},
   }
   -- convert patterns: lua -> pcre
   for _, test in ipairs (set) do

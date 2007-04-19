@@ -65,10 +65,19 @@ Notes
      * REG_STARTEND for those POSIX regex libraries that support it,
        e.g. Spencer's.
 
+.. _locale:
+
+7. Parameter *locale* (*lo*) can be either a string (e.g., "French_France.1252"),
+   or a userdata obtained from a call to maketables_. The default value that
+   Lrexlib uses when the parameter is not supplied or ``nil``, is:
+
+     * the built-in PCRE set of character tables - when Lrexlib is loaded.
+     * determined by the last call to settables_.
+
 ------------------------------------------------------------
 
-Lrexlib Functions
-~~~~~~~~~~~~~~~~~
+Common (PCRE and POSIX) functions and methods
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 match
 -----
@@ -94,7 +103,9 @@ PCRE: A locale *lo* may be specified.
   +---------+-------------------------------+--------+-------------+
   |  [ef]   |  execution flags (bitwise OR) | number |     ef_     |
   +---------+-------------------------------+--------+-------------+
-  |  [lo]   |[PCRE] locale                  | string |   ``nil``   |
+  |  [lo]   |[PCRE] locale                  |string  |locale_      |
+  |         |                               |or      |             |
+  |         |                               |userdata|             |
   +---------+-------------------------------+--------+-------------+
 
 **Returns on success:**
@@ -132,7 +143,9 @@ PCRE: A locale *lo* may be specified.
   +---------+-------------------------------+--------+-------------+
   |  [ef]   |  execution flags (bitwise OR) | number |      ef_    |
   +---------+-------------------------------+--------+-------------+
-  |  [lo]   |[PCRE] locale                  | string |   ``nil``   |
+  |  [lo]   |[PCRE] locale                  |string  |locale_      |
+  |         |                               |or      |             |
+  |         |                               |userdata|             |
   +---------+-------------------------------+--------+-------------+
 
 **Returns on success:**
@@ -158,19 +171,21 @@ the string *subj*, subject to flags *cf* and *ef*.
 
 PCRE: A locale *lo* may be specified.
 
-  +---------+-------------------------------+------+-------------+
-  |Parameter|      Description              | Type |Default Value|
-  +=========+===============================+======+=============+
-  |  subj   |        subject                |string|     n/a     |
-  +---------+-------------------------------+------+-------------+
-  |  patt   |regular expression pattern     |string|     n/a     |
-  +---------+-------------------------------+------+-------------+
-  |  [cf]   |compilation flags (bitwise OR) |number|     cf_     |
-  +---------+-------------------------------+------+-------------+
-  |  [ef]   |execution flags (bitwise OR)   |number|     ef_     |
-  +---------+-------------------------------+------+-------------+
-  |  [lo]   |[PCRE] locale                  |string|   ``nil``   |
-  +---------+-------------------------------+------+-------------+
+  +---------+-------------------------------+--------+-------------+
+  |Parameter|      Description              | Type   |Default Value|
+  +=========+===============================+========+=============+
+  |  subj   |        subject                |string  |     n/a     |
+  +---------+-------------------------------+--------+-------------+
+  |  patt   |regular expression pattern     |string  |     n/a     |
+  +---------+-------------------------------+--------+-------------+
+  |  [cf]   |compilation flags (bitwise OR) |number  |     cf_     |
+  +---------+-------------------------------+--------+-------------+
+  |  [ef]   |execution flags (bitwise OR)   |number  |     ef_     |
+  +---------+-------------------------------+--------+-------------+
+  |  [lo]   |[PCRE] locale                  |string  |locale_      |
+  |         |                               |or      |             |
+  |         |                               |userdata|             |
+  +---------+-------------------------------+--------+-------------+
 
 The iterator function is called by Lua. On every iteration (that is, on every
 match), it returns all captures in the order they appear in the pattern (or the
@@ -206,7 +221,8 @@ PCRE: A locale *lo* may be specified.
   +---------+-----------------------------------+-------------------------+-------------+
   |  [ef]   |execution flags (bitwise OR)       |         number          |     ef_     |
   +---------+-----------------------------------+-------------------------+-------------+
-  |  [lo]   |[PCRE] locale                      |         string          |   ``nil``   |
+  |  [lo]   |[PCRE] locale                      | string or userdata      |locale_      |
+  |         |                                   |                         |             |
   +---------+-----------------------------------+-------------------------+-------------+
 
 **Returns:**
@@ -311,20 +327,22 @@ the string *subj*, subject to flags *cf* and *ef*.
 
 PCRE: A locale *lo* may be specified.
 
-  +---------+-------------------------------+------+-------------+
-  |Parameter|      Description              | Type |Default Value|
-  +=========+===============================+======+=============+
-  |  subj   |        subject                |string|     n/a     |
-  +---------+-------------------------------+------+-------------+
-  |   sep   |separator (regular expression  |string|     n/a     |
-  |         |pattern)                       |      |             |
-  +---------+-------------------------------+------+-------------+
-  |  [cf]   |compilation flags (bitwise OR) |number|     cf_     |
-  +---------+-------------------------------+------+-------------+
-  |  [ef]   |execution flags (bitwise OR)   |number|     ef_     |
-  +---------+-------------------------------+------+-------------+
-  |  [lo]   |[PCRE] locale                  |string|   ``nil``   |
-  +---------+-------------------------------+------+-------------+
+  +---------+-------------------------------+--------+-------------+
+  |Parameter|      Description              | Type   |Default Value|
+  +=========+===============================+========+=============+
+  |  subj   |        subject                |string  |     n/a     |
+  +---------+-------------------------------+--------+-------------+
+  |   sep   |separator (regular expression  |string  |     n/a     |
+  |         |pattern)                       |        |             |
+  +---------+-------------------------------+--------+-------------+
+  |  [cf]   |compilation flags (bitwise OR) |number  |     cf_     |
+  +---------+-------------------------------+--------+-------------+
+  |  [ef]   |execution flags (bitwise OR)   |number  |     ef_     |
+  +---------+-------------------------------+--------+-------------+
+  |  [lo]   |[PCRE] locale                  |string  |locale_      |
+  |         |                               |or      |             |
+  |         |                               |userdata|             |
+  +---------+-------------------------------+--------+-------------+
 
 **On every iteration pass, the iterator returns:**
 
@@ -337,70 +355,6 @@ PCRE: A locale *lo* may be specified.
 The iteration will continue till the end of the subject. Unlike gmatch_, there
 will always be at least one iteration pass, even if there's no matches in the
 subject.
-
-------------------------------------------------------------
-
-plainfind
----------
-
-:funcdef:`rex.plainfind (subj, patt, [init], [ci])`
-
-The function searches for the first match of the string *patt* in the subject
-*subj*, starting from offset *init*.
-
-  * The string *patt* is not regular expression, all its characters stand for
-    themselves.
-  * Both strings *subj* and *patt* can have embedded zeros.
-  * The flag *ci* specifies case-insensitive search (current locale is used).
-  * This function uses neither PCRE nor POSIX regex library.
-
-  +---------+---------------------------+--------+-------------+
-  |Parameter|        Description        |  Type  |Default Value|
-  +=========+===========================+========+=============+
-  |  subj   |          subject          | string |     n/a     |
-  +---------+---------------------------+--------+-------------+
-  |  patt   |       text to find        | string |     n/a     |
-  +---------+---------------------------+--------+-------------+
-  | [init]  |start offset in the subject| number |      1      |
-  |         |(can be negative)          |        |             |
-  +---------+---------------------------+--------+-------------+
-  |  [ci]   |case insensitive search    |boolean |  ``false``  |
-  +---------+---------------------------+--------+-------------+
-
-**Returns on success:**
-  1. The start point of the match (a number).
-  2. The end point of the match (a number).
-
-**Returns on failure:**
-  1. ``nil``
-
-------------------------------------------------------------
-
-new
----
-
-:funcdef:`rex.new (patt, [cf], [lo])`
-
-The functions compiles regular expression *patt* into a regular expression
-object whose internal representation is correspondent to the library used (PCRE
-or POSIX regex).  The returned result then can be used by the methods `tfind`_,
-`exec`_ and `dfa_exec`_.  Regular expression objects are automatically garbage
-collected.
-
-PCRE: A locale *lo* may be specified.
-
-  +---------+-------------------------------+--------+-------------+
-  |Parameter|        Description            |  Type  |Default Value|
-  +=========+===============================+========+=============+
-  |  patt   |regular expression pattern     | string |     n/a     |
-  +---------+-------------------------------+--------+-------------+
-  |  [cf]   |compilation flags (bitwise OR) | number |     cf_     |
-  +---------+-------------------------------+--------+-------------+
-  |  [lo]   |[PCRE] locale                  | string |   ``nil``   |
-  +---------+-------------------------------+--------+-------------+
-
-**Returns:**
- 1. Compiled regular expression (a userdata).
 
 ------------------------------------------------------------
 
@@ -431,43 +385,35 @@ documentation.
 
 ------------------------------------------------------------
 
-config
-------
+new
+---
 
-[PCRE 4.0 and later. See *pcre_config* in the PCRE_ docs.]
+:funcdef:`rex.new (patt, [cf], [lo])`
 
-:funcdef:`rex.config ([tb])`
+The functions compiles regular expression *patt* into a regular expression
+object whose internal representation is correspondent to the library used (PCRE
+or POSIX regex).  The returned result then can be used by the methods `tfind`_,
+`exec`_ and `dfa_exec`_.  Regular expression objects are automatically garbage
+collected.
 
-This function returns a table containing the values of the configuration
-parameters used at PCRE library build-time. Those parameters (numbers) are
-keyed by their names (strings). If the table argument *tb* is supplied then it
-is used as the output table, else a new table is created.
+PCRE: A locale *lo* may be specified.
 
-  +---------+--------------------------------+--------+-------------+
-  |Parameter|        Description             |  Type  |Default Value|
-  +=========+================================+========+=============+
-  |  [tb]   |a table for placing results into| table  |  ``nil``    |
-  +---------+--------------------------------+--------+-------------+
+  +---------+-------------------------------+--------+-------------+
+  |Parameter|        Description            |  Type  |Default Value|
+  +=========+===============================+========+=============+
+  |  patt   |regular expression pattern     | string |     n/a     |
+  +---------+-------------------------------+--------+-------------+
+  |  [cf]   |compilation flags (bitwise OR) | number |     cf_     |
+  +---------+-------------------------------+--------+-------------+
+  |  [lo]   |[PCRE] locale                  |string  |locale_      |
+  |         |                               |or      |             |
+  |         |                               |userdata|             |
+  +---------+-------------------------------+--------+-------------+
 
 **Returns:**
- 1. A table filled with the results.
+ 1. Compiled regular expression (a userdata).
 
 ------------------------------------------------------------
-
-version
--------
-
-[PCRE only. See *pcre_version* in the PCRE_ docs.]
-
-:funcdef:`rex.version ()`
-
-This function returns a string containing the version of the used PCRE library
-and its release date.
-
-------------------------------------------------------------
-
-Lrexlib Methods
-~~~~~~~~~~~~~~~
 
 tfind
 -----
@@ -554,6 +500,90 @@ string *subj*, starting from offset *init*, subject to execution flags *ef*.
 
 ------------------------------------------------------------
 
+PCRE-only functions and methods
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+maketables
+----------
+
+[PCRE only. See *pcre_maketables* in the PCRE_ docs.]
+
+:funcdef:`rex.maketables ()`
+
+Creates a table set corresponding to the current active locale and returns it as
+a userdata. The returned value can be passed to the function settables_ and to
+any Lrexlib function accepting the *locale* parameter.
+
+------------------------------------------------------------
+
+settables
+---------
+
+[PCRE only]
+
+:funcdef:`rex.settables ([tables])`
+
+This function replaces the default set of character tables, by the one supplied
+in the parameter *tables*.
+
+The *tables* parameter should be either a userdata, obtained from a call to
+maketables_, or ``nil``. In the latter case, the built-in PCRE set of tables
+becomes the default.
+
+Lrexlib maintains one "default" set of character tables, in addition to the set
+built-in into PCRE. When a Lrexlib function accepting the *locale* argument is
+called with that argument omitted, then the default set of character tables is
+used.
+
+The initial default set of tables is the built-in PCRE set.
+
+  +---------+--------------------------------+--------+-------------+
+  |Parameter|        Description             |  Type  |Default Value|
+  +=========+================================+========+=============+
+  |[tables] |See the above description.      |userdata|  ``nil``    |
+  |         |                                |        |             |
+  +---------+--------------------------------+--------+-------------+
+
+**Returns:**
+ The old value of the default set (``nil`` for the built-in PCRE set).
+
+------------------------------------------------------------
+
+config
+------
+
+[PCRE 4.0 and later. See *pcre_config* in the PCRE_ docs.]
+
+:funcdef:`rex.config ([tb])`
+
+This function returns a table containing the values of the configuration
+parameters used at PCRE library build-time. Those parameters (numbers) are
+keyed by their names (strings). If the table argument *tb* is supplied then it
+is used as the output table, else a new table is created.
+
+  +---------+--------------------------------+--------+-------------+
+  |Parameter|        Description             |  Type  |Default Value|
+  +=========+================================+========+=============+
+  |  [tb]   |a table for placing results into| table  |  ``nil``    |
+  +---------+--------------------------------+--------+-------------+
+
+**Returns:**
+ 1. A table filled with the results.
+
+------------------------------------------------------------
+
+version
+-------
+
+[PCRE only. See *pcre_version* in the PCRE_ docs.]
+
+:funcdef:`rex.version ()`
+
+This function returns a string containing the version of the used PCRE library
+and its release date.
+
+------------------------------------------------------------
+
 dfa_exec
 --------
 
@@ -597,10 +627,49 @@ string *subj*, using a DFA matching algorithm.
 
 ------------------------------------------------------------
 
+Other functions
+~~~~~~~~~~~~~~~
+
+plainfind
+---------
+
+:funcdef:`rex.plainfind (subj, patt, [init], [ci])`
+
+The function searches for the first match of the string *patt* in the subject
+*subj*, starting from offset *init*.
+
+  * The string *patt* is not regular expression, all its characters stand for
+    themselves.
+  * Both strings *subj* and *patt* can have embedded zeros.
+  * The flag *ci* specifies case-insensitive search (current locale is used).
+  * This function uses neither PCRE nor POSIX regex library.
+
+  +---------+---------------------------+--------+-------------+
+  |Parameter|        Description        |  Type  |Default Value|
+  +=========+===========================+========+=============+
+  |  subj   |          subject          | string |     n/a     |
+  +---------+---------------------------+--------+-------------+
+  |  patt   |       text to find        | string |     n/a     |
+  +---------+---------------------------+--------+-------------+
+  | [init]  |start offset in the subject| number |      1      |
+  |         |(can be negative)          |        |             |
+  +---------+---------------------------+--------+-------------+
+  |  [ci]   |case insensitive search    |boolean |  ``false``  |
+  +---------+---------------------------+--------+-------------+
+
+**Returns on success:**
+  1. The start point of the match (a number).
+  2. The end point of the match (a number).
+
+**Returns on failure:**
+  1. ``nil``
+
+------------------------------------------------------------
+
 Incompatibilities with the Previous Versions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**Incompatibilities with the version 1.19:**
+**Incompatibilities between the versions 2.0 and 1.19:**
 
   1. Lua 5.1 is required
   #. Functions ``newPCRE`` and ``newPOSIX`` renamed to new_
@@ -609,16 +678,20 @@ Incompatibilities with the Previous Versions
   #. Method ``match`` renamed to tfind_
   #. Method ``gmatch`` removed (similar functionality is provided by function
      gmatch_)
-  #. Method exec_: the returned table may additionally contain *named
-     subpatterns* (PCRE only)
+  #. Methods tfind_ and exec_: 2 values are returned on failure
+  #. (PCRE) exec_: the returned table may additionally contain *named
+     subpatterns*
 
-**Incompatibilities with the version 2.0:**
+**Incompatibilities between the versions 2.1 and 2.0:**
 
   1. match_, find_, tfind_, exec_, dfa_exec_: only one value (a ``nil``) is
      returned when the subject does not match the pattern. Any other failure
      generates an error.
 
-**Incompatibilities with the version 2.1:**
+**Incompatibilities between the versions 2.2 and 2.1:**
 
   1. gsub_: a special "break" return of *repl* function is deprecated.
+  #. (PCRE) gsub_, gmatch_: after finding an empty match at the current
+     position, the functions try to find a non-empty match anchored to the same
+     position.
 

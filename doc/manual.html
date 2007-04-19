@@ -16,26 +16,31 @@
 <ul class="simple">
 <li><a class="reference" href="#introduction" id="id1" name="id1">Introduction</a></li>
 <li><a class="reference" href="#notes" id="id2" name="id2">Notes</a></li>
-<li><a class="reference" href="#lrexlib-functions" id="id3" name="id3">Lrexlib Functions</a><ul>
+<li><a class="reference" href="#common-pcre-and-posix-functions-and-methods" id="id3" name="id3">Common (PCRE and POSIX) functions and methods</a><ul>
 <li><a class="reference" href="#match" id="id4" name="id4">match</a></li>
 <li><a class="reference" href="#find" id="id5" name="id5">find</a></li>
 <li><a class="reference" href="#gmatch" id="id6" name="id6">gmatch</a></li>
 <li><a class="reference" href="#gsub" id="id7" name="id7">gsub</a></li>
 <li><a class="reference" href="#split" id="id8" name="id8">split</a></li>
-<li><a class="reference" href="#plainfind" id="id9" name="id9">plainfind</a></li>
+<li><a class="reference" href="#flags" id="id9" name="id9">flags</a></li>
 <li><a class="reference" href="#new" id="id10" name="id10">new</a></li>
-<li><a class="reference" href="#flags" id="id11" name="id11">flags</a></li>
-<li><a class="reference" href="#config" id="id12" name="id12">config</a></li>
-<li><a class="reference" href="#version" id="id13" name="id13">version</a></li>
+<li><a class="reference" href="#tfind" id="id11" name="id11">tfind</a></li>
+<li><a class="reference" href="#exec" id="id12" name="id12">exec</a></li>
 </ul>
 </li>
-<li><a class="reference" href="#lrexlib-methods" id="id14" name="id14">Lrexlib Methods</a><ul>
-<li><a class="reference" href="#tfind" id="id15" name="id15">tfind</a></li>
-<li><a class="reference" href="#exec" id="id16" name="id16">exec</a></li>
-<li><a class="reference" href="#dfa-exec" id="id17" name="id17">dfa_exec</a></li>
+<li><a class="reference" href="#pcre-only-functions-and-methods" id="id13" name="id13">PCRE-only functions and methods</a><ul>
+<li><a class="reference" href="#maketables" id="id14" name="id14">maketables</a></li>
+<li><a class="reference" href="#settables" id="id15" name="id15">settables</a></li>
+<li><a class="reference" href="#config" id="id16" name="id16">config</a></li>
+<li><a class="reference" href="#version" id="id17" name="id17">version</a></li>
+<li><a class="reference" href="#dfa-exec" id="id18" name="id18">dfa_exec</a></li>
 </ul>
 </li>
-<li><a class="reference" href="#incompatibilities-with-the-previous-versions" id="id18" name="id18">Incompatibilities with the Previous Versions</a></li>
+<li><a class="reference" href="#other-functions" id="id19" name="id19">Other functions</a><ul>
+<li><a class="reference" href="#plainfind" id="id20" name="id20">plainfind</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#incompatibilities-with-the-previous-versions" id="id21" name="id21">Incompatibilities with the Previous Versions</a></li>
 </ul>
 </div>
 <hr class="docutils" />
@@ -97,10 +102,22 @@ e.g. Spencer's.</li>
 </blockquote>
 </li>
 </ol>
+<ol class="arabic" id="locale" start="7">
+<li><p class="first">Parameter <em>locale</em> (<em>lo</em>) can be either a string (e.g., &quot;French_France.1252&quot;),
+or a userdata obtained from a call to <a class="reference" href="#maketables">maketables</a>. The default value that
+Lrexlib uses when the parameter is not supplied or <tt class="docutils literal"><span class="pre">nil</span></tt>, is:</p>
+<blockquote>
+<ul class="simple">
+<li>the built-in PCRE set of character tables - when Lrexlib is loaded.</li>
+<li>determined by the last call to <a class="reference" href="#settables">settables</a>.</li>
+</ul>
+</blockquote>
+</li>
+</ol>
 </div>
 <hr class="docutils" />
 <div class="section">
-<h2><a class="toc-backref" href="#id3" id="lrexlib-functions" name="lrexlib-functions">Lrexlib Functions</a></h2>
+<h2><a class="toc-backref" href="#id3" id="common-pcre-and-posix-functions-and-methods" name="common-pcre-and-posix-functions-and-methods">Common (PCRE and POSIX) functions and methods</a></h2>
 <div class="section">
 <h3><a class="toc-backref" href="#id4" id="match" name="match">match</a></h3>
 <p><tt class="funcdef docutils literal"><span class="pre">rex.match</span> <span class="pre">(subj,</span> <span class="pre">patt,</span> <span class="pre">[init],</span> <span class="pre">[cf],</span> <span class="pre">[ef],</span> <span class="pre">[lo])</span></tt></p>
@@ -151,8 +168,10 @@ e.g. Spencer's.</li>
 </tr>
 <tr><td>[lo]</td>
 <td>[PCRE] locale</td>
-<td>string</td>
-<td><tt class="docutils literal"><span class="pre">nil</span></tt></td>
+<td>string
+or
+userdata</td>
+<td><a class="reference" href="#locale">locale</a></td>
 </tr>
 </tbody>
 </table>
@@ -224,8 +243,10 @@ substring is returned.</li>
 </tr>
 <tr><td>[lo]</td>
 <td>[PCRE] locale</td>
-<td>string</td>
-<td><tt class="docutils literal"><span class="pre">nil</span></tt></td>
+<td>string
+or
+userdata</td>
+<td><a class="reference" href="#locale">locale</a></td>
 </tr>
 </tbody>
 </table>
@@ -259,9 +280,9 @@ the string <em>subj</em>, subject to flags <em>cf</em> and <em>ef</em>.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="15%" />
-<col width="53%" />
-<col width="10%" />
-<col width="22%" />
+<col width="51%" />
+<col width="13%" />
+<col width="21%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Parameter</th>
@@ -293,8 +314,10 @@ the string <em>subj</em>, subject to flags <em>cf</em> and <em>ef</em>.</p>
 </tr>
 <tr><td>[lo]</td>
 <td>[PCRE] locale</td>
-<td>string</td>
-<td><tt class="docutils literal"><span class="pre">nil</span></tt></td>
+<td>string
+or
+userdata</td>
+<td><a class="reference" href="#locale">locale</a></td>
 </tr>
 </tbody>
 </table>
@@ -361,8 +384,8 @@ for, or control function, or nil</td>
 </tr>
 <tr><td>[lo]</td>
 <td>[PCRE] locale</td>
-<td>string</td>
-<td><tt class="docutils literal"><span class="pre">nil</span></tt></td>
+<td>string or userdata</td>
+<td><a class="reference" href="#locale">locale</a></td>
 </tr>
 </tbody>
 </table>
@@ -486,9 +509,9 @@ the string <em>subj</em>, subject to flags <em>cf</em> and <em>ef</em>.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="15%" />
-<col width="53%" />
-<col width="10%" />
-<col width="22%" />
+<col width="51%" />
+<col width="13%" />
+<col width="21%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Parameter</th>
@@ -521,8 +544,10 @@ pattern)</td>
 </tr>
 <tr><td>[lo]</td>
 <td>[PCRE] locale</td>
-<td>string</td>
-<td><tt class="docutils literal"><span class="pre">nil</span></tt></td>
+<td>string
+or
+userdata</td>
+<td><a class="reference" href="#locale">locale</a></td>
 </tr>
 </tbody>
 </table>
@@ -543,126 +568,7 @@ subject.</p>
 </div>
 <hr class="docutils" />
 <div class="section">
-<h3><a class="toc-backref" href="#id9" id="plainfind" name="plainfind">plainfind</a></h3>
-<p><tt class="funcdef docutils literal"><span class="pre">rex.plainfind</span> <span class="pre">(subj,</span> <span class="pre">patt,</span> <span class="pre">[init],</span> <span class="pre">[ci])</span></tt></p>
-<p>The function searches for the first match of the string <em>patt</em> in the subject
-<em>subj</em>, starting from offset <em>init</em>.</p>
-<blockquote>
-<ul class="simple">
-<li>The string <em>patt</em> is not regular expression, all its characters stand for
-themselves.</li>
-<li>Both strings <em>subj</em> and <em>patt</em> can have embedded zeros.</li>
-<li>The flag <em>ci</em> specifies case-insensitive search (current locale is used).</li>
-<li>This function uses neither PCRE nor POSIX regex library.</li>
-</ul>
-<table border="1" class="docutils">
-<colgroup>
-<col width="16%" />
-<col width="47%" />
-<col width="14%" />
-<col width="23%" />
-</colgroup>
-<thead valign="bottom">
-<tr><th class="head">Parameter</th>
-<th class="head">Description</th>
-<th class="head">Type</th>
-<th class="head">Default Value</th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr><td>subj</td>
-<td>subject</td>
-<td>string</td>
-<td>n/a</td>
-</tr>
-<tr><td>patt</td>
-<td>text to find</td>
-<td>string</td>
-<td>n/a</td>
-</tr>
-<tr><td>[init]</td>
-<td>start offset in the subject
-(can be negative)</td>
-<td>number</td>
-<td>1</td>
-</tr>
-<tr><td>[ci]</td>
-<td>case insensitive search</td>
-<td>boolean</td>
-<td><tt class="docutils literal"><span class="pre">false</span></tt></td>
-</tr>
-</tbody>
-</table>
-</blockquote>
-<dl class="docutils">
-<dt><strong>Returns on success:</strong></dt>
-<dd><ol class="first last arabic simple">
-<li>The start point of the match (a number).</li>
-<li>The end point of the match (a number).</li>
-</ol>
-</dd>
-<dt><strong>Returns on failure:</strong></dt>
-<dd><ol class="first last arabic simple">
-<li><tt class="docutils literal"><span class="pre">nil</span></tt></li>
-</ol>
-</dd>
-</dl>
-</div>
-<hr class="docutils" />
-<div class="section">
-<h3><a class="toc-backref" href="#id10" id="new" name="new">new</a></h3>
-<p><tt class="funcdef docutils literal"><span class="pre">rex.new</span> <span class="pre">(patt,</span> <span class="pre">[cf],</span> <span class="pre">[lo])</span></tt></p>
-<p>The functions compiles regular expression <em>patt</em> into a regular expression
-object whose internal representation is correspondent to the library used (PCRE
-or POSIX regex).  The returned result then can be used by the methods <a class="reference" href="#tfind">tfind</a>,
-<a class="reference" href="#exec">exec</a> and <a class="reference" href="#dfa-exec">dfa_exec</a>.  Regular expression objects are automatically garbage
-collected.</p>
-<p>PCRE: A locale <em>lo</em> may be specified.</p>
-<blockquote>
-<table border="1" class="docutils">
-<colgroup>
-<col width="15%" />
-<col width="51%" />
-<col width="13%" />
-<col width="21%" />
-</colgroup>
-<thead valign="bottom">
-<tr><th class="head">Parameter</th>
-<th class="head">Description</th>
-<th class="head">Type</th>
-<th class="head">Default Value</th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr><td>patt</td>
-<td>regular expression pattern</td>
-<td>string</td>
-<td>n/a</td>
-</tr>
-<tr><td>[cf]</td>
-<td>compilation flags (bitwise OR)</td>
-<td>number</td>
-<td><a class="reference" href="#cf">cf</a></td>
-</tr>
-<tr><td>[lo]</td>
-<td>[PCRE] locale</td>
-<td>string</td>
-<td><tt class="docutils literal"><span class="pre">nil</span></tt></td>
-</tr>
-</tbody>
-</table>
-</blockquote>
-<dl class="docutils">
-<dt><strong>Returns:</strong></dt>
-<dd><ol class="first last arabic simple">
-<li>Compiled regular expression (a userdata).</li>
-</ol>
-</dd>
-</dl>
-</div>
-<hr class="docutils" />
-<div class="section">
-<h3><a class="toc-backref" href="#id11" id="flags" name="flags">flags</a></h3>
+<h3><a class="toc-backref" href="#id9" id="flags" name="flags">flags</a></h3>
 <p><tt class="funcdef docutils literal"><span class="pre">rex.flags</span> <span class="pre">([tb])</span></tt></p>
 <p>This function returns a table containing numeric values of the constants defined
 by the used regex library (either PCRE or POSIX). Those constants are keyed by
@@ -707,18 +613,19 @@ documentation.</p>
 </div>
 <hr class="docutils" />
 <div class="section">
-<h3><a class="toc-backref" href="#id12" id="config" name="config">config</a></h3>
-<p>[PCRE 4.0 and later. See <em>pcre_config</em> in the <a class="reference" href="http://www.pcre.org/pcre.txt">PCRE</a> docs.]</p>
-<p><tt class="funcdef docutils literal"><span class="pre">rex.config</span> <span class="pre">([tb])</span></tt></p>
-<p>This function returns a table containing the values of the configuration
-parameters used at PCRE library build-time. Those parameters (numbers) are
-keyed by their names (strings). If the table argument <em>tb</em> is supplied then it
-is used as the output table, else a new table is created.</p>
+<h3><a class="toc-backref" href="#id10" id="new" name="new">new</a></h3>
+<p><tt class="funcdef docutils literal"><span class="pre">rex.new</span> <span class="pre">(patt,</span> <span class="pre">[cf],</span> <span class="pre">[lo])</span></tt></p>
+<p>The functions compiles regular expression <em>patt</em> into a regular expression
+object whose internal representation is correspondent to the library used (PCRE
+or POSIX regex).  The returned result then can be used by the methods <a class="reference" href="#tfind">tfind</a>,
+<a class="reference" href="#exec">exec</a> and <a class="reference" href="#dfa-exec">dfa_exec</a>.  Regular expression objects are automatically garbage
+collected.</p>
+<p>PCRE: A locale <em>lo</em> may be specified.</p>
 <blockquote>
 <table border="1" class="docutils">
 <colgroup>
 <col width="15%" />
-<col width="52%" />
+<col width="51%" />
 <col width="13%" />
 <col width="21%" />
 </colgroup>
@@ -730,10 +637,22 @@ is used as the output table, else a new table is created.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr><td>[tb]</td>
-<td>a table for placing results into</td>
-<td>table</td>
-<td><tt class="docutils literal"><span class="pre">nil</span></tt></td>
+<tr><td>patt</td>
+<td>regular expression pattern</td>
+<td>string</td>
+<td>n/a</td>
+</tr>
+<tr><td>[cf]</td>
+<td>compilation flags (bitwise OR)</td>
+<td>number</td>
+<td><a class="reference" href="#cf">cf</a></td>
+</tr>
+<tr><td>[lo]</td>
+<td>[PCRE] locale</td>
+<td>string
+or
+userdata</td>
+<td><a class="reference" href="#locale">locale</a></td>
 </tr>
 </tbody>
 </table>
@@ -741,25 +660,14 @@ is used as the output table, else a new table is created.</p>
 <dl class="docutils">
 <dt><strong>Returns:</strong></dt>
 <dd><ol class="first last arabic simple">
-<li>A table filled with the results.</li>
+<li>Compiled regular expression (a userdata).</li>
 </ol>
 </dd>
 </dl>
 </div>
 <hr class="docutils" />
 <div class="section">
-<h3><a class="toc-backref" href="#id13" id="version" name="version">version</a></h3>
-<p>[PCRE only. See <em>pcre_version</em> in the <a class="reference" href="http://www.pcre.org/pcre.txt">PCRE</a> docs.]</p>
-<p><tt class="funcdef docutils literal"><span class="pre">rex.version</span> <span class="pre">()</span></tt></p>
-<p>This function returns a string containing the version of the used PCRE library
-and its release date.</p>
-</div>
-</div>
-<hr class="docutils" />
-<div class="section">
-<h2><a class="toc-backref" href="#id14" id="lrexlib-methods" name="lrexlib-methods">Lrexlib Methods</a></h2>
-<div class="section">
-<h3><a class="toc-backref" href="#id15" id="tfind" name="tfind">tfind</a></h3>
+<h3><a class="toc-backref" href="#id11" id="tfind" name="tfind">tfind</a></h3>
 <p><tt class="funcdef docutils literal"><span class="pre">r:tfind</span> <span class="pre">(subj,</span> <span class="pre">[init],</span> <span class="pre">[ef])</span></tt></p>
 <p>The method searches for the first match of the compiled regexp <em>r</em> in the
 string <em>subj</em>, starting from offset <em>init</em>, subject to execution flags <em>ef</em>.</p>
@@ -834,7 +742,7 @@ names (strings).</li>
 </div>
 <hr class="docutils" />
 <div class="section">
-<h3><a class="toc-backref" href="#id16" id="exec" name="exec">exec</a></h3>
+<h3><a class="toc-backref" href="#id12" id="exec" name="exec">exec</a></h3>
 <p><tt class="funcdef docutils literal"><span class="pre">r:exec</span> <span class="pre">(subj,</span> <span class="pre">[init],</span> <span class="pre">[ef])</span></tt></p>
 <p>The method searches for the first match of the compiled regexp <em>r</em> in the
 string <em>subj</em>, starting from offset <em>init</em>, subject to execution flags <em>ef</em>.</p>
@@ -905,9 +813,114 @@ substring matches keyed by their correspondent subpattern names
 { 12,14,16,19 }.</dd>
 </dl>
 </div>
+</div>
 <hr class="docutils" />
 <div class="section">
-<h3><a class="toc-backref" href="#id17" id="dfa-exec" name="dfa-exec">dfa_exec</a></h3>
+<h2><a class="toc-backref" href="#id13" id="pcre-only-functions-and-methods" name="pcre-only-functions-and-methods">PCRE-only functions and methods</a></h2>
+<div class="section">
+<h3><a class="toc-backref" href="#id14" id="maketables" name="maketables">maketables</a></h3>
+<p>[PCRE only. See <em>pcre_maketables</em> in the <a class="reference" href="http://www.pcre.org/pcre.txt">PCRE</a> docs.]</p>
+<p><tt class="funcdef docutils literal"><span class="pre">rex.maketables</span> <span class="pre">()</span></tt></p>
+<p>Creates a table set corresponding to the current active locale and returns it as
+a userdata. The returned value can be passed to the function <a class="reference" href="#settables">settables</a> and to
+any Lrexlib function accepting the <em>locale</em> parameter.</p>
+</div>
+<hr class="docutils" />
+<div class="section">
+<h3><a class="toc-backref" href="#id15" id="settables" name="settables">settables</a></h3>
+<p>[PCRE only]</p>
+<p><tt class="funcdef docutils literal"><span class="pre">rex.settables</span> <span class="pre">([tables])</span></tt></p>
+<p>This function replaces the default set of character tables, by the one supplied
+in the parameter <em>tables</em>.</p>
+<p>The <em>tables</em> parameter should be either a userdata, obtained from a call to
+<a class="reference" href="#maketables">maketables</a>, or <tt class="docutils literal"><span class="pre">nil</span></tt>. In the latter case, the built-in PCRE set of tables
+becomes the default.</p>
+<p>Lrexlib maintains one &quot;default&quot; set of character tables, in addition to the set
+built-in into PCRE. When a Lrexlib function accepting the <em>locale</em> argument is
+called with that argument omitted, then the default set of character tables is
+used.</p>
+<p>The initial default set of tables is the built-in PCRE set.</p>
+<blockquote>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="52%" />
+<col width="13%" />
+<col width="21%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+<th class="head">Type</th>
+<th class="head">Default Value</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>[tables]</td>
+<td>See the above description.</td>
+<td>userdata</td>
+<td><tt class="docutils literal"><span class="pre">nil</span></tt></td>
+</tr>
+</tbody>
+</table>
+</blockquote>
+<dl class="docutils">
+<dt><strong>Returns:</strong></dt>
+<dd>The old value of the default set (<tt class="docutils literal"><span class="pre">nil</span></tt> for the built-in PCRE set).</dd>
+</dl>
+</div>
+<hr class="docutils" />
+<div class="section">
+<h3><a class="toc-backref" href="#id16" id="config" name="config">config</a></h3>
+<p>[PCRE 4.0 and later. See <em>pcre_config</em> in the <a class="reference" href="http://www.pcre.org/pcre.txt">PCRE</a> docs.]</p>
+<p><tt class="funcdef docutils literal"><span class="pre">rex.config</span> <span class="pre">([tb])</span></tt></p>
+<p>This function returns a table containing the values of the configuration
+parameters used at PCRE library build-time. Those parameters (numbers) are
+keyed by their names (strings). If the table argument <em>tb</em> is supplied then it
+is used as the output table, else a new table is created.</p>
+<blockquote>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="52%" />
+<col width="13%" />
+<col width="21%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+<th class="head">Type</th>
+<th class="head">Default Value</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>[tb]</td>
+<td>a table for placing results into</td>
+<td>table</td>
+<td><tt class="docutils literal"><span class="pre">nil</span></tt></td>
+</tr>
+</tbody>
+</table>
+</blockquote>
+<dl class="docutils">
+<dt><strong>Returns:</strong></dt>
+<dd><ol class="first last arabic simple">
+<li>A table filled with the results.</li>
+</ol>
+</dd>
+</dl>
+</div>
+<hr class="docutils" />
+<div class="section">
+<h3><a class="toc-backref" href="#id17" id="version" name="version">version</a></h3>
+<p>[PCRE only. See <em>pcre_version</em> in the <a class="reference" href="http://www.pcre.org/pcre.txt">PCRE</a> docs.]</p>
+<p><tt class="funcdef docutils literal"><span class="pre">rex.version</span> <span class="pre">()</span></tt></p>
+<p>This function returns a string containing the version of the used PCRE library
+and its release date.</p>
+</div>
+<hr class="docutils" />
+<div class="section">
+<h3><a class="toc-backref" href="#id18" id="dfa-exec" name="dfa-exec">dfa_exec</a></h3>
 <p>[PCRE 6.0 and later. See <em>pcre_dfa_exec</em> in the <a class="reference" href="http://www.pcre.org/pcre.txt">PCRE</a> docs.]</p>
 <p><tt class="funcdef docutils literal"><span class="pre">r:dfa_exec</span> <span class="pre">(subj,</span> <span class="pre">[init],</span> <span class="pre">[ef],</span> <span class="pre">[ovecsize],</span> <span class="pre">[wscount])</span></tt></p>
 <p>The method matches a compiled regular expression <em>r</em> against a given subject
@@ -985,8 +998,78 @@ and 25 then the function returns the following: 10, { 25,20,15 }, 3.</dd>
 </div>
 <hr class="docutils" />
 <div class="section">
-<h2><a class="toc-backref" href="#id18" id="incompatibilities-with-the-previous-versions" name="incompatibilities-with-the-previous-versions">Incompatibilities with the Previous Versions</a></h2>
-<p><strong>Incompatibilities with the version 1.19:</strong></p>
+<h2><a class="toc-backref" href="#id19" id="other-functions" name="other-functions">Other functions</a></h2>
+<div class="section">
+<h3><a class="toc-backref" href="#id20" id="plainfind" name="plainfind">plainfind</a></h3>
+<p><tt class="funcdef docutils literal"><span class="pre">rex.plainfind</span> <span class="pre">(subj,</span> <span class="pre">patt,</span> <span class="pre">[init],</span> <span class="pre">[ci])</span></tt></p>
+<p>The function searches for the first match of the string <em>patt</em> in the subject
+<em>subj</em>, starting from offset <em>init</em>.</p>
+<blockquote>
+<ul class="simple">
+<li>The string <em>patt</em> is not regular expression, all its characters stand for
+themselves.</li>
+<li>Both strings <em>subj</em> and <em>patt</em> can have embedded zeros.</li>
+<li>The flag <em>ci</em> specifies case-insensitive search (current locale is used).</li>
+<li>This function uses neither PCRE nor POSIX regex library.</li>
+</ul>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="47%" />
+<col width="14%" />
+<col width="23%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+<th class="head">Type</th>
+<th class="head">Default Value</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>subj</td>
+<td>subject</td>
+<td>string</td>
+<td>n/a</td>
+</tr>
+<tr><td>patt</td>
+<td>text to find</td>
+<td>string</td>
+<td>n/a</td>
+</tr>
+<tr><td>[init]</td>
+<td>start offset in the subject
+(can be negative)</td>
+<td>number</td>
+<td>1</td>
+</tr>
+<tr><td>[ci]</td>
+<td>case insensitive search</td>
+<td>boolean</td>
+<td><tt class="docutils literal"><span class="pre">false</span></tt></td>
+</tr>
+</tbody>
+</table>
+</blockquote>
+<dl class="docutils">
+<dt><strong>Returns on success:</strong></dt>
+<dd><ol class="first last arabic simple">
+<li>The start point of the match (a number).</li>
+<li>The end point of the match (a number).</li>
+</ol>
+</dd>
+<dt><strong>Returns on failure:</strong></dt>
+<dd><ol class="first last arabic simple">
+<li><tt class="docutils literal"><span class="pre">nil</span></tt></li>
+</ol>
+</dd>
+</dl>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section">
+<h2><a class="toc-backref" href="#id21" id="incompatibilities-with-the-previous-versions" name="incompatibilities-with-the-previous-versions">Incompatibilities with the Previous Versions</a></h2>
+<p><strong>Incompatibilities between the versions 2.0 and 1.19:</strong></p>
 <blockquote>
 <ol class="arabic simple">
 <li>Lua 5.1 is required</li>
@@ -996,11 +1079,12 @@ and 25 then the function returns the following: 10, { 25,20,15 }, 3.</dd>
 <li>Method <tt class="docutils literal"><span class="pre">match</span></tt> renamed to <a class="reference" href="#tfind">tfind</a></li>
 <li>Method <tt class="docutils literal"><span class="pre">gmatch</span></tt> removed (similar functionality is provided by function
 <a class="reference" href="#gmatch">gmatch</a>)</li>
-<li>Method <a class="reference" href="#exec">exec</a>: the returned table may additionally contain <em>named
-subpatterns</em> (PCRE only)</li>
+<li>Methods <a class="reference" href="#tfind">tfind</a> and <a class="reference" href="#exec">exec</a>: 2 values are returned on failure</li>
+<li>(PCRE) <a class="reference" href="#exec">exec</a>: the returned table may additionally contain <em>named
+subpatterns</em></li>
 </ol>
 </blockquote>
-<p><strong>Incompatibilities with the version 2.0:</strong></p>
+<p><strong>Incompatibilities between the versions 2.1 and 2.0:</strong></p>
 <blockquote>
 <ol class="arabic simple">
 <li><a class="reference" href="#match">match</a>, <a class="reference" href="#find">find</a>, <a class="reference" href="#tfind">tfind</a>, <a class="reference" href="#exec">exec</a>, <a class="reference" href="#dfa-exec">dfa_exec</a>: only one value (a <tt class="docutils literal"><span class="pre">nil</span></tt>) is
@@ -1008,17 +1092,20 @@ returned when the subject does not match the pattern. Any other failure
 generates an error.</li>
 </ol>
 </blockquote>
-<p><strong>Incompatibilities with the version 2.1:</strong></p>
+<p><strong>Incompatibilities between the versions 2.2 and 2.1:</strong></p>
 <blockquote>
 <ol class="arabic simple">
 <li><a class="reference" href="#gsub">gsub</a>: a special &quot;break&quot; return of <em>repl</em> function is deprecated.</li>
+<li>(PCRE) <a class="reference" href="#gsub">gsub</a>, <a class="reference" href="#gmatch">gmatch</a>: after finding an empty match at the current
+position, the functions try to find a non-empty match anchored to the same
+position.</li>
 </ol>
 </blockquote>
 </div>
 </div>
 <div class="footer">
 <hr class="footer" />
-Generated on: 2007-03-17 09:55 UTC.
+Generated on: 2007-04-17 16:16 UTC.
 
 </div>
 </body>
