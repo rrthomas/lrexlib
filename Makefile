@@ -5,13 +5,15 @@
 all:
 	make -C src -f rex_pcre.mak
 	make -C src -f rex_posix.mak
+	make -C src -f rex_tre.mak
 
 test:
-	cd test && lua ./runtest.lua pcre posix
+	cd test && lua ./runtest.lua pcre posix tre
 
 clean:
 	make -C src -f rex_pcre.mak clean
 	make -C src -f rex_posix.mak clean
+	make -C src -f rex_tre.mak
 
 
 .PHONY: all test clean
