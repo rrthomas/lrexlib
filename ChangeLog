@@ -1,8 +1,48 @@
+2007-04-18  Reuben Thomas  <rrt@sc3d.org>
+
+	* lpcre.c, lposix.c, ltre.c, algo.h:  Fix some compiler warnings.
+
+2007-04-17  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
+	* <all source files>: the metatable for regex userdata is the C-functions
+	    environment (not kept in the lua_State registry anymore).
+	* lpcre.c: the metatable for 'pcre_tables' userdata is kept at index 1
+	    of the C-functions environment.
+
+2007-04-16  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
+	* lpcre.h (settables): new API function.
+
+2007-04-14  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
+	* lpcre.h (maketables): new API function.
+
+2007-04-13  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
+	* algo.h (gmatch_iter, split_iter): bugfix: was improper detection
+	    of a "no advance" situation.
+	* algo.h (split_iter): bugfix: if the subject ends with a separator,
+	    there must be an additional pass giving an empty section.
+	* test/common_sets.lua: test results adjusted for bugfix in 'split'.
+	* test/pcre_sets.lua: gmatch tests added (testing "retry" feature).
+
+2007-04-12  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
+	* algo.h, lpcre.c (USE_RETRY): new macro. Changed gsub and gmatch
+	    behavior under PCRE when a "no advance" situation occurs.
+	* test/pcre_sets2.lua: test results adjusted for the change in gsub
+	    behavior.
+
+2007-04-11  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
+	* lpcre.c (settables): new API function (PCRE only).
+	* test/pcre_sets.lua: locale tests added.
+
 2007-03-19  Shmuel Zeigerman  <shmuz@actcom.co.il>
 
 	* algo.h, lpcre.c, lposix.c, ltre.c: improved userdata check
 	    (detects bad userdata error prior to calling methods;
-		prevents crashes).
+	    prevents crashes).
 
 2007-03-10  Shmuel Zeigerman  <shmuz@actcom.co.il>
 
