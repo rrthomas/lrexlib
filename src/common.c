@@ -18,6 +18,13 @@ int get_int_field (lua_State *L, const char* field)
   return val;
 }
 
+/* the table must be on Lua stack top */
+void set_int_field (lua_State *L, const char* field, int val)
+{
+  lua_pushinteger (L, val);
+  lua_setfield (L, -2, field);
+}
+
 void *Lmalloc(lua_State *L, size_t size) {
   void *p = malloc(size);
   if(p == NULL)

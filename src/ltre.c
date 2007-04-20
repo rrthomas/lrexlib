@@ -61,23 +61,6 @@ const char posix_typename[] = REX_LIBNAME"_regex";
  ******************************************************************************
  */
 
-/* the table must be on Lua stack top */
-static int get_int_field (lua_State *L, const char* field)
-{
-  int val;
-  lua_getfield (L, -1, field);
-  val = lua_tointeger (L, -1);
-  lua_pop (L, 1);
-  return val;
-}
-
-/* the table must be on Lua stack top */
-static void set_int_field (lua_State *L, const char* field, int val)
-{
-  lua_pushinteger (L, val);
-  lua_setfield (L, -2, field);
-}
-
 static void checkarg_regaparams (lua_State *L, int stackpos,  regaparams_t *argP) {
   if (lua_type (L, stackpos) != LUA_TTABLE) /* allow for userdata? */
     luaL_argerror (L, stackpos, "table expected");
