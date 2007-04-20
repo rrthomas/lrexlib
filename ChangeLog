@@ -9,13 +9,9 @@
 	* lpcre.c: the metatable for 'pcre_tables' userdata is kept at index 1
 	    of the C-functions environment.
 
-2007-04-16  Shmuel Zeigerman  <shmuz@actcom.co.il>
-
-	* lpcre.h (settables): new API function.
-
 2007-04-14  Shmuel Zeigerman  <shmuz@actcom.co.il>
 
-	* lpcre.h (maketables): new API function.
+	* lpcre.h (maketables): new API function (PCRE only).
 
 2007-04-13  Shmuel Zeigerman  <shmuz@actcom.co.il>
 
