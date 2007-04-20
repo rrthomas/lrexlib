@@ -13,7 +13,7 @@ test:
 clean:
 	make -C src -f rex_pcre.mak clean
 	make -C src -f rex_posix.mak clean
-	make -C src -f rex_tre.mak
+	make -C src -f rex_tre.mak clean
 
 
 .PHONY: all test clean
