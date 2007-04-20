@@ -10,6 +10,9 @@
 
 typedef struct { const char* key; int val; } flag_pair;
 
+#define set_int_field(L, field, val) \
+    (lua_pushinteger (L, (val)), lua_setfield (L, -2, (field)))
+int get_int_field (lua_State *L, const char* field);
 int get_flags (lua_State *L, const flag_pair **arr);
 const char *get_flag_key (const flag_pair *fp, int val);
 void *Lmalloc (lua_State *L, size_t size);

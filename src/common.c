@@ -8,6 +8,16 @@
 #include "lauxlib.h"
 #include "common.h"
 
+/* the table must be on Lua stack top */
+int get_int_field (lua_State *L, const char* field)
+{
+  int val;
+  lua_getfield (L, -1, field);
+  val = lua_tointeger (L, -1);
+  lua_pop (L, 1);
+  return val;
+}
+
 void *Lmalloc(lua_State *L, size_t size) {
   void *p = malloc(size);
   if(p == NULL)
