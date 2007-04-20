@@ -6,25 +6,24 @@ include defaults.mak
 # ===========================================================================
 
 # These are default values.
-INC_POSIX =
-LIB_POSIX =
+INC =
+LIB =
 
 # If the default settings don't work for your system,
 # try to uncomment and edit the settings below.
-#INC_POSIX = -I/usr/include
-#LIB_POSIX = -lc
+#INC =
+#LIB = -lc
 
 # WARNING:
 #   If you want to use a POSIX regex library that is not the system
-#   default, make sure you set both the INC_POSIX and LIB_POSIX
-#   variables correctly, as if a header file and library are used
-#   which do not match, you may well get segmentation faults (or
-#   worse).
+#   default, make sure you set both the INC and LIB variables correctly,
+#   as if a header file and library are used which do not match, you may
+#   well get segmentation faults (or worse).
 
 # The following lines work for the rxspencer library, when installed
 # under /usr (note the above warning!)
-#INC_POSIX = -I/usr/include/rxspencer
-#LIB_POSIX = -lrxspencer
+#INC = -I/usr/include/rxspencer
+#LIB = -lrxspencer
 
 # Target name
 TRG = rex_posix

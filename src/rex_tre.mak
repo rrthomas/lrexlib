@@ -6,25 +6,18 @@ include defaults.mak
 # ===========================================================================
 
 # These are default values.
-INC_TRE =
-LIB_TRE = -ltre
+INC =
+LIB = -ltre
 
 # If the default settings don't work for your system,
 # try to uncomment and edit the settings below.
-#INC_TRE = -I/usr/include
-#LIB_TRE = -lc
+#INC = -I/usr/include
+#LIB = -lc
 
 # WARNING:
-#   If you want to use a TRE regex library that is not the system
-#   default, make sure you set both the INC_TRE and LIB_TRE
-#   variables correctly, as if a header file and library are used
-#   which do not match, you may well get segmentation faults (or
-#   worse).
-
-# The following lines work for the rxspencer library, when installed
-# under /usr (note the above warning!)
-#INC_TRE = -I/usr/include/rxspencer
-#LIB_TRE = -lrxspencer
+#   Make sure you set both the INC and LIB variables correctly, as
+#   otherwise you risk using a header file and library that do not
+#   match, and you may well get segmentation faults (or worse).
 
 # Target name
 TRG = rex_tre

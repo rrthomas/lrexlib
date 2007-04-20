@@ -6,13 +6,13 @@ include defaults.mak
 # ===========================================================================
 
 # These are default values.
-INC_PCRE =
-LIB_PCRE = -lpcre
+INC =
+LIB = -lpcre
 
 # If the default settings don't work for your system,
 # try to uncomment and edit the settings below.
-#INC_PCRE = -I/usr/local/include
-#LIB_PCRE = -lpcre
+#INC =
+#LIB = -lpcre
 
 # Target name
 TRG = rex_pcre

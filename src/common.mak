@@ -3,7 +3,7 @@
 V = 2.2
 
 DEFS   = -DREX_OPENLIB=luaopen_$(TRG) -DREX_LIBNAME=\"$(TRG)\"
-CFLAGS = $(MYCFLAGS) $(DEFS)
+CFLAGS = $(MYCFLAGS) $(DEFS) $(INC)
 TRG_AR = lib$(TRG).a
 TRG_SO = $(TRG).so
 
@@ -13,7 +13,7 @@ $(TRG_AR): $(OBJ)
 	$(AR) $@ $^
 
 $(TRG_SO): $(OBJ)
-	ld -o $@.$V -shared $^ $(LIB_PCRE) $(LIB_LUA)
+	ld -o $@.$V -shared $^ $(LIB) $(LIB_LUA)
 	ln -fs $@.$V $@
 
 clean:
