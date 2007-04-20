@@ -1,9 +1,9 @@
 # makefile for rex_posix library
 
+include defaults.mak
+
 # === USER SETTINGS ===
 # ===========================================================================
-
-include common.mak
 
 # These are default values.
 INC_POSIX =
@@ -32,31 +32,15 @@ TRG = rex_posix
 # ===========================================================================
 # === END OF USER SETTINGS ===
 
-V = 2.2
-
-DEFS   = -DREX_OPENLIB=luaopen_$(TRG) -DREX_LIBNAME=\"$(TRG)\"
-CFLAGS = $(MYCFLAGS) $(DEFS)
 OBJ    = lposix.o common.o
-TRG_AR = lib$(TRG).a
-TRG_SO = $(TRG).so
 
-all: $(TRG_AR) $(TRG_SO)
+include common.mak
 
 # static POSIX regexp library binding
 ar_posix: $(TRG_AR)
 
 # dynamic POSIX regexp library binding
 so_posix: $(TRG_SO)
-
-$(TRG_AR): $(OBJ)
-	$(AR) $@ $^
-
-$(TRG_SO): $(OBJ)
-	ld -o $@.$V -shared $^ $(LIB_POSIX) $(LIB_LUA)
-	ln -fs $@.$V $@
-
-clean:
-	rm -f $(OBJ) $(TRG_AR) $(TRG_SO)*
 
 # Dependencies
 lposix.o: lposix.c common.h algo.h

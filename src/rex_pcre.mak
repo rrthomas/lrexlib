@@ -1,9 +1,9 @@
 # makefile for rex_pcre library
 
+include defaults.mak
+
 # === USER SETTINGS ===
 # ===========================================================================
-
-include common.mak
 
 # These are default values.
 INC_PCRE =
@@ -20,15 +20,9 @@ TRG = rex_pcre
 # ===========================================================================
 # === END OF USER SETTINGS ===
 
-V = 2.2
-
-DEFS   = -DREX_OPENLIB=luaopen_$(TRG) -DREX_LIBNAME=\"$(TRG)\"
-CFLAGS = $(MYCFLAGS) $(DEFS)
 OBJ    = lpcre.o lpcre_f.o common.o
-TRG_AR = lib$(TRG).a
-TRG_SO = $(TRG).so
 
-all: $(TRG_AR) $(TRG_SO)
+include common.mak
 
 # static PCRE regexp library binding
 ar_pcre: $(TRG_AR)
@@ -36,20 +30,9 @@ ar_pcre: $(TRG_AR)
 # dynamic PCRE regexp library binding
 so_pcre: $(TRG_SO)
 
-$(TRG_AR): $(OBJ)
-	$(AR) $@ $^
-
-$(TRG_SO): $(OBJ)
-	ld -o $@.$V -shared $^ $(LIB_PCRE) $(LIB_LUA)
-	ln -fs $@.$V $@
-
-clean:
-	rm -f $(OBJ) $(TRG_AR) $(TRG_SO)*
-
 # Dependencies
 lpcre.o: lpcre.c common.h algo.h
 lpcre_f.o: lpcre_f.c common.h
 common.o: common.c common.h
 
 # (End of Makefile)
-

@@ -1,13 +1,13 @@
 # makefile for rex_tre library
 
+include defaults.mak
+
 # === USER SETTINGS ===
 # ===========================================================================
 
-include common.mak
-
 # These are default values.
 INC_TRE =
-LIB_TRE =
+LIB_TRE = -ltre
 
 # If the default settings don't work for your system,
 # try to uncomment and edit the settings below.
@@ -32,31 +32,15 @@ TRG = rex_tre
 # ===========================================================================
 # === END OF USER SETTINGS ===
 
-V = 2.2
-
-DEFS   = -DREX_OPENLIB=luaopen_$(TRG) -DREX_LIBNAME=\"$(TRG)\"
-CFLAGS = $(MYCFLAGS) $(DEFS)
 OBJ    = ltre.o common.o
-TRG_AR = lib$(TRG).a
-TRG_SO = $(TRG).so
 
-all: $(TRG_AR) $(TRG_SO)
+include common.mak
 
 # static TRE regexp library binding
 ar_tre: $(TRG_AR)
 
 # dynamic TRE regexp library binding
 so_tre: $(TRG_SO)
-
-$(TRG_AR): $(OBJ)
-	$(AR) $@ $^
-
-$(TRG_SO): $(OBJ)
-	ld -o $@.$V -shared $^ $(LIB_TRE) $(LIB_LUA)
-	ln -fs $@.$V $@
-
-clean:
-	rm -f $(OBJ) $(TRG_AR) $(TRG_SO)*
 
 # Dependencies
 ltre.o: ltre.c common.h algo.h

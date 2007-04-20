@@ -1,20 +1,20 @@
-# common settings for lrexlib
+# Rules for lrexlib
 
-# === USER SETTINGS ===
-# ===========================================================================
+V = 2.2
 
-# These are default values.
-INC_LUA  =
-LIB_LUA  =
+DEFS   = -DREX_OPENLIB=luaopen_$(TRG) -DREX_LIBNAME=\"$(TRG)\"
+CFLAGS = $(MYCFLAGS) $(DEFS)
+TRG_AR = lib$(TRG).a
+TRG_SO = $(TRG).so
 
-# If the default settings don't work for your system,
-# try to uncomment and edit the settings below.
-#INC_LUA  = -I/usr/local/include
-#LIB_LUA  = -llua
+all: $(TRG_AR) $(TRG_SO)
 
-MYCFLAGS = -W -Wall -O2 $(INC_LUA) $(INC_PCRE)
-AR = ar rcu
-CC = gcc
+$(TRG_AR): $(OBJ)
+	$(AR) $@ $^
 
-# ===========================================================================
-# === END OF USER SETTINGS ===
+$(TRG_SO): $(OBJ)
+	ld -o $@.$V -shared $^ $(LIB_PCRE) $(LIB_LUA)
+	ln -fs $@.$V $@
+
+clean:
+	rm -f $(OBJ) $(TRG_AR) $(TRG_SO)*
