@@ -1,3 +1,8 @@
+2007-04-21  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
+	* test/luatest.lua (eq): no more relying on tostring giving different
+	    strings for different tables.
+
 2007-04-20  Shmuel Zeigerman  <shmuz@actcom.co.il>
 
 	* ltre.c (get_int_field, set_int_field): moved to common.c.
