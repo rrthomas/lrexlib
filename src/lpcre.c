@@ -157,7 +157,8 @@ static int tables_gc (lua_State *L) {
 }
 
 static void OPTLOCALE (TArgComp *argC, lua_State *L, int pos) {
-  argC->locale = argC->tables = NULL;
+  argC->locale = NULL;
+  argC->tables = NULL;
   if (!lua_isnoneornil (L, pos)) {
     if (lua_isstring (L, pos))
       argC->locale = lua_tostring (L, pos);
