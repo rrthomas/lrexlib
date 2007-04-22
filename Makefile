@@ -2,7 +2,9 @@
 
 # See src/*.mak for user-definable settings
 
-all:
+all: build test
+
+build:
 	make -C src -f rex_pcre.mak
 	make -C src -f rex_posix.mak
 	make -C src -f rex_tre.mak
