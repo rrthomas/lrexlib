@@ -7,6 +7,7 @@
 #include "lua.h"
 #include "lauxlib.h"
 #include "common.h"
+#include "algo_t.h"
 
 #ifndef REX_POSIX_INCLUDE
 #  include <regex.h>
@@ -64,9 +65,8 @@
 #define PUSH_END(L,ud,offs,n)     lua_pushinteger(L, (offs) + SUB_END(ud,n))
 #define PUSH_OFFSETS(L,ud,offs,n) (PUSH_START(L,ud,offs,n), PUSH_END(L,ud,offs,n))
 
-#define BASE(st)                        (st)
-#define PULL(st,from)                   ((void)st)
-#define OPTLOCALE(a,b,c)                ((void)a)
+#define BASE(st)                  (st)
+#define GETCFLAGS(L,pos,trg)      trg = luaL_optint(L,pos,CFLAGS_DEFAULT)
 
 typedef struct {
   regex_t      r;
