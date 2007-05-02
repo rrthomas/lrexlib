@@ -1,5 +1,8 @@
+# Documentation Makefile
 
-APP = C:/Python24/python c:/python24/Scripts/rst2html.py
+.SUFFIXES: .txt .html
+
+APP = rst2html
 CSS = --stylesheet-path=lrexlib.css --link-stylesheet
 HDR = --initial-header-level=2
 DT  = --date --time
@@ -8,5 +11,4 @@ DT  = --date --time
 .txt.html:
 	$(APP) $(CSS) $(GT) $(HDR) $(DT) $< $@
 
-all: manual.html
-
+all: index.html manual.html
