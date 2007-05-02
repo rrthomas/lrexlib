@@ -7,7 +7,7 @@
 
 2007-04-30  Shmuel Zeigerman  <shmuz@actcom.co.il>
 
-    * lpcre.c (REX_OPENLIB, OPTLOCALE, compile_regex): bugfix: "tables"
+	* lpcre.c (REX_OPENLIB, OPTLOCALE, compile_regex): bugfix: "tables"
 	    userdata could be garbage-collected before the "regex" userdata
 	    that was using it.
 
