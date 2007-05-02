@@ -26,7 +26,7 @@ local function set_named_subpatterns (lib, flg)
 end
 
 local function set_f_find (lib, flg)
-  local cp1251 = 
+  local cp1251 =
     "¿¡¬√ƒ≈®∆«»… ÀÃÕŒœ–—“”‘’÷◊ÿŸ‹€⁄›ﬁﬂ‡·‚„‰Â∏ÊÁËÈÍÎÏÌÓÔÒÚÛÙıˆ˜¯˘¸˚˙˝˛ˇ"
   local loc = "Russian_Russia.1251"
   return {
@@ -36,6 +36,7 @@ local function set_f_find (lib, flg)
   { {"abcd", ".+",      5},                  { N   } }, -- failing st
   { {"abcd", ".*?"},                         { 1,0 } }, -- non-greedy
   { {"abc",  "aBC",     N,flg.CASELESS},     { 1,3 } }, -- cf
+  { {"abc",  "aBC",     N,"i"         },     { 1,3 } }, -- cf
   { {"abc",  "bc",      N,N,flg.ANCHORED},   { N   } }, -- cf
   { {"abc",  "bc",      N,N,flg.ANCHORED},   { N   } }, -- ef
   { {cp1251, "[[:upper:]]+", N,N,N, loc},    { 1,33} }, -- locale
@@ -51,6 +52,7 @@ local function set_f_match (lib, flg)
   { {"abcd", ".+",      5},                  { N    }}, -- failing st
   { {"abcd", ".*?"},                         { ""   }}, -- non-greedy
   { {"abc",  "aBC",     N,flg.CASELESS},     {"abc" }}, -- cf
+  { {"abc",  "aBC",     N,"i"         },     {"abc" }}, -- cf
   { {"abc",  "bc",      N,N,flg.ANCHORED},   { N    }}, -- cf
   { {"abc",  "bc",      N,N,flg.ANCHORED},   { N    }}, -- ef
 }
@@ -111,6 +113,7 @@ local function set_m_exec (lib, flg)
   { {".+"},               {"abcd",5},               { N }    }, -- failing st
   { {".*?"},              {"abcd"},                 {1,0,{}} }, -- non-greedy
   { {"aBC",flg.CASELESS}, {"abc"},                  {1,3,{}} }, -- cf
+  { {"aBC","i"         }, {"abc"},                  {1,3,{}} }, -- cf
   { {"bc",flg.ANCHORED},  {"abc"},                  { N }    }, -- cf
   { {"bc"},               {"abc",N, flg.ANCHORED},  { N }    }, -- ef
 }
@@ -124,6 +127,7 @@ local function set_m_tfind (lib, flg)
   { {".+"},               {"abcd",5},               { N }    }, -- failing st
   { {".*?"},              {"abcd"},                 {1,0,{}} }, -- non-greedy
   { {"aBC",flg.CASELESS}, {"abc"},                  {1,3,{}} }, -- cf
+  { {"aBC","i"         }, {"abc"},                  {1,3,{}} }, -- cf
   { {"bc",flg.ANCHORED},  {"abc"},                  { N }    }, -- cf
   { {"bc"},               {"abc",N, flg.ANCHORED},  { N }    }, -- ef
 }
@@ -141,6 +145,7 @@ local function set_m_dfa_exec (lib, flg)
   { {".*"},               {"abcd"},                 {1,{4,3,2,1,0},5}}, -- [none]
   { {".*?"},              {"abcd"},                 {1,{4,3,2,1,0},5}}, -- non-greedy
   { {"aBC",flg.CASELESS}, {"abc"},                  {1,{3},1}  }, -- cf
+  { {"aBC","i"         }, {"abc"},                  {1,{3},1}  }, -- cf
   { {"bc"},               {"abc"},                  {2,{3},1}  }, -- [none]
   { {"bc",flg.ANCHORED},  {"abc"},                  {N }       }, -- cf
   { {"bc"},               {"abc",N, flg.ANCHORED},  {N }       }, -- ef
