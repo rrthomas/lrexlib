@@ -1,6 +1,21 @@
+2007-05-02  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
+	* algo_t.h: new file added, for making struct definitions visible to
+	    the file parts lying above the line #include algo.h.
+
+	* lpcre.c: [API extension]: cflags may be specified by a string.
+
+2007-04-30  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
+    * lpcre.c (REX_OPENLIB, OPTLOCALE, compile_regex): bugfix: "tables"
+	    userdata could be garbage-collected before the "regex" userdata
+	    that was using it.
+
+	* lpcre_f.c: added a new flag from PCRE-7.1.
+
 2007-04-21  Shmuel Zeigerman  <shmuz@actcom.co.il>
 
-	* test/luatest.lua (eq): no more relying on tostring giving different
+	* test/luatest.lua (eq): no more relying on tostring producing unique
 	    strings for different tables.
 
 2007-04-20  Shmuel Zeigerman  <shmuz@actcom.co.il>
