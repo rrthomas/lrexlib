@@ -55,6 +55,21 @@ Notes
      * 0 for PCRE
      * REG_EXTENDED for POSIX regex library
 
+   For PCRE, *cf* may also be supplied as a string, whose characters stand for
+   PCRE compilation flags. Combinations of the following characters (case
+   sensitive) are supported:
+
+      ===============   ==================
+       **Character**      **PCRE flag**
+      ===============   ==================
+       **i**              PCRE_CASELESS
+       **m**              PCRE_MULTILINE
+       **s**              PCRE_DOTALL
+       **x**              PCRE_EXTENDED
+       **U**              PCRE_UNGREEDY
+       **X**              PCRE_EXTRA
+      ===============   ==================
+
 .. _ef:
 
 6. The default value for *execution flags* (*ef*) that Lrexlib uses when
@@ -503,6 +518,49 @@ string *subj*, starting from offset *init*, subject to execution flags *ef*.
 PCRE-only functions and methods
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+dfa_exec
+--------
+
+[PCRE 6.0 and later. See *pcre_dfa_exec* in the PCRE_ docs.]
+
+:funcdef:`r:dfa_exec (subj, [init], [ef], [ovecsize], [wscount])`
+
+The method matches a compiled regular expression *r* against a given subject
+string *subj*, using a DFA matching algorithm.
+
+  +----------+-------------------------------------+--------+-------------+
+  |Parameter |                 Description         |  Type  |Default Value|
+  +==========+=====================================+========+=============+
+  |    r     | regex object produced by new_       |userdata|     n/a     |
+  +----------+-------------------------------------+--------+-------------+
+  |  subj    |                   subject           | string |     n/a     |
+  +----------+-------------------------------------+--------+-------------+
+  | [init]   |start offset in the subject          | number |      1      |
+  |          |(can be negative)                    |        |             |
+  +----------+-------------------------------------+--------+-------------+
+  |   [ef]   |  execution flags (bitwise OR)       | number |     ef_     |
+  +----------+-------------------------------------+--------+-------------+
+  |[ovecsize]|size of the array for result offsets | number |     100     |
+  +----------+-------------------------------------+--------+-------------+
+  |[wscount] |number of elements in the working    | number |     50      |
+  |          |space array                          |        |             |
+  +----------+-------------------------------------+--------+-------------+
+
+**Returns on success (either full or partial match):**
+ 1. The start point of the matches found (a number).
+ 2. A table containing the end points of the matches found, the longer matches
+    first.
+ 3. The return value of the underlying *pcre_dfa_exec* call (a number).
+
+**Returns on failure (no match):**
+ 1. ``nil``
+
+**Example:**
+ If there are 3 matches found starting at offset 10 and ending at offsets 15, 20
+ and 25 then the function returns the following: 10, { 25,20,15 }, 3.
+
+------------------------------------------------------------
+
 maketables
 ----------
 
@@ -581,49 +639,6 @@ version
 
 This function returns a string containing the version of the used PCRE library
 and its release date.
-
-------------------------------------------------------------
-
-dfa_exec
---------
-
-[PCRE 6.0 and later. See *pcre_dfa_exec* in the PCRE_ docs.]
-
-:funcdef:`r:dfa_exec (subj, [init], [ef], [ovecsize], [wscount])`
-
-The method matches a compiled regular expression *r* against a given subject
-string *subj*, using a DFA matching algorithm.
-
-  +----------+-------------------------------------+--------+-------------+
-  |Parameter |                 Description         |  Type  |Default Value|
-  +==========+=====================================+========+=============+
-  |    r     | regex object produced by new_       |userdata|     n/a     |
-  +----------+-------------------------------------+--------+-------------+
-  |  subj    |                   subject           | string |     n/a     |
-  +----------+-------------------------------------+--------+-------------+
-  | [init]   |start offset in the subject          | number |      1      |
-  |          |(can be negative)                    |        |             |
-  +----------+-------------------------------------+--------+-------------+
-  |   [ef]   |  execution flags (bitwise OR)       | number |     ef_     |
-  +----------+-------------------------------------+--------+-------------+
-  |[ovecsize]|size of the array for result offsets | number |     100     |
-  +----------+-------------------------------------+--------+-------------+
-  |[wscount] |number of elements in the working    | number |     50      |
-  |          |space array                          |        |             |
-  +----------+-------------------------------------+--------+-------------+
-
-**Returns on success (either full or partial match):**
- 1. The start point of the matches found (a number).
- 2. A table containing the end points of the matches found, the longer matches
-    first.
- 3. The return value of the underlying *pcre_dfa_exec* call (a number).
-
-**Returns on failure (no match):**
- 1. ``nil``
-
-**Example:**
- If there are 3 matches found starting at offset 10 and ending at offsets 15, 20
- and 25 then the function returns the following: 10, { 25,20,15 }, 3.
 
 ------------------------------------------------------------
 
