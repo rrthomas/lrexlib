@@ -46,6 +46,9 @@ static flag_pair pcre_flags[] = {
 #if VERSION_PCRE >= 700
   { "NEWLINE_ANY",                   PCRE_NEWLINE_ANY },
 #endif
+#if VERSION_PCRE >= 701
+  { "NEWLINE_ANYCRLF",               PCRE_NEWLINE_ANYCRLF },
+#endif
 /*---------------------------------------------------------------------------*/
   { "INFO_OPTIONS",                  PCRE_INFO_OPTIONS },
   { "INFO_SIZE",                     PCRE_INFO_SIZE },
