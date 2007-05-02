@@ -1,39 +1,9 @@
 /* algo.h */
 /* See Copyright Notice in the file LICENSE */
 
+#include "algo_t.h"
+
 #define REX_VERSION "Lrexlib 2.2.0 beta"
-
-/* REX_API can be overridden from the command line or Makefile */
-#ifndef REX_API
-#  define REX_API LUALIB_API
-#endif
-
-/*  These are the special values for maxmatch in gsub.
- *  They all must be negative.
- */
-#define GSUB_UNLIMITED   -1
-#define GSUB_CONDITIONAL -2
-
-typedef struct {            /* compile arguments */
-  const char * pattern;
-  size_t       patlen;
-  int          cflags;
-  const char * locale;
-  const unsigned char * tables;
-} TArgComp;
-
-typedef struct {            /* exec arguments */
-  const char * text;
-  size_t       textlen;
-  int          startoffset;
-  int          eflags;
-  int          funcpos;
-  int          maxmatch;
-  int          funcpos2;      /* used with gsub */
-  int          reptype;       /* used with gsub */
-  size_t       ovecsize;      /* used with dfa_exec */
-  size_t       wscount;       /* used with dfa_exec */
-} TArgExec;
 
 /* Forward declarations */
 static void gmatch_pushsubject (lua_State *L, TArgExec *argE);
@@ -43,13 +13,10 @@ static int split_exec      (TUserdata *ud, TArgExec *argE, int offset);
 static int compile_regex   (lua_State *L, const TArgComp *argC, TUserdata **pud);
 static int generate_error  (lua_State *L, const TUserdata *ud, int errcode);
 
-#ifdef DO_NAMED_SUBPATTERNS
-static void do_named_subpatterns (lua_State *L, TUserdata *ud, const char *text);
+#ifndef OPTLOCALE
+#  define OPTLOCALE(a,b,c)  ((void)a)
 #endif
 
-#ifndef OPTLOCALE
-static void OPTLOCALE (TArgComp *argC, lua_State *L, int pos);
-#endif
 
 /*  When doing an iterative search, there can occur a situation of a zero-length
  *  match at the current position, that prevents further advance on the subject
@@ -120,7 +87,7 @@ static TUserdata* check_ud (lua_State *L)
 
 static void checkarg_new (lua_State *L, TArgComp *argC) {
   argC->pattern = luaL_checklstring (L, 1, &argC->patlen);
-  argC->cflags = luaL_optint (L, 2, CFLAGS_DEFAULT);
+  GETCFLAGS (L, 2, argC->cflags);
   OPTLOCALE (argC, L, 3);
 }
 
@@ -138,7 +105,7 @@ static void checkarg_gsub (lua_State *L, TArgComp *argC, TArgExec *argE) {
   argE->funcpos = 3;
   argE->funcpos2 = 4;
   argE->maxmatch = OptLimit (L, 4);
-  argC->cflags = luaL_optint (L, 5, CFLAGS_DEFAULT);
+  GETCFLAGS (L, 5, argC->cflags);
   argE->eflags = luaL_optint (L, 6, EFLAGS_DEFAULT);
   OPTLOCALE (argC, L, 7);
 }
@@ -150,7 +117,7 @@ static void checkarg_find_f (lua_State *L, TArgComp *argC, TArgExec *argE) {
   argE->text = luaL_checklstring (L, 1, &argE->textlen);
   argC->pattern = luaL_checklstring (L, 2, &argC->patlen);
   argE->startoffset = get_startoffset (L, 3, argE->textlen);
-  argC->cflags = luaL_optint (L, 4, CFLAGS_DEFAULT);
+  GETCFLAGS (L, 4, argC->cflags);
   argE->eflags = luaL_optint (L, 5, EFLAGS_DEFAULT);
   OPTLOCALE (argC, L, 6);
 }
@@ -161,7 +128,7 @@ static void checkarg_find_f (lua_State *L, TArgComp *argC, TArgExec *argE) {
 static void checkarg_gmatch_split (lua_State *L, TArgComp *argC, TArgExec *argE) {
   argE->text = luaL_checklstring (L, 1, &argE->textlen);
   argC->pattern = luaL_checklstring (L, 2, &argC->patlen);
-  argC->cflags = luaL_optint (L, 3, CFLAGS_DEFAULT);
+  GETCFLAGS (L, 3, argC->cflags);
   argE->eflags = luaL_optint (L, 4, EFLAGS_DEFAULT);
   OPTLOCALE (argC, L, 5);
 }
@@ -246,7 +213,9 @@ static int gsub (lua_State *L) {
     to = BASE(st) + SUB_END(ud,0);
     if (st < from) {
       buffer_addlstring (&BufOut, argE.text + st, from - st);
-      PULL(st, from);
+#ifdef GSUB_PULL
+      st = from;
+#endif
     }
     /*----------------------------------------------------------------*/
     if (argE.reptype == LUA_TSTRING) {
@@ -597,7 +566,7 @@ static int generic_tfind (lua_State *L, int tfind) {
     else
       push_offset_table (L, ud, argE.startoffset);
 #ifdef DO_NAMED_SUBPATTERNS
-    do_named_subpatterns (L, ud, argE.text);
+    DO_NAMED_SUBPATTERNS (L, ud, argE.text);
 #endif
     return 3;
   }
