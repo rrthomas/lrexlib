@@ -21,29 +21,30 @@
 #  define REX_OPENLIB luaopen_rex_tre
 #endif
 
-#define CFLAGS_DEFAULT REG_EXTENDED
-#define EFLAGS_DEFAULT 0
+#define ALG_CFLAGS_DFLT REG_EXTENDED
+#define ALG_EFLAGS_DFLT 0
 
-#define CODE_NOMATCH    REG_NOMATCH
-#define IS_MATCH(res)   ((res) == 0)
-#define SUB_BEG(ud,n)   ud->match[n].rm_so
-#define SUB_END(ud,n)   ud->match[n].rm_eo
-#define SUB_LEN(ud,n)   (SUB_END(ud,n) - SUB_BEG(ud,n))
-#define SUB_VALID(ud,n) (SUB_BEG(ud,n) >= 0)
-#define NSUB(ud)        ((int)ud->r.re_nsub)
+#define ALG_NOMATCH        REG_NOMATCH
+#define ALG_ISMATCH(res)   ((res) == 0)
+#define ALG_SUBBEG(ud,n)   ud->match[n].rm_so
+#define ALG_SUBEND(ud,n)   ud->match[n].rm_eo
+#define ALG_SUBLEN(ud,n)   (ALG_SUBEND(ud,n) - ALG_SUBBEG(ud,n))
+#define ALG_SUBVALID(ud,n) (ALG_SUBBEG(ud,n) >= 0)
+#define ALG_NSUB(ud)       ((int)ud->r.re_nsub)
 
-#define PUSH_SUB(L,ud,text,n) \
-  lua_pushlstring (L, (text) + SUB_BEG(ud,n), SUB_LEN(ud,n))
+#define ALG_PUSHSUB(L,ud,text,n) \
+  lua_pushlstring (L, (text) + ALG_SUBBEG(ud,n), ALG_SUBLEN(ud,n))
 
-#define PUSH_SUB_OR_FALSE(L,ud,text,n) \
-  (SUB_VALID(ud,n) ? PUSH_SUB (L,ud,text,n) : lua_pushboolean (L,0))
+#define ALG_PUSHSUB_OR_FALSE(L,ud,text,n) \
+  (ALG_SUBVALID(ud,n) ? ALG_PUSHSUB (L,ud,text,n) : lua_pushboolean (L,0))
 
-#define PUSH_START(L,ud,offs,n)   lua_pushinteger(L, (offs) + SUB_BEG(ud,n) + 1)
-#define PUSH_END(L,ud,offs,n)     lua_pushinteger(L, (offs) + SUB_END(ud,n))
-#define PUSH_OFFSETS(L,ud,offs,n) (PUSH_START(L,ud,offs,n), PUSH_END(L,ud,offs,n))
+#define ALG_PUSHSTART(L,ud,offs,n)   lua_pushinteger(L, (offs) + ALG_SUBBEG(ud,n) + 1)
+#define ALG_PUSHEND(L,ud,offs,n)     lua_pushinteger(L, (offs) + ALG_SUBEND(ud,n))
+#define ALG_PUSHOFFSETS(L,ud,offs,n) \
+  (ALG_PUSHSTART(L,ud,offs,n), ALG_PUSHEND(L,ud,offs,n))
 
-#define BASE(st)                  (st)
-#define GETCFLAGS(L,pos,trg)      trg = luaL_optint(L,pos,CFLAGS_DEFAULT)
+#define ALG_BASE(st)                  (st)
+#define ALG_GETCFLAGS(L,pos,trg)      trg = luaL_optint(L, pos, ALG_CFLAGS_DFLT)
 
 typedef struct {
   regex_t      r;
@@ -84,7 +85,7 @@ static void checkarg_atfind (lua_State *L, TArgExec *argE, TPosix **ud,
   argE->text = luaL_checklstring (L, 2, &argE->textlen);
   checkarg_regaparams (L, 3, argP);
   argE->startoffset = get_startoffset (L, 4, argE->textlen);
-  argE->eflags = luaL_optint (L, 5, EFLAGS_DEFAULT);
+  argE->eflags = luaL_optint (L, 5, ALG_EFLAGS_DFLT);
 }
 
 static int generate_error (lua_State *L, const TPosix *ud, int errcode) {
@@ -106,7 +107,7 @@ static int compile_regex (lua_State *L, const TArgComp *argC, TPosix **pud) {
 
   if (argC->cflags & REG_NOSUB)
     ud->r.re_nsub = 0;
-  ud->match = (regmatch_t *) Lmalloc (L, (NSUB(ud) + 1) * sizeof (regmatch_t));
+  ud->match = (regmatch_t *) Lmalloc (L, (ALG_NSUB(ud) + 1) * sizeof (regmatch_t));
   lua_pushvalue (L, LUA_ENVIRONINDEX);
   lua_setmetatable (L, -2);
 
@@ -117,7 +118,7 @@ static int compile_regex (lua_State *L, const TArgComp *argC, TPosix **pud) {
 static int tfind_exec (TPosix *ud, TArgExec *argE) {
   argE->text += argE->startoffset;
   return regnexec (&ud->r, argE->text, argE->textlen - argE->startoffset,
-                   NSUB(ud) + 1, ud->match, argE->eflags);
+                   ALG_NSUB(ud) + 1, ud->match, argE->eflags);
 }
 
 static int generic_atfind (lua_State *L, int tfind) {
@@ -132,14 +133,14 @@ static int generic_atfind (lua_State *L, int tfind) {
     return lua_pushnil(L), 1;
 
   argE.text += argE.startoffset;
-  res_match.nmatch = NSUB(ud) + 1;
+  res_match.nmatch = ALG_NSUB(ud) + 1;
   res_match.pmatch = ud->match;
 
   /* execute the search */
   res = reganexec (&ud->r, argE.text, argE.textlen - argE.startoffset,
                    &res_match, argP, argE.eflags);
-  if (IS_MATCH (res)) {
-    PUSH_OFFSETS (L, ud, argE.startoffset, 0);
+  if (ALG_ISMATCH (res)) {
+    ALG_PUSHOFFSETS (L, ud, argE.startoffset, 0);
     if (tfind)
       push_substring_table (L, ud, argE.text);
     else
@@ -151,7 +152,7 @@ static int generic_atfind (lua_State *L, int tfind) {
     set_int_field (L, "num_subst", res_match.num_subst);
     return 3;
   }
-  else if (res == CODE_NOMATCH)
+  else if (res == ALG_NOMATCH)
     return lua_pushnil (L), 1;
   else
     return generate_error (L, ud, res);
@@ -170,7 +171,7 @@ static int gmatch_exec (TUserdata *ud, TArgExec *argE) {
     argE->eflags |= REG_NOTBOL;
   argE->text += argE->startoffset;
   return regnexec (&ud->r, argE->text, argE->textlen - argE->startoffset,
-                   NSUB(ud) + 1, ud->match, argE->eflags);
+                   ALG_NSUB(ud) + 1, ud->match, argE->eflags);
 }
 
 static void gmatch_pushsubject (lua_State *L, TArgExec *argE) {
@@ -180,21 +181,21 @@ static void gmatch_pushsubject (lua_State *L, TArgExec *argE) {
 static int findmatch_exec (TPosix *ud, TArgExec *argE) {
   argE->text += argE->startoffset;
   return regnexec (&ud->r, argE->text, argE->textlen - argE->startoffset,
-                   NSUB(ud) + 1, ud->match, argE->eflags);
+                   ALG_NSUB(ud) + 1, ud->match, argE->eflags);
 }
 
 static int gsub_exec (TPosix *ud, TArgExec *argE, int st) {
   if (st > 0)
     argE->eflags |= REG_NOTBOL;
-  return regnexec (&ud->r, argE->text+st, argE->textlen-st, NSUB(ud)+1,
+  return regnexec (&ud->r, argE->text+st, argE->textlen-st, ALG_NSUB(ud)+1,
                     ud->match, argE->eflags);
 }
 
 static int split_exec (TPosix *ud, TArgExec *argE, int offset) {
   if (offset > 0)
     argE->eflags |= REG_NOTBOL;
-  return regnexec (&ud->r, argE->text + offset, argE->textlen - offset, NSUB(ud) + 1,
-                   ud->match, argE->eflags);
+  return regnexec (&ud->r, argE->text + offset, argE->textlen - offset,
+                   ALG_NSUB(ud) + 1, ud->match, argE->eflags);
 }
 
 static int Ltre_have_backrefs (lua_State *L) {

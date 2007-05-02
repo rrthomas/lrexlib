@@ -26,36 +26,37 @@ extern flag_pair pcre_error_flags[];
 #  define REX_OPENLIB luaopen_rex_pcre
 #endif
 
-#define CFLAGS_DEFAULT 0
-#define EFLAGS_DEFAULT 0
+#define ALG_CFLAGS_DFLT 0
+#define ALG_EFLAGS_DFLT 0
 
 static int getcflags (lua_State *L, int pos);
-#define GETCFLAGS(L,pos,trg)  trg = getcflags(L, pos)
+#define ALG_GETCFLAGS(L,pos,trg)  trg = getcflags(L, pos)
 
 static void optlocale (TArgComp *argC, lua_State *L, int pos);
-#define OPTLOCALE(a,b,c)      optlocale(a,b,c)
+#define ALG_OPTLOCALE(a,b,c)  optlocale(a,b,c)
 
-#define CODE_NOMATCH    PCRE_ERROR_NOMATCH
-#define IS_MATCH(res)   ((res) >= 0)
-#define SUB_BEG(ud,n)   ud->match[n+n]
-#define SUB_END(ud,n)   ud->match[n+n+1]
-#define SUB_LEN(ud,n)   (SUB_END(ud,n) - SUB_BEG(ud,n))
-#define SUB_VALID(ud,n) (SUB_BEG(ud,n) >= 0)
-#define NSUB(ud)        ((int)ud->ncapt)
+#define ALG_NOMATCH        PCRE_ERROR_NOMATCH
+#define ALG_ISMATCH(res)   ((res) >= 0)
+#define ALG_SUBBEG(ud,n)   ud->match[n+n]
+#define ALG_SUBEND(ud,n)   ud->match[n+n+1]
+#define ALG_SUBLEN(ud,n)   (ALG_SUBEND(ud,n) - ALG_SUBBEG(ud,n))
+#define ALG_SUBVALID(ud,n) (ALG_SUBBEG(ud,n) >= 0)
+#define ALG_NSUB(ud)       ((int)ud->ncapt)
 
-#define PUSH_SUB(L,ud,text,n) \
-  lua_pushlstring (L, (text) + SUB_BEG(ud,n), SUB_LEN(ud,n))
+#define ALG_PUSHSUB(L,ud,text,n) \
+  lua_pushlstring (L, (text) + ALG_SUBBEG(ud,n), ALG_SUBLEN(ud,n))
 
-#define PUSH_SUB_OR_FALSE(L,ud,text,n) \
-  (SUB_VALID(ud,n) ? PUSH_SUB (L,ud,text,n) : lua_pushboolean (L,0))
+#define ALG_PUSHSUB_OR_FALSE(L,ud,text,n) \
+  (ALG_SUBVALID(ud,n) ? ALG_PUSHSUB (L,ud,text,n) : lua_pushboolean (L,0))
 
-#define PUSH_START(L,ud,offs,n)   lua_pushinteger(L, (offs) + SUB_BEG(ud,n) + 1)
-#define PUSH_END(L,ud,offs,n)     lua_pushinteger(L, (offs) + SUB_END(ud,n))
-#define PUSH_OFFSETS(L,ud,offs,n) (PUSH_START(L,ud,offs,n), PUSH_END(L,ud,offs,n))
+#define ALG_PUSHSTART(L,ud,offs,n)   lua_pushinteger(L, (offs) + ALG_SUBBEG(ud,n) + 1)
+#define ALG_PUSHEND(L,ud,offs,n)     lua_pushinteger(L, (offs) + ALG_SUBEND(ud,n))
+#define ALG_PUSHOFFSETS(L,ud,offs,n) \
+  (ALG_PUSHSTART(L,ud,offs,n), ALG_PUSHEND(L,ud,offs,n))
 
-#define BASE(st)        0
-#define GSUB_PULL
-#define USE_RETRY
+#define ALG_BASE(st)  0
+#define ALG_PULL
+#define ALG_USERETRY
 
 typedef struct {
   pcre       * pr;
@@ -77,16 +78,21 @@ const char pcre_typename[] = REX_LIBNAME"_regex";
 
 #include "algo.h"
 
-#define INDEX1 1
-#define INDEX2 2
+/* Locations of the 2 permanent tables in the function environment */
+#define INDEX_CHARTABLES_META  1      /* chartables type's metatable */
+#define INDEX_CHARTABLES_LINK  2      /* link chartables to compiled regex */
 
 const unsigned char *DefaultTables;
-const char tables_typename[] = "pcre_tables";
-#define push_tables_env(L) (lua_pushinteger(L,INDEX1), lua_rawget(L,LUA_ENVIRONINDEX))
+const char chartables_typename[] = "chartables";
 
 /*  Functions
  ******************************************************************************
  */
+
+static void push_chartables_meta (lua_State *L) {
+  lua_pushinteger (L, INDEX_CHARTABLES_META);
+  lua_rawget (L, LUA_ENVIRONINDEX);
+}
 
 static int getcflags (lua_State *L, int pos) {
   if (LUA_TSTRING == lua_type (L, pos)) {
@@ -103,7 +109,7 @@ static int getcflags (lua_State *L, int pos) {
     return res;
   }
   else
-    return luaL_optint (L, pos, CFLAGS_DEFAULT);
+    return luaL_optint (L, pos, ALG_CFLAGS_DFLT);
 }
 
 static int generate_error (lua_State *L, const TPcre *ud, int errcode) {
@@ -121,7 +127,7 @@ static void checkarg_dfa_exec (lua_State *L, TArgExec *argE, TPcre **ud) {
   *ud = check_ud (L);
   argE->text = luaL_checklstring (L, 2, &argE->textlen);
   argE->startoffset = get_startoffset (L, 3, argE->textlen);
-  argE->eflags = luaL_optint (L, 4, EFLAGS_DEFAULT);
+  argE->eflags = luaL_optint (L, 4, ALG_EFLAGS_DFLT);
   argE->ovecsize = luaL_optint (L, 5, 100);
   argE->wscount = luaL_optint (L, 6, 50);
 }
@@ -129,7 +135,7 @@ static void checkarg_dfa_exec (lua_State *L, TArgExec *argE, TPcre **ud) {
 
 static int Lpcre_maketables (lua_State *L) {
   *(const void**)lua_newuserdata (L, sizeof(void**)) = pcre_maketables();
-  push_tables_env (L);
+  push_chartables_meta (L);
   lua_setmetatable (L, -2);
   return 1;
 }
@@ -138,22 +144,22 @@ static void **check_tables (lua_State *L, int pos) {
   void **q;
   /* Compare the metatable against the C function environment. */
   if (lua_getmetatable(L, pos)) {
-    push_tables_env (L);
+    push_chartables_meta (L);
     if (lua_rawequal(L, -1, -2) &&
         (q = (void **)lua_touserdata(L, pos)) != NULL) {
       lua_pop(L, 2);
       return q;
     }
   }
-  luaL_argerror(L, pos, "not pcre_tables");
+  luaL_argerror(L, pos, lua_pushfstring (L, "not a %s", chartables_typename));
   return NULL;
 }
 
 /* function settables ([tables]) */
 /*   Create tables for the current active locale and set them as the default
  *   tables, instead of the PCRE built-in tables.
- *   For proper clean-up, create a pcre_tables userdata, and put it into the
- *   pcre_tables' metatable at a constant key.
+ *   For proper clean-up, create a chartables userdata, and put it into the
+ *   chartables' metatable at a constant key.
  */
 static int Lpcre_settables (lua_State *L)
 {
@@ -166,7 +172,7 @@ static int Lpcre_settables (lua_State *L)
     DefaultTables = *check_tables (L, 1);
   }
   /* get old value (to be returned) */
-  push_tables_env (L);
+  push_chartables_meta (L);
   lua_pushlightuserdata (L, &DefaultTables);
   lua_rawget (L, -2);
   /* set new value */
@@ -226,7 +232,7 @@ static int compile_regex (lua_State *L, const TArgComp *argC, TPcre **pud) {
   }
   else if (argC->tables) {
     tables = argC->tables;
-    lua_pushinteger (L, INDEX2);
+    lua_pushinteger (L, INDEX_CHARTABLES_LINK);
     lua_rawget (L, LUA_ENVIRONINDEX);
     lua_pushvalue (L, -2);
     lua_pushvalue (L, argC->tablespos);
@@ -245,7 +251,7 @@ static int compile_regex (lua_State *L, const TArgComp *argC, TPcre **pud) {
 
   pcre_fullinfo (ud->pr, ud->extra, PCRE_INFO_CAPTURECOUNT, &ud->ncapt);
   /* need (2 ints per capture, plus one for substring match) * 3/2 */
-  ud->match = (int *) Lmalloc (L, (NSUB(ud) + 1) * 3 * sizeof (int));
+  ud->match = (int *) Lmalloc (L, (ALG_NSUB(ud) + 1) * 3 * sizeof (int));
 
   if (pud) *pud = ud;
   return 1;
@@ -266,9 +272,9 @@ static void do_named_subpatterns (lua_State *L, TPcre *ud, const char *text) {
   tabptr = name_table;
   for (i = 0; i < namecount; i++) {
     int n = (tabptr[0] << 8) | tabptr[1]; /* number of the capturing parenthesis */
-    if (n > 0 && n <= NSUB(ud)) {   /* check range */
+    if (n > 0 && n <= ALG_NSUB(ud)) {   /* check range */
       lua_pushstring (L, (char *)tabptr + 2); /* name of the capture, zero terminated */
-      PUSH_SUB_OR_FALSE (L, ud, text, n);
+      ALG_PUSHSUB_OR_FALSE (L, ud, text, n);
       lua_rawset (L, -3);
     }
     tabptr += name_entry_size;
@@ -297,7 +303,7 @@ static int Lpcre_dfa_exec (lua_State *L)
   res = pcre_dfa_exec (ud->pr, ud->extra, argE.text, (int)argE.textlen,
     argE.startoffset, argE.eflags, ovector, argE.ovecsize, wspace, argE.wscount);
 
-  if (IS_MATCH (res) || res == PCRE_ERROR_PARTIAL) {
+  if (ALG_ISMATCH (res) || res == PCRE_ERROR_PARTIAL) {
     int i;
     int max = (res>0) ? res : (res==0) ? (int)argE.ovecsize/2 : 1;
     lua_pushinteger (L, ovector[0] + 1);         /* 1-st return value */
@@ -312,7 +318,7 @@ static int Lpcre_dfa_exec (lua_State *L)
   }
   else {
     free (buf);
-    if (res == CODE_NOMATCH)
+    if (res == ALG_NOMATCH)
       return lua_pushnil (L), 1;
     else
       return generate_error (L, ud, res);
@@ -320,16 +326,16 @@ static int Lpcre_dfa_exec (lua_State *L)
 }
 #endif /* #if PCRE_MAJOR >= 6 */
 
-#ifdef USE_RETRY
+#ifdef ALG_USERETRY
   static int gmatch_exec (TUserdata *ud, TArgExec *argE, int retry) {
     int eflags = retry ? (argE->eflags|PCRE_NOTEMPTY|PCRE_ANCHORED) : argE->eflags;
     return pcre_exec (ud->pr, ud->extra, argE->text, argE->textlen,
-      argE->startoffset, eflags, ud->match, (NSUB(ud) + 1) * 3);
+      argE->startoffset, eflags, ud->match, (ALG_NSUB(ud) + 1) * 3);
   }
 #else
   static int gmatch_exec (TUserdata *ud, TArgExec *argE) {
     return pcre_exec (ud->pr, ud->extra, argE->text, argE->textlen,
-      argE->startoffset, argE->eflags, ud->match, (NSUB(ud) + 1) * 3);
+      argE->startoffset, argE->eflags, ud->match, (ALG_NSUB(ud) + 1) * 3);
   }
 #endif
 
@@ -339,25 +345,25 @@ static void gmatch_pushsubject (lua_State *L, TArgExec *argE) {
 
 static int findmatch_exec (TPcre *ud, TArgExec *argE) {
   return pcre_exec (ud->pr, ud->extra, argE->text, argE->textlen,
-    argE->startoffset, argE->eflags, ud->match, (NSUB(ud) + 1) * 3);
+    argE->startoffset, argE->eflags, ud->match, (ALG_NSUB(ud) + 1) * 3);
 }
 
-#ifdef USE_RETRY
+#ifdef ALG_USERETRY
   static int gsub_exec (TPcre *ud, TArgExec *argE, int st, int retry) {
     int eflags = retry ? (argE->eflags|PCRE_NOTEMPTY|PCRE_ANCHORED) : argE->eflags;
     return pcre_exec (ud->pr, ud->extra, argE->text, (int)argE->textlen,
-      st, eflags, ud->match, (NSUB(ud) + 1) * 3);
+      st, eflags, ud->match, (ALG_NSUB(ud) + 1) * 3);
   }
 #else
   static int gsub_exec (TPcre *ud, TArgExec *argE, int st) {
     return pcre_exec (ud->pr, ud->extra, argE->text, (int)argE->textlen,
-      st, argE->eflags, ud->match, (NSUB(ud) + 1) * 3);
+      st, argE->eflags, ud->match, (ALG_NSUB(ud) + 1) * 3);
   }
 #endif
 
 static int split_exec (TPcre *ud, TArgExec *argE, int offset) {
   return pcre_exec (ud->pr, ud->extra, argE->text, argE->textlen, offset,
-                    argE->eflags, ud->match, (NSUB(ud) + 1) * 3);
+                    argE->eflags, ud->match, (ALG_NSUB(ud) + 1) * 3);
 }
 
 static int Lpcre_gc (lua_State *L) {
@@ -383,7 +389,7 @@ static int Lpcre_tostring (lua_State *L) {
 
 static int tables_tostring (lua_State *L) {
   void **ud = check_tables (L, 1);
-  lua_pushfstring (L, "%s (%p)", tables_typename, ud);
+  lua_pushfstring (L, "%s (%p)", chartables_typename, ud);
   return 1;
 }
 
@@ -446,22 +452,20 @@ REX_API int REX_OPENLIB (lua_State *L) {
   lua_pushliteral (L, REX_VERSION" (for PCRE)");
   lua_setfield (L, -2, "_VERSION");
 
-  /* create a table fenv[INDEX1] and register it as a metatable for pcre_tables
-     userdata */
-  lua_pushinteger (L, INDEX1);
+  /* create a table and register it as a metatable for "chartables" userdata */
+  lua_pushinteger (L, INDEX_CHARTABLES_META);
   lua_newtable (L);
   lua_pushliteral (L, "access denied");
   lua_setfield (L, -2, "__metatable");
   luaL_register (L, NULL, tablesmeta);
   lua_rawset (L, LUA_ENVIRONINDEX);
 
-  /* create a weak table fenv[INDEX2] for connecting "pcre_tables" userdata to
-     "regex" userdata */
-  lua_pushinteger (L, INDEX2);
+  /* create a table for connecting "chartables" userdata to "regex" userdata */
+  lua_pushinteger (L, INDEX_CHARTABLES_LINK);
   lua_newtable (L);
-  lua_pushliteral (L, "k");
+  lua_pushliteral (L, "k");         /* weak keys */
   lua_setfield (L, -2, "__mode");
-  lua_pushvalue (L, -1);  /* setmetatable (tb, tb) */
+  lua_pushvalue (L, -1);            /* setmetatable (tb, tb) */
   lua_setmetatable (L, -2);
   lua_rawset (L, LUA_ENVIRONINDEX);
 

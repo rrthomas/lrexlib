@@ -36,37 +36,38 @@
 #  endif
 #endif
 
-#define CFLAGS_DEFAULT REG_EXTENDED
+#define ALG_CFLAGS_DFLT REG_EXTENDED
 #ifdef REX_POSIX_EXT
-#  define EFLAGS_DEFAULT REG_STARTEND
+#  define ALG_EFLAGS_DFLT REG_STARTEND
 #else
-#  define EFLAGS_DEFAULT 0
+#  define ALG_EFLAGS_DFLT 0
 #endif
 
-#define CODE_NOMATCH    REG_NOMATCH
-#define IS_MATCH(res)   ((res) == 0)
-#define SUB_BEG(ud,n)   ud->match[n].rm_so
-#define SUB_END(ud,n)   ud->match[n].rm_eo
-#define SUB_LEN(ud,n)   (SUB_END(ud,n) - SUB_BEG(ud,n))
-#define SUB_VALID(ud,n) (SUB_BEG(ud,n) >= 0)
+#define ALG_NOMATCH        REG_NOMATCH
+#define ALG_ISMATCH(res)   ((res) == 0)
+#define ALG_SUBBEG(ud,n)   ud->match[n].rm_so
+#define ALG_SUBEND(ud,n)   ud->match[n].rm_eo
+#define ALG_SUBLEN(ud,n)   (ALG_SUBEND(ud,n) - ALG_SUBBEG(ud,n))
+#define ALG_SUBVALID(ud,n) (ALG_SUBBEG(ud,n) >= 0)
 #ifdef REX_NSUB_BASE1
-#  define NSUB(ud)      ((int)ud->r.re_nsub - 1)
+#  define ALG_NSUB(ud)     ((int)ud->r.re_nsub - 1)
 #else
-#  define NSUB(ud)      ((int)ud->r.re_nsub)
+#  define ALG_NSUB(ud)     ((int)ud->r.re_nsub)
 #endif
 
-#define PUSH_SUB(L,ud,text,n) \
-  lua_pushlstring (L, (text) + SUB_BEG(ud,n), SUB_LEN(ud,n))
+#define ALG_PUSHSUB(L,ud,text,n) \
+  lua_pushlstring (L, (text) + ALG_SUBBEG(ud,n), ALG_SUBLEN(ud,n))
 
-#define PUSH_SUB_OR_FALSE(L,ud,text,n) \
-  (SUB_VALID(ud,n) ? PUSH_SUB (L,ud,text,n) : lua_pushboolean (L,0))
+#define ALG_PUSHSUB_OR_FALSE(L,ud,text,n) \
+  (ALG_SUBVALID(ud,n) ? ALG_PUSHSUB (L,ud,text,n) : lua_pushboolean (L,0))
 
-#define PUSH_START(L,ud,offs,n)   lua_pushinteger(L, (offs) + SUB_BEG(ud,n) + 1)
-#define PUSH_END(L,ud,offs,n)     lua_pushinteger(L, (offs) + SUB_END(ud,n))
-#define PUSH_OFFSETS(L,ud,offs,n) (PUSH_START(L,ud,offs,n), PUSH_END(L,ud,offs,n))
+#define ALG_PUSHSTART(L,ud,offs,n)   lua_pushinteger(L, (offs) + ALG_SUBBEG(ud,n) + 1)
+#define ALG_PUSHEND(L,ud,offs,n)     lua_pushinteger(L, (offs) + ALG_SUBEND(ud,n))
+#define ALG_PUSHOFFSETS(L,ud,offs,n) \
+  (ALG_PUSHSTART(L,ud,offs,n), ALG_PUSHEND(L,ud,offs,n))
 
-#define BASE(st)                  (st)
-#define GETCFLAGS(L,pos,trg)      trg = luaL_optint(L,pos,CFLAGS_DEFAULT)
+#define ALG_BASE(st)                  (st)
+#define ALG_GETCFLAGS(L,pos,trg)      trg = luaL_optint(L, pos, ALG_CFLAGS_DFLT)
 
 typedef struct {
   regex_t      r;
@@ -108,7 +109,7 @@ static int compile_regex (lua_State *L, const TArgComp *argC, TPosix **pud) {
 
   if (argC->cflags & REG_NOSUB)
     ud->r.re_nsub = 0;
-  ud->match = (regmatch_t *) Lmalloc (L, (NSUB(ud) + 1) * sizeof (regmatch_t));
+  ud->match = (regmatch_t *) Lmalloc (L, (ALG_NSUB(ud) + 1) * sizeof (regmatch_t));
   lua_pushvalue (L, LUA_ENVIRONINDEX);
   lua_setmetatable (L, -2);
 
@@ -134,7 +135,7 @@ static int tfind_exec (TPosix *ud, TArgExec *argE) {
 #else
   argE->text += argE->startoffset;
 #endif
-  return regexec (&ud->r, argE->text, NSUB(ud) + 1, ud->match, argE->eflags);
+  return regexec (&ud->r, argE->text, ALG_NSUB(ud) + 1, ud->match, argE->eflags);
 }
 
 static int gmatch_exec (TUserdata *ud, TArgExec *argE) {
@@ -143,13 +144,13 @@ static int gmatch_exec (TUserdata *ud, TArgExec *argE) {
 
 #ifdef REX_POSIX_EXT
   if (argE->eflags & REG_STARTEND) {
-    SUB_BEG(ud,0) = 0;
-    SUB_END(ud,0) = argE->textlen - argE->startoffset;
+    ALG_SUBBEG(ud,0) = 0;
+    ALG_SUBEND(ud,0) = argE->textlen - argE->startoffset;
   }
 #endif
 
   argE->text += argE->startoffset;
-  return regexec (&ud->r, argE->text, NSUB(ud) + 1, ud->match, argE->eflags);
+  return regexec (&ud->r, argE->text, ALG_NSUB(ud) + 1, ud->match, argE->eflags);
 }
 
 static void gmatch_pushsubject (lua_State *L, TArgExec *argE) {
@@ -169,32 +170,32 @@ static int findmatch_exec (TPosix *ud, TArgExec *argE) {
 #else
   argE->text += argE->startoffset;
 #endif
-  return regexec (&ud->r, argE->text, NSUB(ud) + 1, ud->match, argE->eflags);
+  return regexec (&ud->r, argE->text, ALG_NSUB(ud) + 1, ud->match, argE->eflags);
 }
 
 static int gsub_exec (TPosix *ud, TArgExec *argE, int st) {
 #ifdef REX_POSIX_EXT
   if(argE->eflags & REG_STARTEND) {
-    SUB_BEG(ud,0) = 0;
-    SUB_END(ud,0) = argE->textlen - st;
+    ALG_SUBBEG(ud,0) = 0;
+    ALG_SUBEND(ud,0) = argE->textlen - st;
   }
 #endif
   if (st > 0)
     argE->eflags |= REG_NOTBOL;
-  return regexec (&ud->r, argE->text+st, NSUB(ud)+1, ud->match, argE->eflags);
+  return regexec (&ud->r, argE->text+st, ALG_NSUB(ud)+1, ud->match, argE->eflags);
 }
 
 static int split_exec (TPosix *ud, TArgExec *argE, int offset) {
 #ifdef REX_POSIX_EXT
   if (argE->eflags & REG_STARTEND) {
-    SUB_BEG(ud,0) = 0;
-    SUB_END(ud,0) = argE->textlen - offset;
+    ALG_SUBBEG(ud,0) = 0;
+    ALG_SUBEND(ud,0) = argE->textlen - offset;
   }
 #endif
   if (offset > 0)
     argE->eflags |= REG_NOTBOL;
 
-  return regexec (&ud->r, argE->text + offset, NSUB(ud) + 1, ud->match, argE->eflags);
+  return regexec (&ud->r, argE->text + offset, ALG_NSUB(ud) + 1, ud->match, argE->eflags);
 }
 
 static int Posix_gc (lua_State *L) {
