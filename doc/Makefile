@@ -2,7 +2,7 @@
 
 .SUFFIXES: .txt .html
 
-APP = rst2html
+APP = rst2html.py
 CSS = --stylesheet-path=lrexlib.css --link-stylesheet
 HDR = --initial-header-level=2
 DT  = --date --time
