@@ -83,9 +83,9 @@ Notes
 .. _locale:
 
 7. Parameter *locale* (*lo*) can be either a string (e.g., "French_France.1252"),
-   or a userdata obtained from a call to maketables_. The default value that
-   Lrexlib uses when the parameter is not supplied or ``nil`` is the built-in
-   PCRE set of character tables - when Lrexlib is loaded.
+   or a userdata obtained from a call to maketables_. The default value, used
+   when the parameter is not supplied or ``nil``, is the built-in PCRE set of
+   character tables.
 
 ------------------------------------------------------------
 
