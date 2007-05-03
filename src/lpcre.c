@@ -146,7 +146,7 @@ static int Lpcre_maketables (lua_State *L) {
   return 1;
 }
 
-static void **check_tables (lua_State *L, int pos) {
+static void **check_chartables (lua_State *L, int pos) {
   void **q;
   /* Compare the metatable against the C function environment. */
   if (lua_getmetatable(L, pos)) {
@@ -161,8 +161,8 @@ static void **check_tables (lua_State *L, int pos) {
   return NULL;
 }
 
-static int tables_gc (lua_State *L) {
-  void **ud = check_tables (L, 1);
+static int chartables_gc (lua_State *L) {
+  void **ud = check_chartables (L, 1);
   if (*ud) {
     pcre_free (*ud);
     *ud = NULL;
@@ -178,26 +178,16 @@ static void optlocale (TArgComp *argC, lua_State *L, int pos) {
       argC->locale = lua_tostring (L, pos);
     else {
       argC->tablespos = pos;
-      argC->tables = *check_tables (L, pos);
+      argC->tables = *check_chartables (L, pos);
     }
   }
-}
-
-static int make_tables (const char* locale, const unsigned char ** tables) {
-  char old_locale[256];
-  strcpy (old_locale, setlocale (LC_CTYPE, NULL)); /* store the locale */
-  if (NULL == setlocale (LC_CTYPE, locale))        /* set new locale */
-    return 0;
-  *tables = pcre_maketables ();             /* make tables with new locale */
-  setlocale (LC_CTYPE, old_locale);         /* restore the old locale */
-  return 1;
 }
 
 static int compile_regex (lua_State *L, const TArgComp *argC, TPcre **pud) {
   const char *error;
   int erroffset;
   TPcre *ud;
-  const unsigned char *tables;
+  const unsigned char *tables = NULL;
 
   ud = (TPcre*)lua_newuserdata (L, sizeof (TPcre));
   memset (ud, 0, sizeof (TPcre));           /* initialize all members to 0 */
@@ -205,9 +195,12 @@ static int compile_regex (lua_State *L, const TArgComp *argC, TPcre **pud) {
   lua_setmetatable (L, -2);
 
   if (argC->locale) {
-    if (!make_tables (argC->locale, &ud->tables))
+    char old_locale[256];
+    strcpy (old_locale, setlocale (LC_CTYPE, NULL));  /* store the locale */
+    if (NULL == setlocale (LC_CTYPE, argC->locale))   /* set new locale */
       return luaL_error (L, "cannot set locale");
-    tables = ud->tables;
+    ud->tables = tables = pcre_maketables ();  /* make tables with new locale */
+    setlocale (LC_CTYPE, old_locale);          /* restore the old locale */
   }
   else if (argC->tables) {
     tables = argC->tables;
@@ -218,15 +211,13 @@ static int compile_regex (lua_State *L, const TArgComp *argC, TPcre **pud) {
     lua_rawset (L, -3);
     lua_pop (L, 1);
   }
-  else
-    tables = NULL;
 
   ud->pr = pcre_compile (argC->pattern, argC->cflags, &error, &erroffset, tables);
   if (!ud->pr)
     return luaL_error (L, "%s (pattern offset: %d)", error, erroffset + 1);
 
-  /*ud->extra = pcre_study (ud->pr, 0, &error);
-  if (error) return luaL_error (L, "%s", error);*/ /*### commented out, but all tests OK */
+  ud->extra = pcre_study (ud->pr, 0, &error);
+  if (error) return luaL_error (L, "%s", error);
 
   pcre_fullinfo (ud->pr, ud->extra, PCRE_INFO_CAPTURECOUNT, &ud->ncapt);
   /* need (2 ints per capture, plus one for substring match) * 3/2 */
@@ -366,8 +357,8 @@ static int Lpcre_tostring (lua_State *L) {
   return 1;
 }
 
-static int tables_tostring (lua_State *L) {
-  void **ud = check_tables (L, 1);
+static int chartables_tostring (lua_State *L) {
+  void **ud = check_chartables (L, 1);
   lua_pushfstring (L, "%s (%p)", chartables_typename, ud);
   return 1;
 }
@@ -377,15 +368,15 @@ static int Lpcre_version (lua_State *L) {
   return 1;
 }
 
-static const luaL_reg tablesmeta[] = {
-  { "__gc",        tables_gc },
-  { "__tostring",  tables_tostring },
+static const luaL_reg chartables_meta[] = {
+  { "__gc",        chartables_gc },
+  { "__tostring",  chartables_tostring },
   { NULL, NULL }
 };
 
-static const luaL_reg pcremeta[] = {
+static const luaL_reg regex_meta[] = {
   { "exec",        ud_exec },
-  { "tfind",       ud_tfind },    /* old match */
+  { "tfind",       ud_tfind },    /* old name: match */
 #if PCRE_MAJOR >= 6
   { "dfa_exec",    Lpcre_dfa_exec },
 #endif
@@ -423,7 +414,7 @@ REX_API int REX_OPENLIB (lua_State *L) {
   lua_replace (L, LUA_ENVIRONINDEX);
   lua_pushvalue(L, -1); /* mt.__index = mt */
   lua_setfield(L, -2, "__index");
-  luaL_register (L, NULL, pcremeta);
+  luaL_register (L, NULL, regex_meta);
 
   /* register functions */
   luaL_register (L, REX_LIBNAME, rexlib);
@@ -435,7 +426,7 @@ REX_API int REX_OPENLIB (lua_State *L) {
   lua_newtable (L);
   lua_pushliteral (L, "access denied");
   lua_setfield (L, -2, "__metatable");
-  luaL_register (L, NULL, tablesmeta);
+  luaL_register (L, NULL, chartables_meta);
   lua_rawset (L, LUA_ENVIRONINDEX);
 
   /* create a table for connecting "chartables" userdata to "regex" userdata */
