@@ -84,10 +84,8 @@ Notes
 
 7. Parameter *locale* (*lo*) can be either a string (e.g., "French_France.1252"),
    or a userdata obtained from a call to maketables_. The default value that
-   Lrexlib uses when the parameter is not supplied or ``nil``, is:
-
-     * the built-in PCRE set of character tables - when Lrexlib is loaded.
-     * determined by the last call to settables_.
+   Lrexlib uses when the parameter is not supplied or ``nil`` is the built-in
+   PCRE set of character tables - when Lrexlib is loaded.
 
 ------------------------------------------------------------
 
@@ -569,41 +567,8 @@ maketables
 :funcdef:`rex.maketables ()`
 
 Creates a table set corresponding to the current active locale and returns it as
-a userdata. The returned value can be passed to the function settables_ and to
-any Lrexlib function accepting the *locale* parameter.
-
-------------------------------------------------------------
-
-settables
----------
-
-[PCRE only]
-
-:funcdef:`rex.settables ([tables])`
-
-This function replaces the default set of character tables, by the one supplied
-in the parameter *tables*.
-
-The *tables* parameter should be either a userdata, obtained from a call to
-maketables_, or ``nil``. In the latter case, the built-in PCRE set of tables
-becomes the default.
-
-Lrexlib maintains one "default" set of character tables, in addition to the set
-built-in into PCRE. When a Lrexlib function accepting the *locale* argument is
-called with that argument omitted, then the default set of character tables is
-used.
-
-The initial default set of tables is the built-in PCRE set.
-
-  +---------+--------------------------------+--------+-------------+
-  |Parameter|        Description             |  Type  |Default Value|
-  +=========+================================+========+=============+
-  |[tables] |See the above description.      |userdata|  ``nil``    |
-  |         |                                |        |             |
-  +---------+--------------------------------+--------+-------------+
-
-**Returns:**
- The old value of the default set (``nil`` for the built-in PCRE set).
+a userdata. The returned value can be passed to any Lrexlib function accepting
+the *locale* parameter.
 
 ------------------------------------------------------------
 

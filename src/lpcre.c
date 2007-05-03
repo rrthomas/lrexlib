@@ -82,7 +82,6 @@ const char pcre_typename[] = REX_LIBNAME"_regex";
 #define INDEX_CHARTABLES_META  1      /* chartables type's metatable */
 #define INDEX_CHARTABLES_LINK  2      /* link chartables to compiled regex */
 
-const unsigned char *DefaultTables;
 const char chartables_typename[] = "chartables";
 
 /*  Functions
@@ -95,21 +94,28 @@ static void push_chartables_meta (lua_State *L) {
 }
 
 static int getcflags (lua_State *L, int pos) {
-  if (LUA_TSTRING == lua_type (L, pos)) {
-    const char *s = lua_tostring (L, pos);
-    int res = 0, ch;
-    while ((ch = *s++) != '\0') {
-      if (ch == 'i') res |= PCRE_CASELESS;
-      else if (ch == 'm') res |= PCRE_MULTILINE;
-      else if (ch == 's') res |= PCRE_DOTALL;
-      else if (ch == 'x') res |= PCRE_EXTENDED;
-      else if (ch == 'U') res |= PCRE_UNGREEDY;
-      else if (ch == 'X') res |= PCRE_EXTRA;
+  switch (lua_type (L, pos)) {
+    case LUA_TNONE:
+    case LUA_TNIL:
+      return ALG_CFLAGS_DFLT;
+    case LUA_TNUMBER:
+      return lua_tointeger (L, pos);
+    case LUA_TSTRING: {
+      const char *s = lua_tostring (L, pos);
+      int res = 0, ch;
+      while ((ch = *s++) != '\0') {
+        if (ch == 'i') res |= PCRE_CASELESS;
+        else if (ch == 'm') res |= PCRE_MULTILINE;
+        else if (ch == 's') res |= PCRE_DOTALL;
+        else if (ch == 'x') res |= PCRE_EXTENDED;
+        else if (ch == 'U') res |= PCRE_UNGREEDY;
+        else if (ch == 'X') res |= PCRE_EXTRA;
+      }
+      return res;
     }
-    return res;
+    default:
+      return luaL_argerror (L, pos, "number or string expected");
   }
-  else
-    return luaL_optint (L, pos, ALG_CFLAGS_DFLT);
 }
 
 static int generate_error (lua_State *L, const TPcre *ud, int errcode) {
@@ -153,33 +159,6 @@ static void **check_tables (lua_State *L, int pos) {
   }
   luaL_argerror(L, pos, lua_pushfstring (L, "not a %s", chartables_typename));
   return NULL;
-}
-
-/* function settables ([tables]) */
-/*   Create tables for the current active locale and set them as the default
- *   tables, instead of the PCRE built-in tables.
- *   For proper clean-up, create a chartables userdata, and put it into the
- *   chartables' metatable at a constant key.
- */
-static int Lpcre_settables (lua_State *L)
-{
-  lua_settop (L, 1);
-  if (!lua_toboolean (L, 1)) {
-    DefaultTables = NULL;   /* use the built-in tables */
-    lua_pushnil (L);
-  }
-  else {
-    DefaultTables = *check_tables (L, 1);
-  }
-  /* get old value (to be returned) */
-  push_chartables_meta (L);
-  lua_pushlightuserdata (L, &DefaultTables);
-  lua_rawget (L, -2);
-  /* set new value */
-  lua_pushlightuserdata (L, &DefaultTables);
-  lua_pushvalue (L, 1);
-  lua_rawset (L, -4);
-  return 1;
 }
 
 static int tables_gc (lua_State *L) {
@@ -240,7 +219,7 @@ static int compile_regex (lua_State *L, const TArgComp *argC, TPcre **pud) {
     lua_pop (L, 1);
   }
   else
-    tables = DefaultTables;
+    tables = NULL;
 
   ud->pr = pcre_compile (argC->pattern, argC->cflags, &error, &erroffset, tables);
   if (!ud->pr)
@@ -425,7 +404,6 @@ static const luaL_reg rexlib[] = {
   { "plainfind",   plainfind_func },
   { "flags",       Lpcre_get_flags },
   { "version",     Lpcre_version },
-  { "settables",   Lpcre_settables },
   { "maketables",  Lpcre_maketables },
 #if PCRE_MAJOR >= 4
   { "config",      Lpcre_config },
