@@ -42,7 +42,7 @@ ar_posix: $(TRG_AR)
 so_posix: $(TRG_SO)
 
 # Dependencies
-lposix.o: lposix.c common.h algo.h
+lposix.o: lposix.c common.h algo.h algo_t.h
 common.o: common.c common.h
 
 # (End of Makefile)

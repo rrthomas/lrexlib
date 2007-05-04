@@ -31,7 +31,7 @@ ar_pcre: $(TRG_AR)
 so_pcre: $(TRG_SO)
 
 # Dependencies
-lpcre.o: lpcre.c common.h algo.h
+lpcre.o: lpcre.c common.h algo.h algo_t.h
 lpcre_f.o: lpcre_f.c common.h
 common.o: common.c common.h
 
