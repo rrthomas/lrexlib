@@ -566,9 +566,9 @@ maketables
 
 :funcdef:`rex.maketables ()`
 
-Creates a table set corresponding to the current active locale and returns it as
-a userdata. The returned value can be passed to any Lrexlib function accepting
-the *locale* parameter.
+Creates a set of character tables corresponding to the current locale and
+returns it as a userdata. The returned value can be passed to any Lrexlib
+function accepting the *locale* parameter.
 
 ------------------------------------------------------------
 
