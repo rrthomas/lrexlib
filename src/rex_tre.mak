@@ -36,7 +36,7 @@ ar_tre: $(TRG_AR)
 so_tre: $(TRG_SO)
 
 # Dependencies
-ltre.o: ltre.c common.h algo.h algo_t.h
+ltre.o: ltre.c common.h algo.h
 common.o: common.c common.h
 
 # (End of Makefile)

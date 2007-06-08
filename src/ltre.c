@@ -7,7 +7,6 @@
 #include "lua.h"
 #include "lauxlib.h"
 #include "common.h"
-#include "algo_t.h"
 
 #include <tre/regex.h>
 

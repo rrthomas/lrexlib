@@ -7,7 +7,6 @@
 #include "lua.h"
 #include "lauxlib.h"
 #include "common.h"
-#include "algo_t.h"
 
 #ifndef REX_POSIX_INCLUDE
 #  include <regex.h>

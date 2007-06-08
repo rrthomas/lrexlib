@@ -6,17 +6,43 @@
 
 #include "lua.h"
 
+/* REX_API can be overridden from the command line or Makefile */
+#ifndef REX_API
+#  define REX_API LUALIB_API
+#endif
+
+/* Special values for maxmatch in gsub. They all must be negative. */
+#define GSUB_UNLIMITED   -1
+#define GSUB_CONDITIONAL -2
+
 /* Common structs and functions */
 
-typedef struct { const char* key; int val; } flag_pair;
+typedef struct {
+  const char* key;
+  int val;
+} flag_pair;
 
-int get_int_field (lua_State *L, const char* field);
-void set_int_field (lua_State *L, const char* field, int val);
-int get_flags (lua_State *L, const flag_pair **arr);
-const char *get_flag_key (const flag_pair *fp, int val);
-void *Lmalloc (lua_State *L, size_t size);
+typedef struct {            /* compile arguments */
+  const char * pattern;
+  size_t       patlen;
+  int          cflags;
+  const char * locale;
+  const unsigned char * tables;
+  int          tablespos;
+} TArgComp;
 
-/* Classes */
+typedef struct {            /* exec arguments */
+  const char * text;
+  size_t       textlen;
+  int          startoffset;
+  int          eflags;
+  int          funcpos;
+  int          maxmatch;
+  int          funcpos2;      /* used with gsub */
+  int          reptype;       /* used with gsub */
+  size_t       ovecsize;      /* used with dfa_exec */
+  size_t       wscount;       /* used with dfa_exec */
+} TArgExec;
 
 struct tagFreeList; /* forward declaration */
 
@@ -50,5 +76,11 @@ void buffer_pushresult (TBuffer *buf);
 
 void bufferZ_putrepstring (TBuffer *buf, int reppos, int nsub);
 int  bufferZ_next (TBuffer *buf, size_t *iter, size_t *len, const char **str);
+
+int  get_int_field (lua_State *L, const char* field);
+void set_int_field (lua_State *L, const char* field, int val);
+int  get_flags (lua_State *L, const flag_pair **arr);
+const char *get_flag_key (const flag_pair *fp, int val);
+void *Lmalloc (lua_State *L, size_t size);
 
 #endif

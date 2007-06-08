@@ -10,7 +10,6 @@
 #include "lua.h"
 #include "lauxlib.h"
 #include "common.h"
-#include "algo_t.h"
 
 extern int Lpcre_get_flags (lua_State *L);
 extern int Lpcre_config (lua_State *L);

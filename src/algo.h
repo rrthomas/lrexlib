@@ -1,9 +1,9 @@
 /* algo.h */
 /* See Copyright Notice in the file LICENSE */
 
-#include "algo_t.h"
+#include "common.h"
 
-#define REX_VERSION "Lrexlib 2.2.0 beta"
+#define REX_VERSION "Lrexlib 2.2.0"
 
 /* Forward declarations */
 static void gmatch_pushsubject (lua_State *L, TArgExec *argE);
