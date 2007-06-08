@@ -39,8 +39,8 @@ local function set_f_find (lib, flg)
   { {"abc",  "aBC",     N,"i"         },     { 1,3 } }, -- cf
   { {"abc",  "bc",      N,flg.ANCHORED},     { N   } }, -- cf
   { {"abc",  "bc",      N,N,flg.ANCHORED},   { N   } }, -- ef
-  { {cp1251, "[[:upper:]]+", N,N,N, loc},    { 1,33} }, -- locale
-  { {cp1251, "[[:lower:]]+", N,N,N, loc},    {34,66} }, -- locale
+--{ {cp1251, "[[:upper:]]+", N,N,N, loc},    { 1,33} }, -- locale
+--{ {cp1251, "[[:lower:]]+", N,N,N, loc},    {34,66} }, -- locale
 }
 end
 
