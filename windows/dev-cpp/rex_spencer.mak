@@ -1,57 +1,31 @@
-# rex_spencer.dll
+# Project: rex_spencer
 
-# 1. Specify root directory of Dev-Cpp (MinGW) installation
-# ---------------------------------------------------------
-ROOT = C:/Dev-Cpp
+# User Settings ------------------------------------------------------------
+# -1- path of Lua include files
+LUAINC = s:\progr\lib\lua\lua_5.1
 
-# 2. Specify Lua include directory and full name of Lua library
-# -------------------------------------------------------------
-INC_LUA = C:/Progr/lib/lua/lua_5.1
-LIB_LUA = C:/Progr/lib/lua/lua_5.1/liblua5.1.a
+# -2- path of Spencer's include files
+REGEXINC = s:\progr\lib\henry_spencer
 
-# 3. Specify POSIX include directory and full name of POSIX library
-# -----------------------------------------------------------------
-INC_REX = C:/Progr/lib/henry_spencer
-LIB_REX = C:/Progr/lib/henry_spencer/librxspencer.dll.a
+# -3- path of lua5.1.dll and rxspencer.dll
+DLLPATH = c:\exe
 
-# 4. Specify target name without extension
-# ----------------------------------------
-TRG = rex_spencer
+# -4- path to install rex_spencer.dll
+INSTALLPATH = s:\exe\lib\lua\5.1
+# --------------------------------------------------------------------------
 
-# --------------------
-# END OF USER SETTINGS
-# --------------------
+PROJECT     = rex_spencer
+MYINCS      = -I$(REGEXINC) -I$(LUAINC) 
+MYLIBS      = -L$(DLLPATH) -lrxspencer -llua5.1
+OBJ         = lposix.o common.o
+MYCFLAGS    = -W -Wall -O2
+EXPORTED    = 'luaopen_$(PROJECT)'
+SRCPATH     = ..\..\src
+TESTPATH    = ..\..\test
+TESTNAME    = spencer
 
-DEFS = -DREX_OPENLIB=luaopen_$(TRG) -DREX_LIBNAME=\"$(TRG)\"
-CC   = gcc.exe
-OBJ  = ./lposix.o ./common.o
-LINKOBJ  = ./lposix.o ./common.o
-LIBS =  -L"$(ROOT)/lib" --no-export-all-symbols --add-stdcall-alias $(LIB_REX) $(LIB_LUA) -s
-INCS =  -I"$(ROOT)/include"  -I"$(INC_LUA)"  -I"$(INC_REX)" 
-BIN  = $(TRG).dll
-#CFLAGS = $(INCS) $(DEFS) -DREX_API=__declspec(dllexport)  
-CFLAGS = $(INCS) $(DEFS)
-RM = rm -f
+include _devcpp.mak
 
-.PHONY: all all-before all-after clean clean-custom
+lposix.o  : common.h algo.h
+common.o  : common.h
 
-all: all-before $(BIN) all-after
-
-
-clean: clean-custom
-	${RM} $(OBJ) $(BIN)
-
-DLLWRAP=dllwrap.exe
-DEFFILE=lib$(TRG).def
-STATICLIB=lib$(TRG).a
-
-$(BIN): $(LINKOBJ)
-	echo EXPORTS > $(DEFFILE)
-	echo luaopen_$(TRG) >> $(DEFFILE)
-	$(DLLWRAP) --def $(DEFFILE) --implib $(STATICLIB) $(LINKOBJ) $(LIBS) -o $(BIN)
-
-./lposix.o: ../../src/lposix.c
-	$(CC) -c ../../src/lposix.c -o ./lposix.o $(CFLAGS)
-
-./common.o: ../../src/common.c
-	$(CC) -c ../../src/common.c -o ./common.o $(CFLAGS)

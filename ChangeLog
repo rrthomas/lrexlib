@@ -1,3 +1,9 @@
+2007-06-10  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
+	* makefiles for Windows/MinGW:
+	    * .a files are not needed anymore
+	    * added test and install targets
+
 2007-06-08  Shmuel Zeigerman  <shmuz@actcom.co.il>
 
 	* algo_t.h: file removed; its contents moved to common.h.

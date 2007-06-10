@@ -197,7 +197,7 @@ static int gsub (lua_State *L) {
         if (st < (int)argE.textlen) {  /* advance by 1 char (not replaced) */
           buffer_addlstring (&BufOut, argE.text + st, 1);
           ++st;
-          SET_RETRY (retry, 0);
+          retry = 0;
           continue;
         }
       }
@@ -320,7 +320,7 @@ static int gsub (lua_State *L) {
     }
     else if (st < (int)argE.textlen) {
 #ifdef ALG_USERETRY
-      SET_RETRY (retry, 1);
+      retry = 1;
 #else
       /* advance by 1 char (not replaced) */
       buffer_addlstring (&BufOut, argE.text + st, 1);

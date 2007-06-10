@@ -18,4 +18,4 @@ clean:
 	make -C src -f rex_tre.mak clean
 
 
-.PHONY: all test clean
+.PHONY: all test clean build
