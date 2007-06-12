@@ -11,8 +11,7 @@ rex_pcre.so, which can be used with require or loadlib.
 
 Lrexlib is copyright Reuben Thomas 2000-2007 and copyright Shmuel
 Zeigerman 2004-2007, and is released under the MIT license, like Lua
-(see http://www.lua.org/copyright.html for the full license; it's
-basically the same as the BSD license). There is no warranty.
+(it's basically the same as the BSD license). There is no warranty.
 
 Please report bugs and make suggestions to the maintainer, or use the
 LuaForge trackers and mailing lists.
