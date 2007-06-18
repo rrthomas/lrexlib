@@ -1,4 +1,4 @@
-2007-06-11  Release 2.2.0
+2007-06-19  Release 2.2.0
 
   * gsub API extension: allow the 4-th argument to be a function.
 
