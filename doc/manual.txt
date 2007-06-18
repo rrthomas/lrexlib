@@ -319,9 +319,9 @@ PCRE: A locale *lo* may be specified.
 
        * ``nil``/``false`` -- no changes: *n* will be called on the next match;
        * ``true`` -- search for an unlimited number of matches; *n* will not be
-         called anymore;
+         called again;
        * a number -- maximum number of matches to search for, beginning from the
-         next match; *n* will not be called anymore;
+         next match; *n* will not be called again;
 
 ------------------------------------------------------------
 
