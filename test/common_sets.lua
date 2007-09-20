@@ -107,6 +107,7 @@ local function set_m_exec (lib, flg)
     { {".*"},               {"abcd"},            {1,4,{}}  }, -- [none]
     { {"bc"},               {"abc"},             {2,3,{}}  }, -- [none]
     { { "(.)b.(d)"},        {"abcd"},            {1,4,{1,1,4,4}}},--[captures]
+    { {"(a+)6+(b+)"},       {"Taa66bbT",2},      {2,7,{2,3,6,7}}},--[st+captures]
   }
 end
 
