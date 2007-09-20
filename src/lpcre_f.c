@@ -69,6 +69,15 @@ static flag_pair pcre_flags[] = {
 #if VERSION_PCRE >= 500
   { "INFO_DEFAULT_TABLES",           PCRE_INFO_DEFAULT_TABLES },
 #endif
+#ifdef PCRE_INFO_OKPARTIAL
+  { "INFO_OKPARTIAL",                PCRE_INFO_OKPARTIAL },
+#endif
+#ifdef PCRE_INFO_JCHANGED
+  { "INFO_JCHANGED",                 PCRE_INFO_JCHANGED },
+#endif
+#ifdef PCRE_INFO_HASCRORLF
+  { "INFO_HASCRORLF",                PCRE_INFO_HASCRORLF },
+#endif
 /*---------------------------------------------------------------------------*/
 #if VERSION_PCRE >= 400
   { "EXTRA_STUDY_DATA",              PCRE_EXTRA_STUDY_DATA },
@@ -119,8 +128,13 @@ flag_pair pcre_error_flags[] = {
   { "ERROR_RECURSIONLIMIT",          PCRE_ERROR_RECURSIONLIMIT },
 #endif
 #if VERSION_PCRE >= 700
-  { "ERROR_NULLWSLIMIT",             PCRE_ERROR_NULLWSLIMIT },
   { "ERROR_BADNEWLINE",              PCRE_ERROR_BADNEWLINE },
+#endif
+#ifdef PCRE_ERROR_NULLWSLIMIT
+  { "ERROR_NULLWSLIMIT",             PCRE_ERROR_NULLWSLIMIT },
+#endif
+#ifdef PCRE_ERROR_NOTUSED
+  { "ERROR_NOTUSED",                 PCRE_ERROR_NOTUSED },
 #endif
 /*---------------------------------------------------------------------------*/
   { NULL, 0 }
