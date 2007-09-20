@@ -1,3 +1,13 @@
+2007-09-20  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
+	* algo.h (generic_tfind): bugfix.
+
+	* common_sets.lua (set_m_exec): one test added.
+
+2007-08-29  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
+	* lpcre_f.c: added a new flag from PCRE-7.3.
+
 2007-06-10  Shmuel Zeigerman  <shmuz@actcom.co.il>
 
 	* makefiles for Windows/MinGW:
