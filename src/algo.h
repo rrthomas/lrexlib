@@ -564,7 +564,7 @@ static int generic_tfind (lua_State *L, int tfind) {
     if (tfind)
       push_substring_table (L, ud, argE.text);
     else
-      push_offset_table (L, ud, argE.startoffset);
+      push_offset_table (L, ud, ALG_BASE(argE.startoffset));
 #ifdef DO_NAMED_SUBPATTERNS
     DO_NAMED_SUBPATTERNS (L, ud, argE.text);
 #endif
