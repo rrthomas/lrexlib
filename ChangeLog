@@ -6,7 +6,7 @@
 
 2007-08-29  Shmuel Zeigerman  <shmuz@actcom.co.il>
 
-	* lpcre_f.c: added a new flag from PCRE-7.3.
+	* lpcre_f.c: added new flags from PCRE-7.3.
 
 2007-06-10  Shmuel Zeigerman  <shmuz@actcom.co.il>
 
