@@ -49,6 +49,10 @@ static flag_pair pcre_flags[] = {
 #if VERSION_PCRE >= 701
   { "NEWLINE_ANYCRLF",               PCRE_NEWLINE_ANYCRLF },
 #endif
+#if VERSION_PCRE >= 704
+  { "BSR_ANYCRLF",                   PCRE_BSR_ANYCRLF },
+  { "BSR_UNICODE",                   PCRE_BSR_UNICODE },
+#endif
 /*---------------------------------------------------------------------------*/
   { "INFO_OPTIONS",                  PCRE_INFO_OPTIONS },
   { "INFO_SIZE",                     PCRE_INFO_SIZE },
@@ -133,9 +137,6 @@ flag_pair pcre_error_flags[] = {
 #ifdef PCRE_ERROR_NULLWSLIMIT
   { "ERROR_NULLWSLIMIT",             PCRE_ERROR_NULLWSLIMIT },
 #endif
-#ifdef PCRE_ERROR_NOTUSED
-  { "ERROR_NOTUSED",                 PCRE_ERROR_NOTUSED },
-#endif
 /*---------------------------------------------------------------------------*/
   { NULL, 0 }
 };
@@ -152,8 +153,11 @@ static flag_pair pcre_config_flags[] = {
 #if VERSION_PCRE >= 500
   { "CONFIG_UNICODE_PROPERTIES",     PCRE_CONFIG_UNICODE_PROPERTIES },
 #endif
-#ifdef PCRE_CONFIG_MATCH_LIMIT_RECURSION
+#if VERSION_PCRE >= 650
   { "CONFIG_MATCH_LIMIT_RECURSION",  PCRE_CONFIG_MATCH_LIMIT_RECURSION },
+#endif
+#if VERSION_PCRE >= 704
+  { "CONFIG_BSR",                    PCRE_CONFIG_BSR },
 #endif
 /*---------------------------------------------------------------------------*/
   { NULL, 0 }

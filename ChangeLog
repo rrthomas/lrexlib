@@ -1,3 +1,7 @@
+2007-09-25  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
+	* lpcre_f.c: added new flags from PCRE-7.4.
+
 2007-09-20  Shmuel Zeigerman  <shmuz@actcom.co.il>
 
 	* algo.h (generic_tfind): bugfix.
