@@ -141,15 +141,14 @@ flag_pair pcre_error_flags[] = {
   { NULL, 0 }
 };
 
-static flag_pair pcre_config_flags[] = {
 #if VERSION_PCRE >= 400
+static flag_pair pcre_config_flags[] = {
   { "CONFIG_UTF8",                   PCRE_CONFIG_UTF8 },
   { "CONFIG_NEWLINE",                PCRE_CONFIG_NEWLINE },
   { "CONFIG_LINK_SIZE",              PCRE_CONFIG_LINK_SIZE },
   { "CONFIG_POSIX_MALLOC_THRESHOLD", PCRE_CONFIG_POSIX_MALLOC_THRESHOLD },
   { "CONFIG_MATCH_LIMIT",            PCRE_CONFIG_MATCH_LIMIT },
   { "CONFIG_STACKRECURSE",           PCRE_CONFIG_STACKRECURSE },
-#endif
 #if VERSION_PCRE >= 500
   { "CONFIG_UNICODE_PROPERTIES",     PCRE_CONFIG_UNICODE_PROPERTIES },
 #endif
@@ -163,12 +162,6 @@ static flag_pair pcre_config_flags[] = {
   { NULL, 0 }
 };
 
-int Lpcre_get_flags (lua_State *L) {
-  const flag_pair* fps[] = { pcre_flags, pcre_error_flags, NULL };
-  return get_flags (L, fps);
-}
-
-#if PCRE_MAJOR >= 4
 int Lpcre_config (lua_State *L) {
   int val;
   flag_pair *fp;
@@ -184,5 +177,10 @@ int Lpcre_config (lua_State *L) {
   }
   return 1;
 }
-#endif
+#endif /* #if VERSION_PCRE >= 400 */
+
+int Lpcre_get_flags (lua_State *L) {
+  const flag_pair* fps[] = { pcre_flags, pcre_error_flags, NULL };
+  return get_flags (L, fps);
+}
 
