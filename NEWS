@@ -1,3 +1,10 @@
+2007-10-25  Release 2.2.1
+
+  * Added new PCRE constants up to version 7.4.
+
+  * 1 bugfix.
+
+
 2007-06-19  Release 2.2.0
 
   * gsub API extension: allow the 4-th argument to be a function.
