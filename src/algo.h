@@ -3,7 +3,7 @@
 
 #include "common.h"
 
-#define REX_VERSION "Lrexlib 2.2.0"
+#define REX_VERSION "Lrexlib 2.2.1"
 
 /* Forward declarations */
 static void gmatch_pushsubject (lua_State *L, TArgExec *argE);
