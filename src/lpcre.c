@@ -29,7 +29,7 @@ extern flag_pair pcre_error_flags[];
 #define ALG_EFLAGS_DFLT 0
 
 static int getcflags (lua_State *L, int pos);
-#define ALG_GETCFLAGS(L,pos,trg)  trg = getcflags(L, pos)
+#define ALG_GETCFLAGS(L,pos)  getcflags(L, pos)
 
 static void optlocale (TArgComp *argC, lua_State *L, int pos);
 #define ALG_OPTLOCALE(a,b,c)  optlocale(a,b,c)

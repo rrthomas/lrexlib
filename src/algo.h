@@ -3,7 +3,7 @@
 
 #include "common.h"
 
-#define REX_VERSION "Lrexlib 2.2.1"
+#define REX_VERSION "Lrexlib 2.2.2"
 
 /* Forward declarations */
 static void gmatch_pushsubject (lua_State *L, TArgExec *argE);
@@ -87,7 +87,7 @@ static TUserdata* check_ud (lua_State *L)
 
 static void checkarg_new (lua_State *L, TArgComp *argC) {
   argC->pattern = luaL_checklstring (L, 1, &argC->patlen);
-  ALG_GETCFLAGS (L, 2, argC->cflags);
+  argC->cflags = ALG_GETCFLAGS (L, 2);
   ALG_OPTLOCALE (argC, L, 3);
 }
 
@@ -105,7 +105,7 @@ static void checkarg_gsub (lua_State *L, TArgComp *argC, TArgExec *argE) {
   argE->funcpos = 3;
   argE->funcpos2 = 4;
   argE->maxmatch = OptLimit (L, 4);
-  ALG_GETCFLAGS (L, 5, argC->cflags);
+  argC->cflags = ALG_GETCFLAGS (L, 5);
   argE->eflags = luaL_optint (L, 6, ALG_EFLAGS_DFLT);
   ALG_OPTLOCALE (argC, L, 7);
 }
@@ -117,7 +117,7 @@ static void checkarg_find_f (lua_State *L, TArgComp *argC, TArgExec *argE) {
   argE->text = luaL_checklstring (L, 1, &argE->textlen);
   argC->pattern = luaL_checklstring (L, 2, &argC->patlen);
   argE->startoffset = get_startoffset (L, 3, argE->textlen);
-  ALG_GETCFLAGS (L, 4, argC->cflags);
+  argC->cflags = ALG_GETCFLAGS (L, 4);
   argE->eflags = luaL_optint (L, 5, ALG_EFLAGS_DFLT);
   ALG_OPTLOCALE (argC, L, 6);
 }
@@ -128,7 +128,7 @@ static void checkarg_find_f (lua_State *L, TArgComp *argC, TArgExec *argE) {
 static void checkarg_gmatch_split (lua_State *L, TArgComp *argC, TArgExec *argE) {
   argE->text = luaL_checklstring (L, 1, &argE->textlen);
   argC->pattern = luaL_checklstring (L, 2, &argC->patlen);
-  ALG_GETCFLAGS (L, 3, argC->cflags);
+  argC->cflags = ALG_GETCFLAGS (L, 3);
   argE->eflags = luaL_optint (L, 4, ALG_EFLAGS_DFLT);
   ALG_OPTLOCALE (argC, L, 5);
 }
