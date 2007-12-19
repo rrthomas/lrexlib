@@ -2,20 +2,25 @@
 
 # See src/*.mak for user-definable settings
 
-all: build test
+all: build_pcre test_pcre build_posix test_posix
 
-build:
+build_pcre:
 	make -C src -f rex_pcre.mak
+
+build_posix:
 	make -C src -f rex_posix.mak
-	make -C src -f rex_tre.mak
 
-test:
-	cd test && lua ./runtest.lua pcre posix tre
+test_pcre:
+	cd test && lua ./runtest.lua pcre
 
-clean:
+test_posix:
+	cd test && lua ./runtest.lua posix
+
+clean_pcre:
 	make -C src -f rex_pcre.mak clean
+
+clean_posix:
 	make -C src -f rex_posix.mak clean
-	make -C src -f rex_tre.mak clean
 
+.PHONY: all build_pcre test_pcre build_posix test_posix clean_pcre clean_posix
 
-.PHONY: all test clean build
