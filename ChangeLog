@@ -1,3 +1,15 @@
+2007-12-19  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
+	* Makefile: [fix] remove TRE-related parts (reported by Christian Wiese).
+	* Makefile: separate PCRE and POSIX targets (suggested by Hisham Mohammad).
+	* src/common.mak: express "ld" and "-shared" via variables (suggested by
+	    Hisham Mohammad).
+	* src/algo.h: update version string to "Lrexlib 2.2.2".
+
+2007-11-09  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
+	* 4 source files: refactoring (ALG_GETCFLAGS redefined).
+
 2007-10-25  Shmuel Zeigerman  <shmuz@actcom.co.il>
 
 	* algo.h: version string updated to "Lrexlib 2.2.1".
