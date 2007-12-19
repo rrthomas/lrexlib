@@ -3,7 +3,7 @@
 	* Makefile: [fix] remove TRE-related parts (reported by Christian Wiese).
 	* Makefile: separate PCRE and POSIX targets (suggested by Hisham Muhammad).
 	* src/common.mak: express "ld" and "-shared" via variables (suggested by
-	    Hisham Mohammad).
+	    Hisham Muhammad).
 	* src/algo.h: update version string to "Lrexlib 2.2.2".
 
 2007-11-09  Shmuel Zeigerman  <shmuz@actcom.co.il>
