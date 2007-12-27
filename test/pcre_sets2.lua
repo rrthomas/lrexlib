@@ -9,6 +9,16 @@ local function get_gsub (lib)
     end
 end
 
+local function set_f_gsub1 (lib, flg)
+  local subj, pat = "abcdef", "[abef]+"
+  return {
+    Name = "Function gsub, set1",
+    Func = get_gsub (lib),
+  --{ s,       p,    f,   n,    res1,  res2, res3 },
+    { {"a\0c", ".",  "#"   },   {"###",   3, 3} }, -- subj contains nuls
+  }
+end
+
 local function set_f_gsub4 (lib, flg)
   local pCSV = "(^[^,]*)|,([^,]*)"
   local fCSV = function (a,b) return "["..(a or b).."]" end
@@ -178,6 +188,7 @@ return function (libname)
   local lib = require (libname)
   local flags = lib.flags and lib.flags ()
   local sets = {
+    set_f_gsub1 (lib, flags),
     set_f_gsub4 (lib, flags),
   }
   if flags.MAJOR*100 + flags.MINOR > 405 then

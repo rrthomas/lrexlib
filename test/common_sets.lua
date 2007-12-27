@@ -32,7 +32,6 @@ local function set_f_gmatch (lib, flg)
   --{  subj             patt         results }
     { {("abcd"):rep(3), "(.)b.(d)"}, {{"a","d"},{"a","d"},{"a","d"}} },
     { {"abcd",          ".*" },      {{"abcd",N},{"",N}  } },--zero-length match
-    { {"a\0c",          "."  },      {{"a",N},{"\0",N},{"c",N}} },--nuls in subj
     { {"abc",           "^." },      {{"a",N}} },--anchored pattern
   }
 end
@@ -60,7 +59,6 @@ local function set_f_split (lib, flg)
     { {"a,b,",          ","},     {{"a",",",N},    {"b",",",N}, {"",N,N} } },
     { {"a,,b",          ","},     {{"a",",",N},    {"",",",N},  {"b",N,N}} },
     { {"ab<78>c", "<(.)(.)>"},    {{"ab","7","8"}, {"c",N,N},            } },
-    { {"a,\0,c",        ","},     {{"a",",",N},{"\0",",",N},{"c",N,N},   } },--nuls in subj
     { {"abc",          "^."},     {{"", "a",N},    {"bc",N,N},           } },--anchored pattern
     { {"abc",           "^"},     {{"", "", N},    {"abc",N,N},          } },
 --  { {"abc",           "$"},     {{"abc","",N},   {"",N,N},             } },
@@ -161,7 +159,6 @@ local function set_f_gsub1 (lib, flg)
     { {subj,   pat,  "#", 2},   {"#cd#",  2, 2} },
     { {subj,   pat,  "#", 3},   {"#cd#",  2, 2} },
     { {subj,   pat,  "#"   },   {"#cd#",  2, 2} },
-    { {"a\0c", ".",  "#"   },   {"###",   3, 3} }, -- subj contains nuls
     { {"abc",  "^.", "#"   },   {"#bc",   1, 1} }, -- anchored pattern
   }
 end

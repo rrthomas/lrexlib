@@ -75,6 +75,7 @@ local function set_f_gmatch (lib, flg)
     Name = "Function gmatch",
     Func = test_gmatch,
   --{  subj             patt   results }
+    { {"a\0c",          "." }, {{"a",N},{"\0",N},{"c",N}} },--nuls in subj
     { {"",              pCSV}, {{"",F}} },
     { {"12",            pCSV}, {{"12",F}} },
     { {",",             pCSV}, {{"", F},{F,""}} },
@@ -98,6 +99,7 @@ local function set_f_split (lib, flg)
     Name = "Function split",
     Func = test_split,
   --{  subj             patt      results }
+    { {"a,\0,c",       ","},     {{"a",",",N},{"\0",",",N},{"c",N,N},   } },--nuls in subj
     { {"ab",           "$"},     {{"ab","",N}, {"",N,N},               } },
     { {"ab",         "^|$"},     {{"", "", N}, {"ab","",N},  {"",N,N}, } },
     { {"ab45ab","(?<=ab).*?"},   {{"ab","",N}, {"45ab","",N},{"",N,N}, } },
