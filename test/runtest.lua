@@ -58,8 +58,8 @@ do
     if arg:sub(1,1) == "-" then
       if arg == "-v" then
         verbose = true
-      else
-        dir = arg:match("^%-d(.+)")
+      elseif arg:sub(1,2) == "-d" then
+        dir = arg:sub(3)
       end
     else
       if avail_tests[arg] then
