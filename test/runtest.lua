@@ -1,5 +1,11 @@
 -- See Copyright Notice in the file LICENSE
 
+do
+  local path = "./?.lua;"
+  if package.path:sub(1, #path) ~= path then
+    package.path = path .. package.path
+  end
+end
 local luatest = require "luatest"
 
 -- returns: number of failures
@@ -45,11 +51,16 @@ local avail_tests = {
 
 do
   local verbose, tests, nerr = false, {}, 0
+  local dir
   -- check arguments
   for i = 1, select ("#", ...) do
     local arg = select (i, ...)
-    if arg == "-v" then
-      verbose = true
+    if arg:sub(1,1) == "-" then
+      if arg == "-v" then
+        verbose = true
+      else
+        dir = arg:match("^%-d(.+)")
+      end
     else
       if avail_tests[arg] then
         tests[#tests+1] = avail_tests[arg]
@@ -59,6 +70,19 @@ do
     end
   end
   assert (#tests > 0, "no library specified")
+  -- give priority to libraries located in the specified directory
+  if dir then
+    dir = dir:gsub("[/\\]+$", "")
+    for _, ext in ipairs {"dll", "so", "dylib"} do
+      if package.cpath:match ("%?%." .. ext) then
+        local cpath = dir .. "/?." .. ext .. ";"
+        if package.cpath:sub(1, #cpath) ~= cpath then
+          package.cpath = cpath .. package.cpath
+        end
+        break
+      end
+    end
+  end
   -- do tests
   for _, test in ipairs (tests) do
     for _, setfile in ipairs (test) do
