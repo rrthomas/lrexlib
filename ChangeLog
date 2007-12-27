@@ -1,3 +1,15 @@
+2007-12-27  Shmuel Zeigerman  <shmuz@actcom.co.il>
+	* test/runtest.lua: add new command-line switch -d<directory> that
+	    will prepend <directory> to package.cpath.
+	* Makefile: add -d../src to testing commands, for testing the freshly built
+	    libraries rather than the installed ones.
+
+2007-12-25  Shmuel Zeigerman  <shmuz@actcom.co.il>
+	* test/common_sets.lua, test/spencer_sets.lua, test/pcre_sets.lua,
+	  test/pcre_sets2.lua:
+	    move tests with NULs in subject from common_sets.lua into other set
+	    files.
+
 2007-12-19  Shmuel Zeigerman  <shmuz@actcom.co.il>
 
 	* Makefile: [fix] remove TRE-related parts (reported by Christian Wiese).
