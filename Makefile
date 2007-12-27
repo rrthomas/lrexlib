@@ -11,10 +11,10 @@ build_posix:
 	make -C src -f rex_posix.mak
 
 test_pcre:
-	cd test && lua ./runtest.lua pcre
+	cd test && lua ./runtest.lua -d../src pcre
 
 test_posix:
-	cd test && lua ./runtest.lua posix
+	cd test && lua ./runtest.lua -d../src posix
 
 clean_pcre:
 	make -C src -f rex_pcre.mak clean
