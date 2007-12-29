@@ -1,3 +1,8 @@
+2007-12-29  Release 2.2.2
+
+  * Makefiles fixed.
+
+
 2007-10-25  Release 2.2.1
 
   * Added new PCRE constants up to version 7.4.
