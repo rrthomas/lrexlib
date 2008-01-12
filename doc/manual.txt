@@ -366,7 +366,7 @@ PCRE: A locale *lo* may be specified.
      the subject section.
 
 The iteration will continue till the end of the subject. Unlike gmatch_, there
-will always be at least one iteration pass, even if there's no matches in the
+will always be at least one iteration pass, even if there are no matches in the
 subject.
 
 ------------------------------------------------------------
