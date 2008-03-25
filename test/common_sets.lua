@@ -139,6 +139,9 @@ local function set_f_plainfind (lib, flg)
     { {"abcd", "BC"},             {N}   }, -- case sensitive
     { {"abcd", "BC", N, true},    {2,3} }, -- case insensitive
     { {"ab\0cd", "b\0c"},         {2,4} }, -- contains nul
+    { {"abcd", "", 1},            {1,0} }, -- empty pattern
+    { {"abcd", "", 5},            {5,4} }, -- empty pattern
+    { {"abcd", "", 6},            {N}   }, -- empty pattern
   }
 end
 
