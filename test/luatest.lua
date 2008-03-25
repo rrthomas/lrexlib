@@ -67,42 +67,21 @@ function print_results (val, indent, lut)
   end
 end
 
--- returns: a table with "packed" results (or error message string)
-function runtest_function (test, func)
-  local t = packNT (pcall (func, unpackNT (test[1])))
-  if t[1] then
-    table.remove (t, 1)
-    return t
-  end
-  return t[2] --> error_message
-end
-
--- returns: a table with "packed" results (or err_num + error message string)
-function runtest_method (test, constructor, name)
-  local ok, r = pcall (constructor, unpackNT (test[1]))
-  if not ok then
-    return 1, r  --> 1, error_message
-  end
-  local t = packNT (pcall (r[name], r, unpackNT (test[2])))
-  if t[1] then
-    table.remove (t, 1)
-    return t
-  end
-  return 2, t[2] --> 2, error_message
-end
-
 -- returns:
 --  1) true, if success; false, if failure
 --  2) test results table or error_message
 function test_function (test, func)
-  local res = runtest_function (test, func)
-  if type (res) ~= type (test[2]) then
-    return false, res
+  local res
+  local t = packNT (pcall (func, unpackNT (test[1])))
+  if t[1] then
+    table.remove (t, 1)
+    res = t
+  else
+    res = t[2] --> error_message
   end
-  if type (res) == "string" or eq (res, test[2]) then
-    return true, res -- allow error messages to differ
-  end
-  return false, res
+  local how = (type (res) == type (test[2])) and
+    (type (res) == "string" or eq (res, test[2])) -- allow error messages to differ
+  return how, res
 end
 
 -- returns:
@@ -110,12 +89,17 @@ end
 --  2) test results table or error_message
 --  3) test results table or error_message
 function test_method (test, constructor, name)
-  local res1, res2 = runtest_method (test, constructor, name)
-  if type (res1) ~= type (test[3]) then
-    return false, res1, res2
-  end
-  if type (res1) == "number" then
-    return (res1 == test[3]), res1, res2
+  local ok, r = pcall (constructor, unpackNT (test[1]))
+  if ok then
+    local t = packNT (pcall (r[name], r, unpackNT (test[2])))
+    if t[1] then
+      table.remove (t, 1)
+      res1, res2 = t
+    else
+      res1, res2 = 2, t[2] --> 2, error_message
+    end
+  else
+    res1, res2 = 1, r  --> 1, error_message
   end
   return eq (res1, test[3]), res1, res2
 end
