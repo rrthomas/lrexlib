@@ -1,3 +1,11 @@
+2008-03-25  Shmuel Zeigerman  <shmuz@actcom.co.il>
+    * algo.h (plainfind_func): optimize for speed.
+    * algo.h (plainfind_func): treat empty patterns as valid.
+	* test/common_sets.lua (set_f_plainfind): add tests with empty patterns.
+
+2008-01-12  Shmuel Zeigerman  <shmuz@actcom.co.il>
+	* test/luatest.lua: refactoring.
+
 2007-12-27  Shmuel Zeigerman  <shmuz@actcom.co.il>
 	* test/runtest.lua: add new command-line switch -d<directory> that
 	    will prepend <directory> to package.cpath.
