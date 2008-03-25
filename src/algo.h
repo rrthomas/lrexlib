@@ -588,36 +588,50 @@ static int ud_exec (lua_State *L) {
 
 
 /* function plainfind (s, p, [st], [ci]) */
+/* (optimized for performance at the expense of code size) */
 static int plainfind_func (lua_State *L) {
   size_t textlen, patlen;
   const char *text = luaL_checklstring (L, 1, &textlen);
   const char *pattern = luaL_checklstring (L, 2, &patlen);
   const char *from = text + get_startoffset (L, 3, textlen);
   int ci = lua_toboolean (L, 4);
-  const char *end = text + textlen;
+  const char *end = text + textlen - patlen;
 
-  for (; from + patlen <= end; ++from) {
-    const char *f = from, *p = pattern;
-    size_t len = patlen + 1;
-    if (ci) {
-      while (--len) {
-        if (toupper (*f++) != toupper (*p++))
-          break;
+  if (patlen == 0 && from <= end)
+    goto found;
+  if (ci ) {
+    for (; from <= end; ++from) {
+      if (toupper(*from) == toupper(*pattern)) {
+        const char *f = from, *p = pattern;
+        size_t len = patlen;
+        while (--len) {
+          if (toupper (*++f) != toupper (*++p))
+            break;
+        }
+        if (len == 0)
+          goto found;
       }
     }
-    else {
-      while (--len) {
-        if (*f++ != *p++)
-          break;
+  }
+  else {
+    for (; from <= end; ++from) {
+      if (*from == *pattern) {
+        const char *f = from, *p = pattern;
+        size_t len = patlen;
+        while (--len) {
+          if (*++f != *++p)
+            break;
+        }
+        if (len == 0)
+          goto found;
       }
-    }
-    if (len == 0) {
-      lua_pushinteger (L, from - text + 1);
-      lua_pushinteger (L, from - text + patlen);
-      return 2;
     }
   }
   lua_pushnil (L);
   return 1;
+found:
+  lua_pushinteger (L, from - text + 1);
+  lua_pushinteger (L, from - text + patlen);
+  return 2;
 }
 
