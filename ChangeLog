@@ -1,6 +1,14 @@
+2008-03-28  Shmuel Zeigerman  <shmuz@actcom.co.il>
+	* algo.h, lpcre.h, lposix.h, ltre.h: add two new methods (find and match).
+	* algo.h: rename functions:
+	    checkarg_tfind  --> checkarg_find_method;
+	    generic_tfind   --> generic_find_method;
+	    checkarg_find_f --> checkarg_find_func;
+	    generic_find    --> generic_find_func;
+
 2008-03-25  Shmuel Zeigerman  <shmuz@actcom.co.il>
-    * algo.h (plainfind_func): optimize for speed.
-    * algo.h (plainfind_func): treat empty patterns as valid.
+	* algo.h (plainfind_func): optimize for speed.
+	* algo.h (plainfind_func): treat empty patterns as valid.
 	* test/common_sets.lua (set_f_plainfind): add tests with empty patterns.
 
 2008-01-12  Shmuel Zeigerman  <shmuz@actcom.co.il>
