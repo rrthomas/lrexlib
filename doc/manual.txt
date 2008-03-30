@@ -1,6 +1,6 @@
 .. role:: funcdef(literal)
 
-Lrexlib 2.2 Reference Manual
+Lrexlib 2.3 Reference Manual
 ============================
 
 .. contents:: Table of Contents
@@ -97,6 +97,10 @@ match
 
 :funcdef:`rex.match (subj, patt, [init], [cf], [ef], [lo])`
 
+or
+
+:funcdef:`r:match (subj, [init], [ef])`
+
 The function searches for the first match of the regexp *patt* in the string
 *subj*, starting from offset *init*, subject to flags *cf* and *ef*.
 
@@ -105,6 +109,8 @@ PCRE: A locale *lo* may be specified.
   +---------+-------------------------------+--------+-------------+
   |Parameter|        Description            |  Type  |Default Value|
   +=========+===============================+========+=============+
+  |    r    | regex object produced by new_ |userdata|     n/a     |
+  +---------+-------------------------------+--------+-------------+
   |  subj   |          subject              | string |     n/a     |
   +---------+-------------------------------+--------+-------------+
   |  patt   |regular expression pattern     | string |     n/a     |
@@ -137,6 +143,10 @@ find
 
 :funcdef:`rex.find (subj, patt, [init], [cf], [ef], [lo])`
 
+or
+
+:funcdef:`r:find (subj, [init], [ef])`
+
 The function searches for the first match of the regexp *patt* in the string
 *subj*, starting from offset *init*, subject to flags *cf* and *ef*.
 
@@ -145,6 +155,8 @@ PCRE: A locale *lo* may be specified.
   +---------+-------------------------------+--------+-------------+
   |Parameter|        Description            |  Type  |Default Value|
   +=========+===============================+========+=============+
+  |    r    | regex object produced by new_ |userdata|     n/a     |
+  +---------+-------------------------------+--------+-------------+
   |  subj   |          subject              | string |     n/a     |
   +---------+-------------------------------+--------+-------------+
   |  patt   |regular expression pattern     | string |     n/a     |
