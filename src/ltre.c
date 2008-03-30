@@ -114,12 +114,6 @@ static int compile_regex (lua_State *L, const TArgComp *argC, TPosix **pud) {
   return 1;
 }
 
-static int tfind_exec (TPosix *ud, TArgExec *argE) {
-  argE->text += argE->startoffset;
-  return regnexec (&ud->r, argE->text, argE->textlen - argE->startoffset,
-                   ALG_NSUB(ud) + 1, ud->match, argE->eflags);
-}
-
 static int generic_atfind (lua_State *L, int tfind) {
   int res;
   TArgExec argE;
@@ -319,6 +313,8 @@ static int Ltre_version (lua_State *L) {
 static const luaL_reg posixmeta[] = {
   { "exec",          ud_exec },
   { "tfind",         ud_tfind },
+  { "find",          ud_find },
+  { "match",         ud_match },
   { "aexec",         Ltre_aexec },
   { "atfind",        Ltre_atfind },
   { "have_backrefs", Ltre_have_backrefs },

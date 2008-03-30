@@ -128,15 +128,6 @@ static void CheckStartEnd (TArgExec *argE, TPosix *ud) {
 }
 #endif
 
-static int tfind_exec (TPosix *ud, TArgExec *argE) {
-#ifdef REX_POSIX_EXT
-  CheckStartEnd (argE, ud);
-#else
-  argE->text += argE->startoffset;
-#endif
-  return regexec (&ud->r, argE->text, ALG_NSUB(ud) + 1, ud->match, argE->eflags);
-}
-
 static int gmatch_exec (TUserdata *ud, TArgExec *argE) {
   if (argE->startoffset > 0)
     argE->eflags |= REG_NOTBOL;
@@ -266,6 +257,8 @@ static int Posix_get_flags (lua_State *L) {
 static const luaL_reg posixmeta[] = {
   { "exec",       ud_exec },
   { "tfind",      ud_tfind },    /* old match */
+  { "find",       ud_find },
+  { "match",      ud_match },
   { "__gc",       Posix_gc },
   { "__tostring", Posix_tostring },
   { NULL, NULL}

@@ -251,11 +251,6 @@ static void do_named_subpatterns (lua_State *L, TPcre *ud, const char *text) {
 }
 #endif /* #if PCRE_MAJOR >= 4 */
 
-static int tfind_exec (TPcre *ud, TArgExec *argE) {
-  return pcre_exec (ud->pr, ud->extra, argE->text, (int)argE->textlen,
-              argE->startoffset, argE->eflags, ud->match, (ud->ncapt + 1) * 3);
-}
-
 #if PCRE_MAJOR >= 6
 static int Lpcre_dfa_exec (lua_State *L)
 {
@@ -320,12 +315,12 @@ static int findmatch_exec (TPcre *ud, TArgExec *argE) {
 #ifdef ALG_USERETRY
   static int gsub_exec (TPcre *ud, TArgExec *argE, int st, int retry) {
     int eflags = retry ? (argE->eflags|PCRE_NOTEMPTY|PCRE_ANCHORED) : argE->eflags;
-    return pcre_exec (ud->pr, ud->extra, argE->text, (int)argE->textlen,
+    return pcre_exec (ud->pr, ud->extra, argE->text, argE->textlen,
       st, eflags, ud->match, (ALG_NSUB(ud) + 1) * 3);
   }
 #else
   static int gsub_exec (TPcre *ud, TArgExec *argE, int st) {
-    return pcre_exec (ud->pr, ud->extra, argE->text, (int)argE->textlen,
+    return pcre_exec (ud->pr, ud->extra, argE->text, argE->textlen,
       st, argE->eflags, ud->match, (ALG_NSUB(ud) + 1) * 3);
   }
 #endif
@@ -376,6 +371,8 @@ static const luaL_reg chartables_meta[] = {
 static const luaL_reg regex_meta[] = {
   { "exec",        ud_exec },
   { "tfind",       ud_tfind },    /* old name: match */
+  { "find",        ud_find },
+  { "match",       ud_match },
 #if PCRE_MAJOR >= 6
   { "dfa_exec",    Lpcre_dfa_exec },
 #endif

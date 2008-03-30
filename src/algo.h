@@ -3,20 +3,22 @@
 
 #include "common.h"
 
-#define REX_VERSION "Lrexlib 2.2.2"
+#define REX_VERSION "Lrexlib 2.3.0"
 
 /* Forward declarations */
 static void gmatch_pushsubject (lua_State *L, TArgExec *argE);
 static int findmatch_exec  (TUserdata *ud, TArgExec *argE);
-static int tfind_exec      (TUserdata *ud, TArgExec *argE);
 static int split_exec      (TUserdata *ud, TArgExec *argE, int offset);
 static int compile_regex   (lua_State *L, const TArgComp *argC, TUserdata **pud);
 static int generate_error  (lua_State *L, const TUserdata *ud, int errcode);
 
 #ifndef ALG_OPTLOCALE
-#  define ALG_OPTLOCALE(a,b,c)  ((void)a)
+#  define ALG_OPTLOCALE(a,b,c)
 #endif
 
+#ifndef DO_NAMED_SUBPATTERNS
+#define DO_NAMED_SUBPATTERNS(a,b,c)
+#endif
 
 /*  When doing an iterative search, there can occur a situation of a zero-length
  *  match at the current position, that prevents further advance on the subject
@@ -43,6 +45,12 @@ static int generate_error  (lua_State *L, const TUserdata *ud, int errcode);
   #define GSUB_EXEC(a,b,c,d) gsub_exec(a,b,c)
   #define GMATCH_EXEC(a,b,c) gmatch_exec(a,b)
 #endif
+
+
+#define METHOD_FIND  0
+#define METHOD_MATCH 1
+#define METHOD_EXEC  2
+#define METHOD_TFIND 3
 
 
 static int OptLimit (lua_State *L, int pos) {
@@ -113,7 +121,7 @@ static void checkarg_gsub (lua_State *L, TArgComp *argC, TArgExec *argE) {
 
 /* function find  (s, patt, [st], [cf], [ef], [lo]) */
 /* function match (s, patt, [st], [cf], [ef], [lo]) */
-static void checkarg_find_f (lua_State *L, TArgComp *argC, TArgExec *argE) {
+static void checkarg_find_func (lua_State *L, TArgComp *argC, TArgExec *argE) {
   argE->text = luaL_checklstring (L, 1, &argE->textlen);
   argC->pattern = luaL_checklstring (L, 2, &argC->patlen);
   argE->startoffset = get_startoffset (L, 3, argE->textlen);
@@ -136,7 +144,9 @@ static void checkarg_gmatch_split (lua_State *L, TArgComp *argC, TArgExec *argE)
 
 /* method r:tfind (s, [st], [ef]) */
 /* method r:exec  (s, [st], [ef]) */
-static void checkarg_tfind (lua_State *L, TArgExec *argE, TUserdata **ud) {
+/* method r:find  (s, [st], [ef]) */
+/* method r:match (s, [st], [ef]) */
+static void checkarg_find_method (lua_State *L, TArgExec *argE, TUserdata **ud) {
   *ud = check_ud (L);
   argE->text = luaL_checklstring (L, 2, &argE->textlen);
   argE->startoffset = get_startoffset (L, 3, argE->textlen);
@@ -339,28 +349,19 @@ static int gsub (lua_State *L) {
 }
 
 
-static int generic_find (lua_State *L, int find) {
-  int res;
-  TUserdata *ud;
-  TArgComp argC;
-  TArgExec argE;
-
-  checkarg_find_f (L, &argC, &argE);
-  if (argE.startoffset > (int)argE.textlen)
-    return lua_pushnil(L), 1;
-
-  compile_regex (L, &argC, &ud);
-  res = findmatch_exec (ud, &argE);
+static int finish_generic_find (lua_State *L, TUserdata *ud, TArgExec *argE,
+  int method, int res)
+{
   if (ALG_ISMATCH (res)) {
-    if (find)
-      ALG_PUSHOFFSETS (L, ud, ALG_BASE(argE.startoffset), 0);
+    if (method == METHOD_FIND)
+      ALG_PUSHOFFSETS (L, ud, ALG_BASE(argE->startoffset), 0);
     if (ALG_NSUB(ud))    /* push captures */
-      push_substrings (L, ud, argE.text, NULL);
-    else if (!find) {
-      ALG_PUSHSUB (L, ud, argE.text, 0);
+      push_substrings (L, ud, argE->text, NULL);
+    else if (method != METHOD_FIND) {
+      ALG_PUSHSUB (L, ud, argE->text, 0);
       return 1;
     }
-    return find ? ALG_NSUB(ud) + 2 : ALG_NSUB(ud);
+    return (method == METHOD_FIND) ? ALG_NSUB(ud) + 2 : ALG_NSUB(ud);
   }
   else if (res == ALG_NOMATCH)
     return lua_pushnil (L), 1;
@@ -369,13 +370,29 @@ static int generic_find (lua_State *L, int find) {
 }
 
 
+static int generic_find_func (lua_State *L, int method) {
+  TUserdata *ud;
+  TArgComp argC;
+  TArgExec argE;
+  int res;
+
+  checkarg_find_func (L, &argC, &argE);
+  if (argE.startoffset > (int)argE.textlen)
+    return lua_pushnil(L), 1;
+
+  compile_regex (L, &argC, &ud);
+  res = findmatch_exec (ud, &argE);
+  return finish_generic_find (L, ud, &argE, method, res);
+}
+
+
 static int find (lua_State *L) {
-  return generic_find (L, 1);
+  return generic_find_func (L, METHOD_FIND);
 }
 
 
 static int match (lua_State *L) {
-  return generic_find (L, 0);
+  return generic_find_func (L, METHOD_MATCH);
 }
 
 
@@ -549,26 +566,34 @@ static void push_offset_table (lua_State *L, TUserdata *ud, int startoffset) {
 }
 
 
-static int generic_tfind (lua_State *L, int tfind) {
+static int generic_find_method (lua_State *L, int method) {
   TUserdata *ud;
   TArgExec argE;
   int res;
 
-  checkarg_tfind (L, &argE, &ud);
+  checkarg_find_method (L, &argE, &ud);
   if (argE.startoffset > (int)argE.textlen)
     return lua_pushnil(L), 1;
 
-  res = tfind_exec (ud, &argE);
+  res = findmatch_exec (ud, &argE);
   if (ALG_ISMATCH (res)) {
-    ALG_PUSHOFFSETS (L, ud, ALG_BASE(argE.startoffset), 0);
-    if (tfind)
-      push_substring_table (L, ud, argE.text);
-    else
-      push_offset_table (L, ud, ALG_BASE(argE.startoffset));
-#ifdef DO_NAMED_SUBPATTERNS
-    DO_NAMED_SUBPATTERNS (L, ud, argE.text);
-#endif
-    return 3;
+    switch (method) {
+      case METHOD_EXEC:
+        ALG_PUSHOFFSETS (L, ud, ALG_BASE(argE.startoffset), 0);
+        push_offset_table (L, ud, ALG_BASE(argE.startoffset));
+        DO_NAMED_SUBPATTERNS (L, ud, argE.text);
+        return 3;
+      case METHOD_TFIND:
+        ALG_PUSHOFFSETS (L, ud, ALG_BASE(argE.startoffset), 0);
+        push_substring_table (L, ud, argE.text);
+        DO_NAMED_SUBPATTERNS (L, ud, argE.text);
+        return 3;
+      case METHOD_MATCH:
+        return finish_generic_find (L, ud, &argE, METHOD_MATCH, res);
+      case METHOD_FIND:
+        return finish_generic_find (L, ud, &argE, METHOD_FIND, res);
+    }
+    return 0;
   }
   else if (res == ALG_NOMATCH)
     return lua_pushnil (L), 1;
@@ -577,13 +602,17 @@ static int generic_tfind (lua_State *L, int tfind) {
 }
 
 
-static int ud_tfind (lua_State *L) {
-  return generic_tfind (L, 1);
+static int ud_find (lua_State *L) {
+  return generic_find_method (L, METHOD_FIND);
 }
-
-
+static int ud_match (lua_State *L) {
+  return generic_find_method (L, METHOD_MATCH);
+}
+static int ud_tfind (lua_State *L) {
+  return generic_find_method (L, METHOD_TFIND);
+}
 static int ud_exec (lua_State *L) {
-  return generic_tfind (L, 0);
+  return generic_find_method (L, METHOD_EXEC);
 }
 
 
