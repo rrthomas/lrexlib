@@ -119,7 +119,35 @@ local function set_m_tfind (lib, flg)
     { {".+"},               {"abcd",-2},         {3,4,{}}  }, -- negative st
     { {".*"},               {"abcd"},            {1,4,{}}  }, -- [none]
     { {"bc"},               {"abc"},             {2,3,{}}  }, -- [none]
-    { { "(.)b.(d)"},        {"abcd"},            {1,4,{"a","d"}}},--[captures]
+    { {"(.)b.(d)"},         {"abcd"},            {1,4,{"a","d"}}},--[captures]
+  }
+end
+
+local function set_m_find (lib, flg)
+  return {
+    Name = "Method find",
+    Method = "find",
+  --{patt},                 {subj, st}           { results }
+    { {".+"},               {"abcd"},            {1,4}  }, -- [none]
+    { {".+"},               {"abcd",2},          {2,4}  }, -- positive st
+    { {".+"},               {"abcd",-2},         {3,4}  }, -- negative st
+    { {".*"},               {"abcd"},            {1,4}  }, -- [none]
+    { {"bc"},               {"abc"},             {2,3}  }, -- [none]
+    { {"(.)b.(d)"},         {"abcd"},            {1,4,"a","d"}},--[captures]
+  }
+end
+
+local function set_m_match (lib, flg)
+  return {
+    Name = "Method match",
+    Method = "match",
+  --{patt},                 {subj, st}           { results }
+    { {".+"},               {"abcd"},            {"abcd"}  }, -- [none]
+    { {".+"},               {"abcd",2},          {"bcd" }  }, -- positive st
+    { {".+"},               {"abcd",-2},         {"cd"  }  }, -- negative st
+    { {".*"},               {"abcd"},            {"abcd"}  }, -- [none]
+    { {"bc"},               {"abc"},             {"bc"  }  }, -- [none]
+    {{ "(.)b.(d)"},         {"abcd"},            {"a","d"} }, --[captures]
   }
 end
 
@@ -294,6 +322,8 @@ return function (libname)
     set_f_match     (lib),
     set_m_exec      (lib),
     set_m_tfind     (lib),
+    set_m_find      (lib),
+    set_m_match     (lib),
     set_f_gsub1     (lib),
     set_f_gsub2     (lib),
     set_f_gsub3     (lib),
