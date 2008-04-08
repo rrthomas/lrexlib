@@ -139,7 +139,7 @@ static void checkarg_dfa_exec (lua_State *L, TArgExec *argE, TPcre **ud) {
 #endif
 
 static int Lpcre_maketables (lua_State *L) {
-  *(const void**)lua_newuserdata (L, sizeof(void**)) = pcre_maketables();
+  *(const void**)lua_newuserdata (L, sizeof(void*)) = pcre_maketables();
   push_chartables_meta (L);
   lua_setmetatable (L, -2);
   return 1;
