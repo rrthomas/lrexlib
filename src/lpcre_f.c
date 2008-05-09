@@ -53,6 +53,9 @@ static flag_pair pcre_flags[] = {
   { "BSR_ANYCRLF",                   PCRE_BSR_ANYCRLF },
   { "BSR_UNICODE",                   PCRE_BSR_UNICODE },
 #endif
+#if VERSION_PCRE >= 707
+  { "JAVASCRIPT_COMPAT",             PCRE_JAVASCRIPT_COMPAT },
+#endif
 /*---------------------------------------------------------------------------*/
   { "INFO_OPTIONS",                  PCRE_INFO_OPTIONS },
   { "INFO_SIZE",                     PCRE_INFO_SIZE },

@@ -1,3 +1,7 @@
+2008-05-09  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
+	* lpcre_f.c: added new flag from PCRE-7.7.
+
 2008-03-28  Shmuel Zeigerman  <shmuz@actcom.co.il>
 	* algo.h, lpcre.h, lposix.h, ltre.h: add two new methods (find and match).
 	* algo.h: rename functions:
