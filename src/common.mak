@@ -1,6 +1,6 @@
 # Rules for lrexlib
 
-V = 2.2
+V = 2.3
 
 DEFS   = -DREX_OPENLIB=luaopen_$(TRG) -DREX_LIBNAME=\"$(TRG)\"
 CFLAGS = $(MYCFLAGS) $(DEFS) $(INC)

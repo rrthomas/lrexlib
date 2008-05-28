@@ -1,4 +1,4 @@
-                            Lua rexlib 2.2
+                            Lua rexlib 2.3
                             --------------
 
                     by Reuben Thomas (rrt@sc3d.org)
@@ -9,8 +9,8 @@ Lrexlib is a regular expression library for Lua 5.1. The makefiles
 provided build it into shared libraries called rex_posix.so and
 rex_pcre.so, which can be used with require or loadlib.
 
-Lrexlib is copyright Reuben Thomas 2000-2007 and copyright Shmuel
-Zeigerman 2004-2007, and is released under the MIT license, like Lua
+Lrexlib is copyright Reuben Thomas 2000-2008 and copyright Shmuel
+Zeigerman 2004-2008, and is released under the MIT license, like Lua
 (see http://www.lua.org/copyright.html for the full license; it's
 basically the same as the BSD license). There is no warranty.
 
