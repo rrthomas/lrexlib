@@ -40,7 +40,7 @@ local avail_tests = {
   gnuregex  = { lib = "rex_gnuregex", "common_sets", "posix_sets"  },
   posix     = { lib = "rex_posix",    "common_sets", "posix_sets", },
   spencer   = { lib = "rex_spencer",  "common_sets", "posix_sets", "spencer_sets" },
-  posix1    = { lib = "rex_spencer",  "common_sets", "posix_sets", "spencer_sets" },
+  posix1    = { lib = "rex_posix1",   "common_sets", "posix_sets", "spencer_sets" },
   tre       = { lib = "rex_tre",      "common_sets", "posix_sets", "spencer_sets" },
   lord      = { lib = "rex_lord",     "common_sets", "posix_sets"  },
   maddock   = { lib = "rex_maddock",  "common_sets", "posix_sets", },
