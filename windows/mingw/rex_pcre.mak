@@ -1,22 +1,25 @@
 # Project: rex_pcre
 
 # User Settings ------------------------------------------------------------
-# -1- path of Lua include files
+# path of Lua include files
 LUAINC = s:\progr\work\system\include
 
-# -2- path of PCRE include files
+# path of PCRE include files
 REGEXINC = s:\progr\work\system\include
 
-# -3- path of lua5.1.dll and pcre.dll
+# path of Lua DLL and pcre.dll
 DLLPATH = c:\exe
 
-# -4- path to install rex_pcre.dll
+# name of Lua DLL to link to (.dll should be omitted)
+LUADLL = lua5.1
+
+# path to install rex_pcre.dll
 INSTALLPATH = s:\exe\lib\lua\5.1
 # --------------------------------------------------------------------------
 
 PROJECT     = rex_pcre
 MYINCS      = -I$(REGEXINC) -I$(LUAINC) 
-MYLIBS      = -L$(DLLPATH) -lpcre -llua5.1
+MYLIBS      = -L$(DLLPATH) -lpcre -l$(LUADLL)
 OBJ         = lpcre.o lpcre_f.o common.o
 MYCFLAGS    = -W -Wall -O2
 EXPORTED    = 'luaopen_$(PROJECT)'
