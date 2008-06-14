@@ -20,6 +20,8 @@
 #  define REX_OPENLIB luaopen_rex_tre
 #endif
 
+#define REX_TYPENAME REX_LIBNAME"_regex"
+
 #define ALG_CFLAGS_DFLT REG_EXTENDED
 #define ALG_EFLAGS_DFLT 0
 
@@ -52,8 +54,6 @@ typedef struct {
 } TPosix;
 
 #define TUserdata TPosix
-
-const char posix_typename[] = REX_LIBNAME"_regex";
 
 #include "algo.h"
 
@@ -217,9 +217,9 @@ static int Ltre_gc (lua_State *L) {
 static int Ltre_tostring (lua_State *L) {
   TPosix *ud = check_ud (L);
   if (ud->freed == 0)
-    lua_pushfstring (L, "%s (%p)", posix_typename, (void*)ud);
+    lua_pushfstring (L, "%s (%p)", REX_TYPENAME, (void*)ud);
   else
-    lua_pushfstring (L, "%s (deleted)", posix_typename);
+    lua_pushfstring (L, "%s (deleted)", REX_TYPENAME);
   return 1;
 }
 

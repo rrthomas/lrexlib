@@ -1,3 +1,11 @@
+2008-06-14  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
+	* algo.h: [API extension; suggested by Reuben Thomas]
+	    all functions receiving string-type regex accept a compiled regex too.
+	    If this is the case, cf and lo arguments are ignored (should be
+	    either supplied as nils or omitted).
+	* algo.h: update version string to "Lrexlib 2.4.0".
+
 2008-05-09  Shmuel Zeigerman  <shmuz@actcom.co.il>
 
 	* lpcre_f.c: added new flag from PCRE-7.7.

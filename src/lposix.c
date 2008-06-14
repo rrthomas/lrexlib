@@ -24,6 +24,8 @@
 #  define REX_OPENLIB luaopen_rex_posix
 #endif
 
+#define REX_TYPENAME REX_LIBNAME"_regex"
+
 /* Test if regex.h corresponds to the extended POSIX library, i.e. H.Spencer's.
    This test may not work as intended if regex.h introduced REG_BASIC, etc.
    via enum rather than #define.
@@ -75,8 +77,6 @@ typedef struct {
 } TPosix;
 
 #define TUserdata TPosix
-
-const char posix_typename[] = REX_LIBNAME"_regex";
 
 #include "algo.h"
 
@@ -202,9 +202,9 @@ static int Posix_gc (lua_State *L) {
 static int Posix_tostring (lua_State *L) {
   TPosix *ud = check_ud (L);
   if (ud->freed == 0)
-    lua_pushfstring (L, "%s (%p)", posix_typename, (void*)ud);
+    lua_pushfstring (L, "%s (%p)", REX_TYPENAME, (void*)ud);
   else
-    lua_pushfstring (L, "%s (deleted)", posix_typename);
+    lua_pushfstring (L, "%s (deleted)", REX_TYPENAME);
   return 1;
 }
 

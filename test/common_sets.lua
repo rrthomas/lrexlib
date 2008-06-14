@@ -30,6 +30,7 @@ local function set_f_gmatch (lib, flg)
     Name = "Function gmatch",
     Func = test_gmatch,
   --{  subj             patt         results }
+    { {"ab",            lib.new"."}, {{"a",N}, {"b",N} } },
     { {("abcd"):rep(3), "(.)b.(d)"}, {{"a","d"},{"a","d"},{"a","d"}} },
     { {"abcd",          ".*" },      {{"abcd",N},{"",N}  } },--zero-length match
     { {"abc",           "^." },      {{"a",N}} },--anchored pattern
@@ -51,6 +52,7 @@ local function set_f_split (lib, flg)
     Name = "Function split",
     Func = test_split,
   --{  subj             patt      results }
+    { {"ab",     lib.new","},     {{"ab",N,N},                           } },
     { {"ab",            ","},     {{"ab",N,N},                           } },
     { {",",             ","},     {{"",",",N},     {"", N, N},           } },
     { {",,",            ","},     {{"",",",N},     {"",",",N},  {"",N,N} } },
@@ -71,6 +73,7 @@ local function set_f_find (lib, flg)
     Name = "Function find",
     Func = lib.find,
   --  {subj, patt, st},         { results }
+    { {"abcd", lib.new".+"},    { 1,4 }   },      -- [none]
     { {"abcd", ".+"},           { 1,4 }   },      -- [none]
     { {"abcd", ".+", 2},        { 2,4 }   },      -- positive st
     { {"abcd", ".+", -2},       { 3,4 }   },      -- negative st
@@ -85,6 +88,7 @@ local function set_f_match (lib, flg)
     Name = "Function match",
     Func = lib.match,
   --  {subj, patt, st},         { results }
+    { {"abcd", lib.new".+"},    {"abcd"}  }, -- [none]
     { {"abcd", ".+"},           {"abcd"}  }, -- [none]
     { {"abcd", ".+", 2},        {"bcd"}   }, -- positive st
     { {"abcd", ".+", -2},       {"cd"}    }, -- negative st
@@ -175,10 +179,12 @@ end
 
 local function set_f_gsub1 (lib, flg)
   local subj, pat = "abcdef", "[abef]+"
+  local cpat = lib.new(pat)
   return {
     Name = "Function gsub, set1",
     Func = get_gsub (lib),
   --{ s,       p,    f,   n,    res1,  res2, res3 },
+    { {subj,  cpat,  "",  0},   {subj,    0, 0} }, -- test "n" + empty_replace
     { {subj,   pat,  "",  0},   {subj,    0, 0} }, -- test "n" + empty_replace
     { {subj,   pat,  "", -1},   {subj,    0, 0} }, -- test "n" + empty_replace
     { {subj,   pat,  "",  1},   {"cdef",  1, 1} },

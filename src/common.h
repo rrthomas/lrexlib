@@ -25,6 +25,7 @@ typedef struct {
 typedef struct {            /* compile arguments */
   const char * pattern;
   size_t       patlen;
+  void       * ud;
   int          cflags;
   const char * locale;
   const unsigned char * tables;
