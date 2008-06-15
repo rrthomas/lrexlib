@@ -48,8 +48,8 @@ Notes
    library.
 
 5. All functions receiving a string-type regex argument accept a compiled regex
-   too. If this is the case, then cf_ and locale_ arguments are ignored (should
-   be either supplied as nils or omitted).
+   too. In this case, the cf_ and locale_ arguments are ignored (should be
+   either supplied as nils or omitted).
 
 .. _cf:
 
