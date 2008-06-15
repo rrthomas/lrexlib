@@ -1,6 +1,6 @@
 .. role:: funcdef(literal)
 
-Lrexlib 2.3 Reference Manual
+Lrexlib 2.4 Reference Manual
 ============================
 
 .. contents:: Table of Contents
@@ -47,9 +47,13 @@ Notes
    generate an error if that pattern is found invalid by the used POSIX_ / PCRE_
    library.
 
+5. All functions receiving a string-type regex argument accept a compiled regex
+   too. If this is the case, then cf_ and locale_ arguments are ignored (should
+   be either supplied as nils or omitted).
+
 .. _cf:
 
-5. The default value for *compilation flags* (*cf*) that Lrexlib uses when
+6. The default value for *compilation flags* (*cf*) that Lrexlib uses when
    the parameter is not supplied or ``nil``, is:
 
      * 0 for PCRE
@@ -72,7 +76,7 @@ Notes
 
 .. _ef:
 
-6. The default value for *execution flags* (*ef*) that Lrexlib uses when
+7. The default value for *execution flags* (*ef*) that Lrexlib uses when
    the parameter is not supplied or ``nil``, is:
 
      * 0 for PCRE
@@ -82,7 +86,7 @@ Notes
 
 .. _locale:
 
-7. Parameter *locale* (*lo*) can be either a string (e.g., "French_France.1252"),
+8. Parameter *locale* (*lo*) can be either a string (e.g., "French_France.1252"),
    or a userdata obtained from a call to maketables_. The default value, used
    when the parameter is not supplied or ``nil``, is the built-in PCRE set of
    character tables.
@@ -113,7 +117,9 @@ PCRE: A locale *lo* may be specified.
   +---------+-------------------------------+--------+-------------+
   |  subj   |          subject              | string |     n/a     |
   +---------+-------------------------------+--------+-------------+
-  |  patt   |regular expression pattern     | string |     n/a     |
+  |  patt   |regular expression pattern     |string  |     n/a     |
+  |         |                               |or      |             |
+  |         |                               |userdata|             |
   +---------+-------------------------------+--------+-------------+
   | [init]  |start offset in the subject    | number |      1      |
   |         |(can be negative)              |        |             |
@@ -159,7 +165,9 @@ PCRE: A locale *lo* may be specified.
   +---------+-------------------------------+--------+-------------+
   |  subj   |          subject              | string |     n/a     |
   +---------+-------------------------------+--------+-------------+
-  |  patt   |regular expression pattern     | string |     n/a     |
+  |  patt   |regular expression pattern     |string  |     n/a     |
+  |         |                               |or      |             |
+  |         |                               |userdata|             |
   +---------+-------------------------------+--------+-------------+
   | [init]  |start offset in the subject    | number |      1      |
   |         |(can be negative)              |        |             |
@@ -202,6 +210,8 @@ PCRE: A locale *lo* may be specified.
   |  subj   |        subject                |string  |     n/a     |
   +---------+-------------------------------+--------+-------------+
   |  patt   |regular expression pattern     |string  |     n/a     |
+  |         |                               |or      |             |
+  |         |                               |userdata|             |
   +---------+-------------------------------+--------+-------------+
   |  [cf]   |compilation flags (bitwise OR) |number  |     cf_     |
   +---------+-------------------------------+--------+-------------+
@@ -235,7 +245,7 @@ PCRE: A locale *lo* may be specified.
   +=========+===================================+=========================+=============+
   |  subj   |subject                            |         string          |     n/a     |
   +---------+-----------------------------------+-------------------------+-------------+
-  |  patt   |regular expression pattern         |         string          |     n/a     |
+  |  patt   |regular expression pattern         |string or userdata       |     n/a     |
   +---------+-----------------------------------+-------------------------+-------------+
   |  repl   |substitution source                |string, function or table|     n/a     |
   +---------+-----------------------------------+-------------------------+-------------+
@@ -358,7 +368,8 @@ PCRE: A locale *lo* may be specified.
   |  subj   |        subject                |string  |     n/a     |
   +---------+-------------------------------+--------+-------------+
   |   sep   |separator (regular expression  |string  |     n/a     |
-  |         |pattern)                       |        |             |
+  |         |pattern)                       |or      |             |
+  |         |                               |userdata|             |
   +---------+-------------------------------+--------+-------------+
   |  [cf]   |compilation flags (bitwise OR) |number  |     cf_     |
   +---------+-------------------------------+--------+-------------+
