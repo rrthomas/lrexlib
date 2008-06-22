@@ -89,6 +89,7 @@ end
 --  2) test results table or error_message
 --  3) test results table or error_message
 function test_method (test, constructor, name)
+  local res1, res2
   local ok, r = pcall (constructor, unpackNT (test[1]))
   if ok then
     local t = packNT (pcall (r[name], r, unpackNT (test[2])))
