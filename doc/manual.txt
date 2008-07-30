@@ -32,7 +32,7 @@ Notes
 1. Most functions and methods in Lrexlib have mandatory and optional arguments.
    There are no dependencies between arguments in Lrexlib's functions and
    methods. Any optional argument can be supplied as ``nil`` (or omitted if it
-   is trailing one), the library will then use the default value for that
+   is a trailing argument), the library will then use the default value for that
    argument.
 
 2. This document uses the following syntax for optional arguments: they are
@@ -44,18 +44,18 @@ Notes
    is used in place of either *rex_posix*, *rex_pcre* or *rex_onig*, that are
    the default namespaces for the corresponding libraries.
 
-4. All functions receiving a regular expression pattern as an argument will
+4. All functions that take a regular expression pattern as an argument will
    generate an error if that pattern is found invalid by the used
    POSIX_ / PCRE_ / Oniguruma_ library.
 
-5. All functions receiving a string-type regex argument accept a compiled regex
+5. All functions that take a string-type regex argument accept a compiled regex
    too. In this case, the cf_, locale_ and syntax_ arguments are ignored (should
    be either supplied as nils or omitted).
 
 .. _cf:
 
 6. The default value for *compilation flags* (*cf*) that Lrexlib uses when
-   the parameter is not supplied or ``nil``, is:
+   the parameter is not supplied or ``nil`` is:
 
      * REG_EXTENDED for POSIX regex library
      * 0 for PCRE
@@ -120,8 +120,8 @@ Notes
 
 ------------------------------------------------------------
 
-Functions and methods common for all bindings
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Functions and methods common to all bindings
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 match
 -----
@@ -426,16 +426,16 @@ flags
 
 :funcdef:`rex.flags ([tb])`
 
-This function returns a table containing numeric values of the constants defined
-by the used regex library. Those constants are keyed by their names (strings).
-If the table argument *tb* is supplied then it is used as the output table,
-else a new table is created.
+This function returns a table containing the numeric values of the constants
+defined by the used regex library, with the keys being the (string) names of the
+constants. If the table argument *tb* is supplied then it is used as the output
+table, otherwise a new table is created.
 
 The constants contained in the returned table can then be used in most functions
 and methods where *compilation flags* or *execution flags* can be specified.
 They can also be used for comparing with return codes of some functions and
-methods for determining the reason of failure. For details, see POSIX_, PCRE_
-and Oniguruma_ documentation.
+methods for determining the reason of failure. For details, see the POSIX_,
+PCRE_ and Oniguruma_ documentation.
 
   +---------+--------------------------------+--------+-------------+
   |Parameter|        Description             |  Type  |Default Value|
