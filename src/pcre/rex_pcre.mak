@@ -20,7 +20,7 @@ TRG = rex_pcre
 # ===========================================================================
 # === END OF USER SETTINGS ===
 
-OBJ    = lpcre.o lpcre_f.o common.o
+OBJ    = lpcre.o lpcre_f.o ../common.o
 
 include ../common.mak
 
@@ -31,8 +31,8 @@ ar_pcre: $(TRG_AR)
 so_pcre: $(TRG_SO)
 
 # Dependencies
-lpcre.o: lpcre.c common.h algo.h
-lpcre_f.o: lpcre_f.c common.h
-common.o: common.c common.h
+lpcre.o: lpcre.c ../common.h ../algo.h
+lpcre_f.o: lpcre_f.c ../common.h
+../common.o: ../common.c ../common.h
 
 # (End of Makefile)
