@@ -23,7 +23,7 @@ MYLIBS      = -L$(DLLPATH) -lrxspencer -l$(LUADLL)
 OBJ         = lposix.o common.o
 MYCFLAGS    = -W -Wall -O2
 EXPORTED    = 'luaopen_$(PROJECT)'
-SRCPATH     = ..\..\src
+SRCPATH     = ..\..\src;..\..\src\posix
 TESTPATH    = ..\..\test
 TESTNAME    = spencer
 
