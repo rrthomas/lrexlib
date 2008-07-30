@@ -10,17 +10,18 @@ Lrexlib 2.4 Reference Manual
 Introduction
 ~~~~~~~~~~~~
 
-**Lrexlib** provides bindings of the two principal regular expression library
-interfaces (POSIX_ and PCRE_) to Lua_ 5.1.
+**Lrexlib** provides bindings of the three principal regular expression library
+interfaces (POSIX_, PCRE_ and Oniguruma_) to Lua_ 5.1.
 
-**Lrexlib** builds into shared libraries called by default *rex_posix.so* and
-*rex_pcre.so*, which can be used with *require*.
+**Lrexlib** builds into shared libraries called by default *rex_posix.so*,
+*rex_pcre.so* and *rex_onig.so*, which can be used with *require*.
 
 **Lrexlib** is copyright Reuben Thomas 2000-2008 and copyright Shmuel Zeigerman
 2004-2008, and is released under the MIT license.
 
 .. _POSIX: http://www.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap09.html
 .. _PCRE: http://www.pcre.org/pcre.txt
+.. _Oniguruma: http://www.geocities.jp/kosako3/oniguruma/doc/RE.txt
 .. _Lua: http://www.lua.org
 
 ------------------------------------------------------------
@@ -39,67 +40,93 @@ Notes
 
     MyFunc (arg1, arg2, [arg3], [arg4])
 
-3. Throughout this document, the identifier *rex* is used in place of either
-   *rex_posix* or *rex_pcre*, that are the default namespaces for the
-   corresponding libraries.
+3. Throughout this document (unless it causes ambiguity), the identifier *rex*
+   is used in place of either *rex_posix*, *rex_pcre* or *rex_onig*, that are
+   the default namespaces for the corresponding libraries.
 
 4. All functions receiving a regular expression pattern as an argument will
-   generate an error if that pattern is found invalid by the used POSIX_ / PCRE_
-   library.
+   generate an error if that pattern is found invalid by the used
+   POSIX_ / PCRE_ / Oniguruma_ library.
 
 5. All functions receiving a string-type regex argument accept a compiled regex
-   too. In this case, the cf_ and locale_ arguments are ignored (should be
-   either supplied as nils or omitted).
+   too. In this case, the cf_, locale_ and syntax_ arguments are ignored (should
+   be either supplied as nils or omitted).
 
 .. _cf:
 
 6. The default value for *compilation flags* (*cf*) that Lrexlib uses when
    the parameter is not supplied or ``nil``, is:
 
-     * 0 for PCRE
      * REG_EXTENDED for POSIX regex library
+     * 0 for PCRE
+     * ONIG_OPTION_NONE for Oniguruma
 
-   For PCRE, *cf* may also be supplied as a string, whose characters stand for
-   PCRE compilation flags. Combinations of the following characters (case
-   sensitive) are supported:
+   **PCRE**, **Oniguruma**: *cf* may also be supplied as a string, whose
+   characters stand for compilation flags. Combinations of the following
+   characters (case sensitive) are supported:
 
-      ===============   ==================
-       **Character**      **PCRE flag**
-      ===============   ==================
-       **i**              PCRE_CASELESS
-       **m**              PCRE_MULTILINE
-       **s**              PCRE_DOTALL
-       **x**              PCRE_EXTENDED
-       **U**              PCRE_UNGREEDY
-       **X**              PCRE_EXTRA
-      ===============   ==================
+      ===============   ==================   ==============================
+       **Character**      **PCRE flag**        **Oniguruma flag**
+      ===============   ==================   ==============================
+       **i**              PCRE_CASELESS       ONIG_OPTION_IGNORECASE
+       **m**              PCRE_MULTILINE      ONIG_OPTION_NEGATE_SINGLELINE
+       **s**              PCRE_DOTALL         ONIG_OPTION_MULTILINE
+       **x**              PCRE_EXTENDED       ONIG_OPTION_EXTEND
+       **U**              PCRE_UNGREEDY       n/a
+       **X**              PCRE_EXTRA          n/a
+      ===============   ==================   ==============================
 
 .. _ef:
 
 7. The default value for *execution flags* (*ef*) that Lrexlib uses when
    the parameter is not supplied or ``nil``, is:
 
-     * 0 for PCRE
      * 0 for standard POSIX regex library
      * REG_STARTEND for those POSIX regex libraries that support it,
        e.g. Spencer's.
+     * 0 for PCRE
+     * 0 for Oniguruma
 
 .. _locale:
 
-8. Parameter *locale* (*lo*) can be either a string (e.g., "French_France.1252"),
-   or a userdata obtained from a call to maketables_. The default value, used
-   when the parameter is not supplied or ``nil``, is the built-in PCRE set of
-   character tables.
+8. **PCRE:** parameter *locale* (*lo*) can be either a string (e.g.,
+   "French_France.1252"), or a userdata obtained from a call to maketables_.
+   The default value, used when the parameter is not supplied or ``nil``,
+   is the built-in PCRE set of character tables.
+
+   **Oniguruma:** this parameter (which actually should be named "encoding"
+   rather then "locale") must be one of the predefined strings that are formed
+   from the ONIG_ENCODING_xxx identifiers defined in oniguruma.h, by means of
+   omitting the ONIG_ENCODING\_ part. For example, ONIG_ENCODING_UTF8 becomes
+   ``"UTF8"`` on the Lua side (or ``"utf8"``, as this parameter is case
+   insensitive). The default value, used when the parameter is not supplied or
+   ``nil``, is ``"ASCII"``.
+
+   If the caller-supplied value of this parameter is not one of the predefined
+   "encoding" string set, an error is raised.
+
+.. _syntax:
+
+9. **Oniguruma:** parameter *syntax* (*syn*) must be one of the predefined
+   strings that are formed from the ONIG_SYNTAX_xxx identifiers defined in
+   oniguruma.h, by means of omitting the ONIG_SYNTAX\_ part. For example,
+   ONIG_SYNTAX_JAVA becomes ``"JAVA"`` on the Lua side (or ``"java"``, as this
+   parameter is case insensitive). The default value, used when the parameter is
+   not supplied or ``nil``, is either ``"RUBY"`` (at the start-up), or the value
+   set by the last setdefaultsyntax_ call.
+
+   If the caller-supplied value of `syntax` parameter is not one of the
+   predefined "syntax" string set, an error is raised.
 
 ------------------------------------------------------------
 
-Common (PCRE and POSIX) functions and methods
+Functions and methods common for all bindings
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 match
 -----
 
-:funcdef:`rex.match (subj, patt, [init], [cf], [ef], [lo])`
+:funcdef:`rex.match (subj, patt, [init], [cf], [ef], [lo], [syn])`
 
 or
 
@@ -107,8 +134,6 @@ or
 
 The function searches for the first match of the regexp *patt* in the string
 *subj*, starting from offset *init*, subject to flags *cf* and *ef*.
-
-PCRE: A locale *lo* may be specified.
 
   +---------+-------------------------------+--------+-------------+
   |Parameter|        Description            |  Type  |Default Value|
@@ -128,9 +153,11 @@ PCRE: A locale *lo* may be specified.
   +---------+-------------------------------+--------+-------------+
   |  [ef]   |  execution flags (bitwise OR) | number |     ef_     |
   +---------+-------------------------------+--------+-------------+
-  |  [lo]   |[PCRE] locale                  |string  |locale_      |
+  |  [lo]   |[PCRE, Oniguruma] locale       |string  |locale_      |
   |         |                               |or      |             |
   |         |                               |userdata|             |
+  +---------+-------------------------------+--------+-------------+
+  |  [syn]  |[Oniguruma] syntax             | string |syntax_      |
   +---------+-------------------------------+--------+-------------+
 
 **Returns on success:**
@@ -147,7 +174,7 @@ PCRE: A locale *lo* may be specified.
 find
 ----
 
-:funcdef:`rex.find (subj, patt, [init], [cf], [ef], [lo])`
+:funcdef:`rex.find (subj, patt, [init], [cf], [ef], [lo], [syn])`
 
 or
 
@@ -155,8 +182,6 @@ or
 
 The function searches for the first match of the regexp *patt* in the string
 *subj*, starting from offset *init*, subject to flags *cf* and *ef*.
-
-PCRE: A locale *lo* may be specified.
 
   +---------+-------------------------------+--------+-------------+
   |Parameter|        Description            |  Type  |Default Value|
@@ -176,9 +201,11 @@ PCRE: A locale *lo* may be specified.
   +---------+-------------------------------+--------+-------------+
   |  [ef]   |  execution flags (bitwise OR) | number |      ef_    |
   +---------+-------------------------------+--------+-------------+
-  |  [lo]   |[PCRE] locale                  |string  |locale_      |
+  |  [lo]   |[PCRE, Oniguruma] locale       |string  |locale_      |
   |         |                               |or      |             |
   |         |                               |userdata|             |
+  +---------+-------------------------------+--------+-------------+
+  |  [syn]  |[Oniguruma] syntax             | string |syntax_      |
   +---------+-------------------------------+--------+-------------+
 
 **Returns on success:**
@@ -196,13 +223,11 @@ PCRE: A locale *lo* may be specified.
 gmatch
 ------
 
-:funcdef:`rex.gmatch (subj, patt, [cf], [ef], [lo])`
+:funcdef:`rex.gmatch (subj, patt, [cf], [ef], [lo], [syn])`
 
 The function is intended for use in the *generic for* Lua construct.
 It returns an iterator for repeated matching of the pattern *patt* in
 the string *subj*, subject to flags *cf* and *ef*.
-
-PCRE: A locale *lo* may be specified.
 
   +---------+-------------------------------+--------+-------------+
   |Parameter|      Description              | Type   |Default Value|
@@ -217,9 +242,11 @@ PCRE: A locale *lo* may be specified.
   +---------+-------------------------------+--------+-------------+
   |  [ef]   |execution flags (bitwise OR)   |number  |     ef_     |
   +---------+-------------------------------+--------+-------------+
-  |  [lo]   |[PCRE] locale                  |string  |locale_      |
+  |  [lo]   |[PCRE, Oniguruma] locale       |string  |locale_      |
   |         |                               |or      |             |
   |         |                               |userdata|             |
+  +---------+-------------------------------+--------+-------------+
+  |  [syn]  |[Oniguruma] syntax             | string |syntax_      |
   +---------+-------------------------------+--------+-------------+
 
 The iterator function is called by Lua. On every iteration (that is, on every
@@ -232,13 +259,11 @@ till the subject fails to match.
 gsub
 ----
 
-:funcdef:`rex.gsub (subj, patt, repl, [n], [cf], [ef], [lo])`
+:funcdef:`rex.gsub (subj, patt, repl, [n], [cf], [ef], [lo], [syn])`
 
 This function searches for all matches of the pattern *patt* in the string
 *subj* and replaces them according to the parameters *repl* and *n* (see details
 below).
-
-PCRE: A locale *lo* may be specified.
 
   +---------+-----------------------------------+-------------------------+-------------+
   |Parameter|       Description                 |          Type           |Default Value|
@@ -256,8 +281,10 @@ PCRE: A locale *lo* may be specified.
   +---------+-----------------------------------+-------------------------+-------------+
   |  [ef]   |execution flags (bitwise OR)       |         number          |     ef_     |
   +---------+-----------------------------------+-------------------------+-------------+
-  |  [lo]   |[PCRE] locale                      | string or userdata      |locale_      |
+  |  [lo]   |[PCRE, Oniguruma] locale           | string or userdata      |locale_      |
   |         |                                   |                         |             |
+  +---------+-----------------------------------+-------------------------+-------------+
+  |  [syn]  |[Oniguruma] syntax                 | string                  |syntax_      |
   +---------+-----------------------------------+-------------------------+-------------+
 
 **Returns:**
@@ -350,7 +377,7 @@ PCRE: A locale *lo* may be specified.
 split
 -----
 
-:funcdef:`rex.split (subj, sep, [cf], [ef], [lo])`
+:funcdef:`rex.split (subj, sep, [cf], [ef], [lo], [syn])`
 
 The function is intended for use in the *generic for* Lua construct.
 It is used for splitting a subject string *subj* into parts (*sections*).
@@ -359,8 +386,6 @@ The *sep* parameter is a regular expression pattern representing
 
 The function returns an iterator for repeated matching of the pattern *sep* in
 the string *subj*, subject to flags *cf* and *ef*.
-
-PCRE: A locale *lo* may be specified.
 
   +---------+-------------------------------+--------+-------------+
   |Parameter|      Description              | Type   |Default Value|
@@ -375,9 +400,11 @@ PCRE: A locale *lo* may be specified.
   +---------+-------------------------------+--------+-------------+
   |  [ef]   |execution flags (bitwise OR)   |number  |     ef_     |
   +---------+-------------------------------+--------+-------------+
-  |  [lo]   |[PCRE] locale                  |string  |locale_      |
+  |  [lo]   |[PCRE, Oniguruma] locale       |string  |locale_      |
   |         |                               |or      |             |
   |         |                               |userdata|             |
+  +---------+-------------------------------+--------+-------------+
+  |  [syn]  |[Oniguruma] syntax             | string |syntax_      |
   +---------+-------------------------------+--------+-------------+
 
 **On every iteration pass, the iterator returns:**
@@ -400,15 +427,15 @@ flags
 :funcdef:`rex.flags ([tb])`
 
 This function returns a table containing numeric values of the constants defined
-by the used regex library (either PCRE or POSIX). Those constants are keyed by
-their names (strings). If the table argument *tb* is supplied then it is used as
-the output table, else a new table is created.
+by the used regex library. Those constants are keyed by their names (strings).
+If the table argument *tb* is supplied then it is used as the output table,
+else a new table is created.
 
 The constants contained in the returned table can then be used in most functions
 and methods where *compilation flags* or *execution flags* can be specified.
 They can also be used for comparing with return codes of some functions and
-methods for determining the reason of failure. For details, see PCRE_ and POSIX_
-documentation.
+methods for determining the reason of failure. For details, see POSIX_, PCRE_
+and Oniguruma_ documentation.
 
   +---------+--------------------------------+--------+-------------+
   |Parameter|        Description             |  Type  |Default Value|
@@ -419,20 +446,29 @@ documentation.
 **Returns:**
  1. A table filled with the results.
 
+**Notes:**
+The keys in the `tb` table are formed from the names of the corresponding
+constants in the used library. They are formed as follows:
+
+* **POSIX:** prefix REG\_ is omitted, e.g. REG_ICASE becomes ``"ICASE"``.
+* **PCRE:** prefix PCRE\_ is omitted, e.g. PCRE_CASELESS becomes
+  ``"CASELESS"``.
+* **Oniguruma:** names of constants are converted to strings with no alteration,
+  but for ONIG_OPTION_xxx constants, alias strings are created additionally,
+  e.g., the value of ONIG_OPTION_IGNORECASE constant becomes accessible via
+  either of two keys: ``"ONIG_OPTION_IGNORECASE"`` and ``"IGNORECASE"``.
+
 ------------------------------------------------------------
 
 new
 ---
 
-:funcdef:`rex.new (patt, [cf], [lo])`
+:funcdef:`rex.new (patt, [cf], [lo], [syn])`
 
 The functions compiles regular expression *patt* into a regular expression
-object whose internal representation is correspondent to the library used (PCRE
-or POSIX regex).  The returned result then can be used by the methods `tfind`_,
-`exec`_ and `dfa_exec`_.  Regular expression objects are automatically garbage
-collected.
-
-PCRE: A locale *lo* may be specified.
+object whose internal representation is corresponding to the library used.
+The returned result then can be used by the methods, e.g. `tfind`_, `exec`_,
+etc. Regular expression objects are automatically garbage collected.
 
   +---------+-------------------------------+--------+-------------+
   |Parameter|        Description            |  Type  |Default Value|
@@ -441,9 +477,11 @@ PCRE: A locale *lo* may be specified.
   +---------+-------------------------------+--------+-------------+
   |  [cf]   |compilation flags (bitwise OR) | number |     cf_     |
   +---------+-------------------------------+--------+-------------+
-  |  [lo]   |[PCRE] locale                  |string  |locale_      |
+  |  [lo]   |[PCRE, Oniguruma] locale       |string  |locale_      |
   |         |                               |or      |             |
   |         |                               |userdata|             |
+  +---------+-------------------------------+--------+-------------+
+  |  [syn]  |[Oniguruma] syntax             | string |syntax_      |
   +---------+-------------------------------+--------+-------------+
 
 **Returns:**
@@ -479,17 +517,17 @@ string *subj*, starting from offset *init*, subject to execution flags *ef*.
     result, in a table. This table contains ``false`` in the positions where the
     corresponding sub-pattern did not participate in the match.
 
-    1. PCRE: if *named subpatterns* are used then the table also contains
-       substring matches keyed by their correspondent subpattern names
-       (strings).
+    1. **PCRE**, **Oniguruma**: if *named subpatterns* are used then the table
+       also contains substring matches keyed by their correspondent subpattern
+       names (strings).
 
 **Returns on failure:**
  1. ``nil``
 
 **Notes:**
- 1. If *named subpatterns* (see PCRE_ docs) are used then the returned table
-    also contains substring matches keyed by their correspondent subpattern
-    names (strings).
+ 1. If *named subpatterns* (see PCRE_ and Oniguruma_ docs) are used then the
+    returned table also contains substring matches keyed by their correspondent
+    subpattern names (strings).
 
 ------------------------------------------------------------
 
@@ -522,9 +560,9 @@ string *subj*, starting from offset *init*, subject to execution flags *ef*.
     positions where the corresponding sub-pattern did not participate in the
     match.
 
-    1. PCRE: if *named subpatterns* are used then the table also contains
-       substring matches keyed by their correspondent subpattern names
-       (strings).
+    1. **PCRE**, **Oniguruma**: if *named subpatterns* are used then the table
+       also contains substring matches keyed by their correspondent subpattern
+       names (strings).
 
 **Returns on failure:**
  1. ``nil``
@@ -585,9 +623,9 @@ string *subj*, using a DFA matching algorithm.
 maketables
 ----------
 
-[PCRE only. See *pcre_maketables* in the PCRE_ docs.]
+[See *pcre_maketables* in the PCRE_ docs.]
 
-:funcdef:`rex.maketables ()`
+:funcdef:`rex_pcre.maketables ()`
 
 Creates a set of character tables corresponding to the current locale and
 returns it as a userdata. The returned value can be passed to any Lrexlib
@@ -600,7 +638,7 @@ config
 
 [PCRE 4.0 and later. See *pcre_config* in the PCRE_ docs.]
 
-:funcdef:`rex.config ([tb])`
+:funcdef:`rex_pcre.config ([tb])`
 
 This function returns a table containing the values of the configuration
 parameters used at PCRE library build-time. Those parameters (numbers) are
@@ -618,15 +656,51 @@ is used as the output table, else a new table is created.
 
 ------------------------------------------------------------
 
-version
--------
+.. _version:
 
-[PCRE only. See *pcre_version* in the PCRE_ docs.]
+rex_pcre.version
+----------------
 
-:funcdef:`rex.version ()`
+[See *pcre_version* in the PCRE_ docs.]
+
+:funcdef:`rex_pcre.version ()`
 
 This function returns a string containing the version of the used PCRE library
 and its release date.
+
+------------------------------------------------------------
+
+Oniguruma-only functions and methods
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+setdefaultsyntax
+----------------
+
+:funcdef:`rex_onig.setdefaultsyntax (syntax)`
+
+This function sets the default syntax for the Oniguruma library, according to
+value of the string syntax_. The specified syntax will be further used for
+interpreting string regex patterns by all relevant functions, unless `syntax`
+argument is passed to those functions explicitly.
+
+**Returns:** nothing
+
+**Examples:**
+
+  1. ``rex_onig.setdefaultsyntax ("ASIS") -- use plain text syntax as the default``
+  2. ``rex_onig.setdefaultsyntax ("PERL") -- use PERL regex syntax as the default``
+
+------------------------------------------------------------
+
+rex_onig.version
+----------------
+
+[See *onig_version* in the Oniguruma docs.]
+
+:funcdef:`rex_onig.version ()`
+
+This function returns a string containing the version of the used Oniguruma
+library.
 
 ------------------------------------------------------------
 
@@ -645,7 +719,7 @@ The function searches for the first match of the string *patt* in the subject
     themselves.
   * Both strings *subj* and *patt* can have embedded zeros.
   * The flag *ci* specifies case-insensitive search (current locale is used).
-  * This function uses neither PCRE nor POSIX regex library.
+  * This function uses no regex library.
 
   +---------+---------------------------+--------+-------------+
   |Parameter|        Description        |  Type  |Default Value|

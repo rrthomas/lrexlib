@@ -48,6 +48,7 @@ local avail_tests = {
   pcre      = { lib = "rex_pcre",     "common_sets", "pcre_sets", "pcre_sets2", },
   pcre_nr   = { lib = "rex_pcre_nr",  "common_sets", "pcre_sets", "pcre_sets2", },
   pcre45    = { lib = "rex_pcre45",   "common_sets", "pcre_sets", "pcre_sets2", },
+  onig      = { lib = "rex_onig",     "common_sets", "onig_sets", }
 }
 
 do
