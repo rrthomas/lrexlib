@@ -1,7 +1,7 @@
 /* lonig_f.c - Lua binding of Oniguruma library */
 /* See Copyright Notice in the file LICENSE */
 
-#include <oniguruma/oniguruma.h>
+#include <oniguruma.h>
 #include <lua.h>
 #include <lauxlib.h>
 #include "../common.h"
@@ -188,7 +188,9 @@ static flag_pair onig_error_flags[] = {
   { "ONIGERR_NEVER_ENDING_RECURSION",                       ONIGERR_NEVER_ENDING_RECURSION },
   { "ONIGERR_GROUP_NUMBER_OVER_FOR_CAPTURE_HISTORY",        ONIGERR_GROUP_NUMBER_OVER_FOR_CAPTURE_HISTORY },
   { "ONIGERR_INVALID_CHAR_PROPERTY_NAME",                   ONIGERR_INVALID_CHAR_PROPERTY_NAME },
+#ifdef ONIGERR_INVALID_CODE_POINT_VALUE
   { "ONIGERR_INVALID_CODE_POINT_VALUE",                     ONIGERR_INVALID_CODE_POINT_VALUE },
+#endif
   { "ONIGERR_INVALID_WIDE_CHAR_VALUE",                      ONIGERR_INVALID_WIDE_CHAR_VALUE },
   { "ONIGERR_TOO_BIG_WIDE_CHAR_VALUE",                      ONIGERR_TOO_BIG_WIDE_CHAR_VALUE },
   { "ONIGERR_NOT_SUPPORTED_ENCODING_COMBINATION",           ONIGERR_NOT_SUPPORTED_ENCODING_COMBINATION },

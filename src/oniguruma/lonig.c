@@ -5,7 +5,7 @@
 #include <string.h>
 #include <locale.h>
 #include <ctype.h>
-#include <oniguruma/oniguruma.h>
+#include <oniguruma.h>
 
 #include "lua.h"
 #include "lauxlib.h"
@@ -170,8 +170,8 @@ static EncPair Syntaxes[] = {
   { "RUBY",           ONIG_SYNTAX_RUBY },
 };
 
-static int _cdecl fcmp(const void *p1, const void *p2) {
-  return stricmp(((EncPair*)p1)->name, ((EncPair*)p2)->name);
+static int fcmp(const void *p1, const void *p2) {
+  return strcasecmp(((EncPair*)p1)->name, ((EncPair*)p2)->name);
 }
 
 static void optlocale (TArgComp *argC, lua_State *L, int pos) {
