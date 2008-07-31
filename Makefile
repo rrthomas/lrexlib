@@ -24,13 +24,13 @@ build_onig:
 	make -C $(ONIG) -f rex_onig.mak
 
 test_pcre:
-	cd test && lua ./runtest.lua -d../$(PCRE) pcre
+	cd test && LUA_INIT= lua ./runtest.lua -d../$(PCRE) pcre
 
 test_posix:
-	cd test && lua ./runtest.lua -d../$(POSIX) posix
+	cd test && LUA_INIT= lua ./runtest.lua -d../$(POSIX) posix
 
 test_onig:
-	cd test && lua ./runtest.lua -d../$(ONIG) onig
+	cd test && LUA_INIT= lua ./runtest.lua -d../$(ONIG) onig
 
 clean_pcre:
 	make -C $(PCRE) -f rex_pcre.mak clean
