@@ -10,8 +10,8 @@ Lrexlib 2.4 Reference Manual
 Introduction
 ~~~~~~~~~~~~
 
-**Lrexlib** provides bindings of the three principal regular expression library
-interfaces (POSIX_, PCRE_ and Oniguruma_) to Lua_ 5.1.
+**Lrexlib** provides bindings of three regular expression library APIs
+(POSIX_, PCRE_ and Oniguruma_) to Lua_ 5.1.
 
 **Lrexlib** builds into shared libraries called by default *rex_posix.so*,
 *rex_pcre.so* and *rex_onig.so*, which can be used with *require*.
@@ -95,7 +95,7 @@ Notes
    is the built-in PCRE set of character tables.
 
    **Oniguruma:** this parameter (which actually should be named "encoding"
-   rather then "locale") must be one of the predefined strings that are formed
+   rather than "locale") must be one of the predefined strings that are formed
    from the ONIG_ENCODING_xxx identifiers defined in oniguruma.h, by means of
    omitting the ONIG_ENCODING\_ part. For example, ONIG_ENCODING_UTF8 becomes
    ``"UTF8"`` on the Lua side (or ``"utf8"``, as this parameter is case
