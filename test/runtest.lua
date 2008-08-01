@@ -87,6 +87,7 @@ do
   end
   -- do tests
   for _, test in ipairs (tests) do
+    package.loaded[test.lib] = nil -- to force-reload the tested library
     for _, setfile in ipairs (test) do
       nerr = nerr + test_library (test.lib, setfile, verbose)
     end
