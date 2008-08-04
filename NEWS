@@ -1,3 +1,10 @@
+2008-08-04  Release 2.4.0
+
+  * All functions receiving string-type regex accept a compiled regex too.
+
+  * Added binding of the Oniguruma library.
+
+
 2008-05-31  Release 2.3.0
 
   * Added methods: find and match.

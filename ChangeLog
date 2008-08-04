@@ -1,3 +1,25 @@
+2008-08-04  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
+	* onig.c: making 'locale' and 'syntax' case sensitive again.
+	* onig_f.c: enclose all flags definitions into #ifdef's.
+
+2008-07-30  Reuben Thomas  <rrt@sc3d.org>
+
+	* Fixes in make files and docs. Testing on Linux.
+
+2008-07-30  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
+	* Place each binding in separate directory:
+	  src/posix, src/pcre, src/tre, src/oniguruma.
+
+2008-07-27  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
+	* Initial binding of Oniguruma library.
+
+2008-06-22  Shmuel Zeigerman  <shmuz@actcom.co.il>
+
+	* test/luatest.lua: a fix; did not work with 'strict'.
+
 2008-06-14  Shmuel Zeigerman  <shmuz@actcom.co.il>
 
 	* algo.h: [API extension; suggested by Reuben Thomas]

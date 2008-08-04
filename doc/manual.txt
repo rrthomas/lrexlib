@@ -98,9 +98,8 @@ Notes
    rather than "locale") must be one of the predefined strings that are formed
    from the ONIG_ENCODING_xxx identifiers defined in oniguruma.h, by means of
    omitting the ONIG_ENCODING\_ part. For example, ONIG_ENCODING_UTF8 becomes
-   ``"UTF8"`` on the Lua side (or ``"utf8"``, as this parameter is case
-   insensitive). The default value, used when the parameter is not supplied or
-   ``nil``, is ``"ASCII"``.
+   ``"UTF8"`` on the Lua side. The default value, used when the parameter is not
+   supplied or ``nil``, is ``"ASCII"``.
 
    If the caller-supplied value of this parameter is not one of the predefined
    "encoding" string set, an error is raised.
@@ -110,10 +109,9 @@ Notes
 9. **Oniguruma:** parameter *syntax* (*syn*) must be one of the predefined
    strings that are formed from the ONIG_SYNTAX_xxx identifiers defined in
    oniguruma.h, by means of omitting the ONIG_SYNTAX\_ part. For example,
-   ONIG_SYNTAX_JAVA becomes ``"JAVA"`` on the Lua side (or ``"java"``, as this
-   parameter is case insensitive). The default value, used when the parameter is
-   not supplied or ``nil``, is either ``"RUBY"`` (at the start-up), or the value
-   set by the last setdefaultsyntax_ call.
+   ONIG_SYNTAX_JAVA becomes ``"JAVA"`` on the Lua side. The default value, used
+   when the parameter is not supplied or ``nil``, is either ``"RUBY"`` (at the
+   start-up), or the value set by the last setdefaultsyntax_ call.
 
    If the caller-supplied value of `syntax` parameter is not one of the
    predefined "syntax" string set, an error is raised.

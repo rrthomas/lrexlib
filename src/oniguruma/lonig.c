@@ -171,7 +171,7 @@ static EncPair Syntaxes[] = {
 };
 
 static int fcmp(const void *p1, const void *p2) {
-  return strcasecmp(((EncPair*)p1)->name, ((EncPair*)p2)->name);
+  return strcmp(((EncPair*)p1)->name, ((EncPair*)p2)->name);
 }
 
 static void optlocale (TArgComp *argC, lua_State *L, int pos) {
