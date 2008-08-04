@@ -6,3 +6,4 @@ To test Lrexlib, execute the following command line:
 
   posix --> test rex_posix library
   pcre  --> test rex_pcre library
+  onig  --> test rex_onig library
