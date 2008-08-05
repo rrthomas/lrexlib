@@ -5,9 +5,8 @@ Lrexlib 2.4
 |  and Shmuel Zeigerman (shmuz@actcom.co.il) [maintainer]
 
 
-Lrexlib is a regular expression library for Lua 5.1. The makefiles
-provided build it into shared libraries called rex_posix.so and
-rex_pcre.so, which can be used with require or loadlib.
+Lrexlib is a binding of three regular expression library APIs (POSIX,
+PCRE and Oniguruma) to Lua 5.1.
 
 Lrexlib is copyright Reuben Thomas 2000-2008 and copyright Shmuel
 Zeigerman 2004-2008, and is released under the MIT license, like Lua
