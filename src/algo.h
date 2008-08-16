@@ -99,7 +99,8 @@ static TUserdata* test_ud (lua_State *L, int pos)
 static TUserdata* check_ud (lua_State *L)
 {
   TUserdata *ud = test_ud(L, 1);
-  return ud ? ud : (TUserdata*)luaL_typerror(L, 1, REX_TYPENAME);
+  if (ud == NULL) luaL_typerror(L, 1, REX_TYPENAME);
+  return ud;
 }
 
 
