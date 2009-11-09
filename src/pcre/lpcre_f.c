@@ -32,6 +32,9 @@ static flag_pair pcre_flags[] = {
   { "AUTO_CALLOUT",                  PCRE_AUTO_CALLOUT },
   { "PARTIAL",                       PCRE_PARTIAL },
 #endif
+#ifdef PCRE_PARTIAL_SOFT
+  { "PARTIAL_SOFT",                  PCRE_PARTIAL_SOFT },
+#endif
 #if VERSION_PCRE >= 600
   { "DFA_SHORTEST",                  PCRE_DFA_SHORTEST },
   { "DFA_RESTART",                   PCRE_DFA_RESTART },
@@ -55,6 +58,18 @@ static flag_pair pcre_flags[] = {
 #endif
 #if VERSION_PCRE >= 707
   { "JAVASCRIPT_COMPAT",             PCRE_JAVASCRIPT_COMPAT },
+#endif
+#ifdef PCRE_NO_START_OPTIMIZE
+  { "NO_START_OPTIMIZE",             PCRE_NO_START_OPTIMIZE },
+#endif
+#ifdef PCRE_NO_START_OPTIMISE
+  { "NO_START_OPTIMISE",             PCRE_NO_START_OPTIMISE },
+#endif
+#ifdef PCRE_PARTIAL_HARD
+  { "PARTIAL_HARD",                  PCRE_PARTIAL_HARD },
+#endif
+#ifdef PCRE_NOTEMPTY_ATSTART
+  { "NOTEMPTY_ATSTART",              PCRE_NOTEMPTY_ATSTART },
 #endif
 /*---------------------------------------------------------------------------*/
   { "INFO_OPTIONS",                  PCRE_INFO_OPTIONS },
@@ -84,6 +99,9 @@ static flag_pair pcre_flags[] = {
 #endif
 #ifdef PCRE_INFO_HASCRORLF
   { "INFO_HASCRORLF",                PCRE_INFO_HASCRORLF },
+#endif
+#ifdef PCRE_INFO_MINLENGTH
+  { "INFO_MINLENGTH",                PCRE_INFO_MINLENGTH },
 #endif
 /*---------------------------------------------------------------------------*/
 #if VERSION_PCRE >= 400
