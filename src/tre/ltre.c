@@ -8,7 +8,7 @@
 #include "lauxlib.h"
 #include "../common.h"
 
-#include <tre/regex.h>
+#include <tre/tre.h>
 
 /* These 2 settings may be redefined from the command-line or the makefile.
  * They should be kept in sync between themselves and with the target name.
@@ -89,7 +89,7 @@ static void checkarg_atfind (lua_State *L, TArgExec *argE, TPosix **ud,
 
 static int generate_error (lua_State *L, const TPosix *ud, int errcode) {
   char errbuf[80];
-  regerror (errcode, &ud->r, errbuf, sizeof (errbuf));
+  tre_regerror (errcode, &ud->r, errbuf, sizeof (errbuf));
   return luaL_error (L, "%s", errbuf);
 }
 
@@ -100,7 +100,7 @@ static int compile_regex (lua_State *L, const TArgComp *argC, TPosix **pud) {
   ud = (TPosix *)lua_newuserdata (L, sizeof (TPosix));
   memset (ud, 0, sizeof (TPosix));          /* initialize all members to 0 */
 
-  res = regncomp (&ud->r, argC->pattern, argC->patlen, argC->cflags);
+  res = tre_regncomp (&ud->r, argC->pattern, argC->patlen, argC->cflags);
   if (res != 0)
     return generate_error (L, ud, res);
 
@@ -130,7 +130,7 @@ static int generic_atfind (lua_State *L, int tfind) {
   res_match.pmatch = ud->match;
 
   /* execute the search */
-  res = reganexec (&ud->r, argE.text, argE.textlen - argE.startoffset,
+  res = tre_reganexec (&ud->r, argE.text, argE.textlen - argE.startoffset,
                    &res_match, argP, argE.eflags);
   if (ALG_ISMATCH (res)) {
     ALG_PUSHOFFSETS (L, ud, argE.startoffset, 0);
@@ -163,7 +163,7 @@ static int gmatch_exec (TUserdata *ud, TArgExec *argE) {
   if (argE->startoffset > 0)
     argE->eflags |= REG_NOTBOL;
   argE->text += argE->startoffset;
-  return regnexec (&ud->r, argE->text, argE->textlen - argE->startoffset,
+  return tre_regnexec (&ud->r, argE->text, argE->textlen - argE->startoffset,
                    ALG_NSUB(ud) + 1, ud->match, argE->eflags);
 }
 
@@ -173,21 +173,21 @@ static void gmatch_pushsubject (lua_State *L, TArgExec *argE) {
 
 static int findmatch_exec (TPosix *ud, TArgExec *argE) {
   argE->text += argE->startoffset;
-  return regnexec (&ud->r, argE->text, argE->textlen - argE->startoffset,
+  return tre_regnexec (&ud->r, argE->text, argE->textlen - argE->startoffset,
                    ALG_NSUB(ud) + 1, ud->match, argE->eflags);
 }
 
 static int gsub_exec (TPosix *ud, TArgExec *argE, int st) {
   if (st > 0)
     argE->eflags |= REG_NOTBOL;
-  return regnexec (&ud->r, argE->text+st, argE->textlen-st, ALG_NSUB(ud)+1,
+  return tre_regnexec (&ud->r, argE->text+st, argE->textlen-st, ALG_NSUB(ud)+1,
                     ud->match, argE->eflags);
 }
 
 static int split_exec (TPosix *ud, TArgExec *argE, int offset) {
   if (offset > 0)
     argE->eflags |= REG_NOTBOL;
-  return regnexec (&ud->r, argE->text + offset, argE->textlen - offset,
+  return tre_regnexec (&ud->r, argE->text + offset, argE->textlen - offset,
                    ALG_NSUB(ud) + 1, ud->match, argE->eflags);
 }
 
@@ -207,7 +207,7 @@ static int Ltre_gc (lua_State *L) {
   TPosix *ud = check_ud (L);
   if (ud->freed == 0) {           /* precaution against "manual" __gc calling */
     ud->freed = 1;
-    regfree (&ud->r);
+    tre_regfree (&ud->r);
     if (ud->match)
       free (ud->match);
   }
