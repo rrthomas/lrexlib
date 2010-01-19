@@ -66,7 +66,7 @@ static int OptLimit (lua_State *L, int pos) {
     int a = lua_tointeger (L, pos);
     return a < 0 ? 0 : a;
   }
-  return luaL_typerror (L, pos, "number or function");
+  return luaL_typeerror (L, pos, "number or function");
 }
 
 
@@ -99,7 +99,7 @@ static TUserdata* test_ud (lua_State *L, int pos)
 static TUserdata* check_ud (lua_State *L)
 {
   TUserdata *ud = test_ud(L, 1);
-  if (ud == NULL) luaL_typerror(L, 1, REX_TYPENAME);
+  if (ud == NULL) luaL_typeerror(L, 1, REX_TYPENAME);
   return ud;
 }
 
@@ -111,7 +111,7 @@ static void check_pattern (lua_State *L, int pos, TArgComp *argC)
     argC->ud = NULL;
   }
   else if ((argC->ud = test_ud (L, pos)) == NULL)
-    luaL_typerror(L, pos, "string or "REX_TYPENAME);
+    luaL_typeerror(L, pos, "string or "REX_TYPENAME);
 }
 
 static void checkarg_new (lua_State *L, TArgComp *argC) {
@@ -130,7 +130,7 @@ static void checkarg_gsub (lua_State *L, TArgComp *argC, TArgExec *argE) {
   argE->reptype = lua_type (L, 3);
   if (argE->reptype != LUA_TSTRING && argE->reptype != LUA_TTABLE &&
       argE->reptype != LUA_TFUNCTION) {
-    luaL_typerror (L, 3, "string, table or function");
+    luaL_typeerror (L, 3, "string, table or function");
   }
   argE->funcpos = 3;
   argE->funcpos2 = 4;
@@ -704,4 +704,3 @@ found:
   lua_pushinteger (L, from - text + patlen);
   return 2;
 }
-

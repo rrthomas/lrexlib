@@ -1,3 +1,8 @@
+2010-01-19  Shmuel Zeigerman  <shmuz@013net.net>
+
+	* several files: luaL_typerror renamed to luaL_typeerror (as in Lua 5.2).
+	* common.h: added a macro for handling luaL_typeerror and luaL_typerror.
+
 2009-11-29  Shmuel Zeigerman  <shmuz@013net.net>
 
 	* ltre.c: changes to adapt to TRE 0.8

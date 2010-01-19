@@ -98,7 +98,7 @@ static int getcflags (lua_State *L, int pos) {
       return res;
     }
     default:
-      return luaL_typerror (L, pos, "number or string");
+      return luaL_typeerror (L, pos, "number or string");
   }
 }
 
@@ -365,4 +365,3 @@ REX_API int REX_OPENLIB (lua_State *L) {
 
   return 1;
 }
-

@@ -6,6 +6,10 @@
 
 #include "lua.h"
 
+#if LUA_VERSION_NUM < 502
+#define luaL_typeerror luaL_typerror
+#endif
+
 /* REX_API can be overridden from the command line or Makefile */
 #ifndef REX_API
 #  define REX_API LUALIB_API
