@@ -1,3 +1,7 @@
+2010-07-05  Shmuel Zeigerman  <shmuz@013net.net>
+
+	* lpcre_f.c: added flags up to PCRE version 8.10.
+
 2010-01-19  Shmuel Zeigerman  <shmuz@013net.net>
 
 	* several files: luaL_typerror renamed to luaL_typeerror (as in Lua 5.2).

@@ -71,6 +71,9 @@ static flag_pair pcre_flags[] = {
 #ifdef PCRE_NOTEMPTY_ATSTART
   { "NOTEMPTY_ATSTART",              PCRE_NOTEMPTY_ATSTART },
 #endif
+#ifdef PCRE_UCP
+  { "UCP",                           PCRE_UCP },
+#endif
 /*---------------------------------------------------------------------------*/
   { "INFO_OPTIONS",                  PCRE_INFO_OPTIONS },
   { "INFO_SIZE",                     PCRE_INFO_SIZE },
@@ -114,6 +117,9 @@ static flag_pair pcre_flags[] = {
 #endif
 #ifdef PCRE_EXTRA_MATCH_LIMIT_RECURSION
   { "EXTRA_MATCH_LIMIT_RECURSION",   PCRE_EXTRA_MATCH_LIMIT_RECURSION },
+#endif
+#ifdef PCRE_EXTRA_MARK
+  { "EXTRA_MARK",                    PCRE_EXTRA_MARK },
 #endif
 /*---------------------------------------------------------------------------*/
   { NULL, 0 }
