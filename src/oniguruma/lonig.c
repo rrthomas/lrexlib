@@ -73,6 +73,8 @@ static void do_named_subpatterns (lua_State *L, TOnig *ud, const char *text);
 
 #include "../algo.h"
 
+#define CUC const unsigned char*
+
 /*  Functions
  ******************************************************************************
  */
@@ -223,7 +225,7 @@ static int compile_regex (lua_State *L, const TArgComp *argC, TOnig **pud) {
   lua_pushvalue (L, LUA_ENVIRONINDEX);
   lua_setmetatable (L, -2);
 
-  r = onig_new(&ud->reg, argC->pattern, argC->pattern + argC->patlen,
+  r = onig_new(&ud->reg, (CUC)argC->pattern, (CUC)argC->pattern + argC->patlen,
     argC->cflags, (OnigEncoding)argC->locale, (OnigSyntaxType*)argC->syntax,
     &ud->einfo);
   if (r != ONIG_NORMAL)
@@ -266,8 +268,9 @@ static void do_named_subpatterns (lua_State *L, TOnig *ud, const char *text) {
 static int findmatch_exec (TUserdata *ud, TArgExec *argE) {
   const char *end = argE->text + argE->textlen;
   onig_region_clear(ud->region);
-  return onig_search (ud->reg, argE->text, end, argE->text + argE->startoffset,
-    end, ud->region, argE->eflags);
+  return onig_search (ud->reg, (CUC)argE->text, (CUC)end,
+                      (CUC)argE->text + argE->startoffset, (CUC)end,
+                      ud->region, argE->eflags);
 }
 
 static void gmatch_pushsubject (lua_State *L, TArgExec *argE) {
@@ -281,8 +284,8 @@ static int gmatch_exec (TOnig *ud, TArgExec *argE) {
 static int gsub_exec (TOnig *ud, TArgExec *argE, int st) {
   const char *end = argE->text + argE->textlen;
   onig_region_clear(ud->region);
-  return onig_search (ud->reg, argE->text, end, argE->text + st,
-    end, ud->region, argE->eflags);
+  return onig_search (ud->reg, (CUC)argE->text, (CUC)end, (CUC)argE->text + st,
+    (CUC)end, ud->region, argE->eflags);
 }
 
 static int split_exec (TOnig *ud, TArgExec *argE, int st) {
