@@ -28,7 +28,7 @@ build_onig:
 	make -C $(ONIG) -f rex_onig.mak
 
 test_gnu:
-	cd test && lua ./runtest.lua -d../$(PCRE) gnu
+	cd test && lua ./runtest.lua -d../$(GNU) gnu
 
 test_pcre:
 	cd test && lua ./runtest.lua -d../$(PCRE) pcre
@@ -40,7 +40,7 @@ test_onig:
 	cd test && lua ./runtest.lua -d../$(ONIG) onig
 
 clean_gnu:
-	make -C $(PCRE) -f rex_gnu.mak clean
+	make -C $(GNU) -f rex_gnu.mak clean
 
 clean_pcre:
 	make -C $(PCRE) -f rex_pcre.mak clean
