@@ -1,15 +1,15 @@
-                            Lua rexlib 2.4
+                            Lua rexlib 2.5
                             --------------
 
                     by Reuben Thomas (rrt@sc3d.org)
          and Shmuel Zeigerman (shmuz@013net.net) [maintainer]
 
 
-Lrexlib is a binding of four regular expression library APIs (POSIX,
-PCRE, TRE and Oniguruma) to Lua 5.1.
+Lrexlib is a binding of five regular expression library APIs (POSIX,
+PCRE, GNU, TRE and Oniguruma) to Lua 5.1.
 
-Lrexlib is copyright Reuben Thomas 2000-2008 and copyright Shmuel
-Zeigerman 2004-2008, and is released under the MIT license, like Lua
+Lrexlib is copyright Reuben Thomas 2000-2010 and copyright Shmuel
+Zeigerman 2004-2010, and is released under the MIT license, like Lua
 (see http://www.lua.org/copyright.html for the full license; it's
 basically the same as the BSD license). There is no warranty.
 

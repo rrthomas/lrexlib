@@ -1,6 +1,6 @@
 .. role:: funcdef(literal)
 
-Lrexlib 2.4 Reference Manual
+Lrexlib 2.5 Reference Manual
 ============================
 
 .. contents:: Table of Contents
@@ -10,17 +10,19 @@ Lrexlib 2.4 Reference Manual
 Introduction
 ~~~~~~~~~~~~
 
-**Lrexlib** provides bindings of three regular expression library APIs
-(POSIX_, PCRE_ and Oniguruma_) to Lua_ 5.1.
+**Lrexlib** provides bindings of five regular expression library APIs
+(POSIX_, PCRE_, GNU_, TRE_ and Oniguruma_) to Lua_ 5.1.
 
 **Lrexlib** builds into shared libraries called by default *rex_posix.so*,
 *rex_pcre.so* and *rex_onig.so*, which can be used with *require*.
 
-**Lrexlib** is copyright Reuben Thomas 2000-2008 and copyright Shmuel Zeigerman
-2004-2008, and is released under the MIT license.
+**Lrexlib** is copyright Reuben Thomas 2000-2010 and copyright Shmuel Zeigerman
+2004-2010, and is released under the MIT license.
 
 .. _POSIX: http://www.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap09.html
 .. _PCRE: http://www.pcre.org/pcre.txt
+.. _GNU: http://www.gnu.org/FIXME
+.. _TRE: FIXME
 .. _Oniguruma: http://www.geocities.jp/kosako3/oniguruma/doc/RE.txt
 .. _Lua: http://www.lua.org
 
@@ -106,11 +108,18 @@ Notes
 
 .. _syntax:
 
-9. **Oniguruma:** parameter *syntax* (*syn*) must be one of the predefined
+9. **GNU:** parameter *syntax* (*syn*) must be one of the predefined strings
+   that are formed from the RE_SYNTAX_xxx identifiers defined in regex.h, by
+   means of omitting the RE_SYNTAX\_ part. For example, RE_SYNTAX_GREP becomes
+   ``"GREP"`` on the Lua side. The default value, used when the parameter is
+   not supplied or ``nil``, is either ``"EMACS"`` (at start-up), or the value
+   set by the last setsyntax_ call.
+
+   **Oniguruma:** parameter *syntax* (*syn*) must be one of the predefined
    strings that are formed from the ONIG_SYNTAX_xxx identifiers defined in
    oniguruma.h, by means of omitting the ONIG_SYNTAX\_ part. For example,
    ONIG_SYNTAX_JAVA becomes ``"JAVA"`` on the Lua side. The default value, used
-   when the parameter is not supplied or ``nil``, is either ``"RUBY"`` (at the
+   when the parameter is not supplied or ``nil``, is either ``"RUBY"`` (at
    start-up), or the value set by the last setdefaultsyntax_ call.
 
    If the caller-supplied value of `syntax` parameter is not one of the
@@ -124,7 +133,7 @@ Functions and methods common to all bindings
 match
 -----
 
-:funcdef:`rex.match (subj, patt, [init], [cf], [ef], [lo], [syn])`
+:funcdef:`rex.match (subj, patt, [init], [cf], [ef], [lo], [tr], [syn])`
 
 or
 
@@ -155,7 +164,9 @@ The function searches for the first match of the regexp *patt* in the string
   |         |                               |or      |             |
   |         |                               |userdata|             |
   +---------+-------------------------------+--------+-------------+
-  |  [syn]  |[Oniguruma] syntax             | string |syntax_      |
+  |  [tr]   |[GNU] translation table        | table  |     n/a     |
+  +---------+-------------------------------+--------+-------------+
+  |  [syn]  |[GNU, Oniguruma] syntax        | string |syntax_      |
   +---------+-------------------------------+--------+-------------+
 
 **Returns on success:**
@@ -172,7 +183,7 @@ The function searches for the first match of the regexp *patt* in the string
 find
 ----
 
-:funcdef:`rex.find (subj, patt, [init], [cf], [ef], [lo], [syn])`
+:funcdef:`rex.find (subj, patt, [init], [cf], [ef], [lo], [tr], [syn])`
 
 or
 
@@ -203,6 +214,8 @@ The function searches for the first match of the regexp *patt* in the string
   |         |                               |or      |             |
   |         |                               |userdata|             |
   +---------+-------------------------------+--------+-------------+
+  |  [tr]   |[GNU] translation table        | table  |     n/a     |
+  +---------+-------------------------------+--------+-------------+
   |  [syn]  |[Oniguruma] syntax             | string |syntax_      |
   +---------+-------------------------------+--------+-------------+
 
@@ -221,7 +234,7 @@ The function searches for the first match of the regexp *patt* in the string
 gmatch
 ------
 
-:funcdef:`rex.gmatch (subj, patt, [cf], [ef], [lo], [syn])`
+:funcdef:`rex.gmatch (subj, patt, [cf], [ef], [lo], [tr], [syn])`
 
 The function is intended for use in the *generic for* Lua construct.
 It returns an iterator for repeated matching of the pattern *patt* in
@@ -244,7 +257,9 @@ the string *subj*, subject to flags *cf* and *ef*.
   |         |                               |or      |             |
   |         |                               |userdata|             |
   +---------+-------------------------------+--------+-------------+
-  |  [syn]  |[Oniguruma] syntax             | string |syntax_      |
+  |  [tr]   |[GNU] translation table        | table  |     n/a     |
+  +---------+-------------------------------+--------+-------------+
+  |  [syn]  |[GNU, Oniguruma] syntax        | string |syntax_      |
   +---------+-------------------------------+--------+-------------+
 
 The iterator function is called by Lua. On every iteration (that is, on every
@@ -257,7 +272,7 @@ till the subject fails to match.
 gsub
 ----
 
-:funcdef:`rex.gsub (subj, patt, repl, [n], [cf], [ef], [lo], [syn])`
+:funcdef:`rex.gsub (subj, patt, repl, [n], [cf], [ef], [lo], [tr], [syn])`
 
 This function searches for all matches of the pattern *patt* in the string
 *subj* and replaces them according to the parameters *repl* and *n* (see details
@@ -282,7 +297,9 @@ below).
   |  [lo]   |[PCRE, Oniguruma] locale           | string or userdata      |locale_      |
   |         |                                   |                         |             |
   +---------+-----------------------------------+-------------------------+-------------+
-  |  [syn]  |[Oniguruma] syntax                 | string                  |syntax_      |
+  |  [tr]   |[GNU] translation table            | table                   |     n/a     |
+  +---------+-----------------------------------+-------------------------+-------------+
+  |  [syn]  |[GNU, Oniguruma] syntax            | string                  |syntax_      |
   +---------+-----------------------------------+-------------------------+-------------+
 
 **Returns:**
@@ -375,7 +392,7 @@ below).
 split
 -----
 
-:funcdef:`rex.split (subj, sep, [cf], [ef], [lo], [syn])`
+:funcdef:`rex.split (subj, sep, [cf], [ef], [lo], [tr], [syn])`
 
 The function is intended for use in the *generic for* Lua construct.
 It is used for splitting a subject string *subj* into parts (*sections*).
@@ -402,7 +419,9 @@ the string *subj*, subject to flags *cf* and *ef*.
   |         |                               |or      |             |
   |         |                               |userdata|             |
   +---------+-------------------------------+--------+-------------+
-  |  [syn]  |[Oniguruma] syntax             | string |syntax_      |
+  |  [tr]   |[GNU] translation table        | table  |     n/a     |
+  +---------+-------------------------------+--------+-------------+
+  |  [syn]  |[GNU, Oniguruma] syntax        | string |syntax_      |
   +---------+-------------------------------+--------+-------------+
 
 **On every iteration pass, the iterator returns:**
@@ -461,7 +480,7 @@ constants in the used library. They are formed as follows:
 new
 ---
 
-:funcdef:`rex.new (patt, [cf], [lo], [syn])`
+:funcdef:`rex.new (patt, [cf], [lo], [tr], [syn])`
 
 The functions compiles regular expression *patt* into a regular expression
 object whose internal representation is corresponding to the library used.
@@ -478,6 +497,8 @@ etc. Regular expression objects are automatically garbage collected.
   |  [lo]   |[PCRE, Oniguruma] locale       |string  |locale_      |
   |         |                               |or      |             |
   |         |                               |userdata|             |
+  +---------+-------------------------------+--------+-------------+
+  |  [tr]   |[GNU] translation table        | table  |     n/a     |
   +---------+-------------------------------+--------+-------------+
   |  [syn]  |[Oniguruma] syntax             | string |syntax_      |
   +---------+-------------------------------+--------+-------------+
@@ -668,6 +689,27 @@ and its release date.
 
 ------------------------------------------------------------
 
+GNU-only functions and methods
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+setsyntax
+---------
+
+:funcdef:`rex_gnu.setsyntax (syntax)`
+
+This function sets the default syntax for the GNU library, according to the
+value of the string syntax_. The specified syntax will be further used for
+interpreting string regex patterns by all relevant functions, unless the `syntax`
+argument is passed to those functions explicitly.
+
+**Returns:** nothing
+
+**Examples:**
+
+  1. ``rex_gnu.setsyntax ("POSIX") -- use POSIX regex syntax as the default``
+  2. ``rex_gnu.setsyntax ("EMACS") -- use Emacs regex syntax as the default``
+
+
 Oniguruma-only functions and methods
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -676,9 +718,9 @@ setdefaultsyntax
 
 :funcdef:`rex_onig.setdefaultsyntax (syntax)`
 
-This function sets the default syntax for the Oniguruma library, according to
+This function sets the default syntax for the Oniguruma library, according to the
 value of the string syntax_. The specified syntax will be further used for
-interpreting string regex patterns by all relevant functions, unless `syntax`
+interpreting string regex patterns by all relevant functions, unless the `syntax`
 argument is passed to those functions explicitly.
 
 **Returns:** nothing
@@ -741,10 +783,23 @@ The function searches for the first match of the string *patt* in the subject
 
 ------------------------------------------------------------
 
-Incompatibilities with the Previous Versions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Incompatibilities with previous versions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**Incompatibilities between the versions 2.0 and 1.19:**
+**Incompatibilities between versions 2.2 and 2.1:**
+
+  1. gsub_: a special "break" return of *repl* function is deprecated.
+  #. (PCRE) gsub_, gmatch_: after finding an empty match at the current
+     position, the functions try to find a non-empty match anchored to the same
+     position.
+
+**Incompatibilities between versions 2.1 and 2.0:**
+
+  1. match_, find_, tfind_, exec_, dfa_exec_: only one value (a ``nil``) is
+     returned when the subject does not match the pattern. Any other failure
+     generates an error.
+
+**Incompatibilities between versions 2.0 and 1.19:**
 
   1. Lua 5.1 is required
   #. Functions ``newPCRE`` and ``newPOSIX`` renamed to new_
@@ -756,17 +811,4 @@ Incompatibilities with the Previous Versions
   #. Methods tfind_ and exec_: 2 values are returned on failure
   #. (PCRE) exec_: the returned table may additionally contain *named
      subpatterns*
-
-**Incompatibilities between the versions 2.1 and 2.0:**
-
-  1. match_, find_, tfind_, exec_, dfa_exec_: only one value (a ``nil``) is
-     returned when the subject does not match the pattern. Any other failure
-     generates an error.
-
-**Incompatibilities between the versions 2.2 and 2.1:**
-
-  1. gsub_: a special "break" return of *repl* function is deprecated.
-  #. (PCRE) gsub_, gmatch_: after finding an empty match at the current
-     position, the functions try to find a non-empty match anchored to the same
-     position.
 
