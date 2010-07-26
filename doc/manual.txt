@@ -113,8 +113,8 @@ Notes
    that are formed from the RE_SYNTAX_xxx identifiers defined in regex.h, by
    means of omitting the RE_SYNTAX\_ part. For example, RE_SYNTAX_GREP becomes
    ``"GREP"`` on the Lua side. The default value, used when the parameter is
-   not supplied or ``nil``, is either ``"EMACS"`` (at start-up), or the value
-   set by the last setsyntax_ call.
+   not supplied or ``nil``, is either ``"POSIX_EXTENDED"`` (at start-up),
+   or the value set by the last setsyntax_ call.
 
    **Oniguruma:** parameter *syntax* (*syn*) must be one of the predefined
    strings that are formed from the ONIG_SYNTAX_xxx identifiers defined in

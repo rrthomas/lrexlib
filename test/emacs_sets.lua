@@ -30,10 +30,7 @@ local function set_f_gmatch (lib, flg)
     Name = "Function gmatch",
     Func = test_gmatch,
   --{  subj             patt         results }
-    { {"ab",            lib.new"."}, {{"a",N}, {"b",N} } },
     { {("abcd"):rep(3), "\\(.\\)b.\\(d\\)"}, {{"a","d"},{"a","d"},{"a","d"}} },
-    { {"abcd",          ".*" },      {{"abcd",N},{"",N}  } },--zero-length match
-    { {"abc",           "^." },      {{"a",N}} },--anchored pattern
   }
 end
 
@@ -52,19 +49,7 @@ local function set_f_split (lib, flg)
     Name = "Function split",
     Func = test_split,
   --{  subj             patt      results }
-    { {"ab",     lib.new","},     {{"ab",N,N},                           } },
-    { {"ab",            ","},     {{"ab",N,N},                           } },
-    { {",",             ","},     {{"",",",N},     {"", N, N},           } },
-    { {",,",            ","},     {{"",",",N},     {"",",",N},  {"",N,N} } },
-    { {"a,b",           ","},     {{"a",",",N},    {"b",N,N},            } },
-    { {",a,b",          ","},     {{"",",",N},     {"a",",",N}, {"b",N,N}} },
-    { {"a,b,",          ","},     {{"a",",",N},    {"b",",",N}, {"",N,N} } },
-    { {"a,,b",          ","},     {{"a",",",N},    {"",",",N},  {"b",N,N}} },
     { {"ab<78>c", "<\\(.\\)\\(.\\)>"},    {{"ab","7","8"}, {"c",N,N},            } },
-    { {"abc",          "^."},     {{"", "a",N},    {"bc",N,N},           } },--anchored pattern
-    { {"abc",           "^"},     {{"", "", N},    {"abc",N,N},          } },
---  { {"abc",           "$"},     {{"abc","",N},   {"",N,N},             } },
---  { {"abc",         "^|$"},     {{"", "", N},    {"abc","",N},{"",N,N},} },
   }
 end
 
@@ -73,12 +58,6 @@ local function set_f_find (lib, flg)
     Name = "Function find",
     Func = lib.find,
   --  {subj, patt, st},         { results }
-    { {"abcd", lib.new".+"},    { 1,4 }   },      -- [none]
-    { {"abcd", ".+"},           { 1,4 }   },      -- [none]
-    { {"abcd", ".+", 2},        { 2,4 }   },      -- positive st
-    { {"abcd", ".+", -2},       { 3,4 }   },      -- negative st
-    { {"abcd", ".*"},           { 1,4 }   },      -- [none]
-    { {"abc",  "bc"},           { 2,3 }   },      -- [none]
     { {"abcd", "\\(.\\)b.\\(d\\)"},     { 1,4,"a","d" }}, -- [captures]
   }
 end
@@ -88,12 +67,6 @@ local function set_f_match (lib, flg)
     Name = "Function match",
     Func = lib.match,
   --  {subj, patt, st},         { results }
-    { {"abcd", lib.new".+"},    {"abcd"}  }, -- [none]
-    { {"abcd", ".+"},           {"abcd"}  }, -- [none]
-    { {"abcd", ".+", 2},        {"bcd"}   }, -- positive st
-    { {"abcd", ".+", -2},       {"cd"}    }, -- negative st
-    { {"abcd", ".*"},           {"abcd"}  }, -- [none]
-    { {"abc",  "bc"},           {"bc"}    }, -- [none]
     { {"abcd", "\\(.\\)b.\\(d\\)"},     {"a","d"} }, -- [captures]
   }
 end
@@ -103,11 +76,6 @@ local function set_m_exec (lib, flg)
     Name = "Method exec",
     Method = "exec",
   --{patt},                 {subj, st}           { results }
-    { {".+"},               {"abcd"},            {1,4,{}}  }, -- [none]
-    { {".+"},               {"abcd",2},          {2,4,{}}  }, -- positive st
-    { {".+"},               {"abcd",-2},         {3,4,{}}  }, -- negative st
-    { {".*"},               {"abcd"},            {1,4,{}}  }, -- [none]
-    { {"bc"},               {"abc"},             {2,3,{}}  }, -- [none]
     { { "\\(.\\)b.\\(d\\)"},        {"abcd"},            {1,4,{1,1,4,4}}},--[captures]
     { {"\\(a+\\)6+\\(b+\\)"},       {"Taa66bbT",2},      {2,7,{2,3,6,7}}},--[st+captures]
   }
@@ -118,11 +86,6 @@ local function set_m_tfind (lib, flg)
     Name = "Method tfind",
     Method = "tfind",
   --{patt},                 {subj, st}           { results }
-    { {".+"},               {"abcd"},            {1,4,{}}  }, -- [none]
-    { {".+"},               {"abcd",2},          {2,4,{}}  }, -- positive st
-    { {".+"},               {"abcd",-2},         {3,4,{}}  }, -- negative st
-    { {".*"},               {"abcd"},            {1,4,{}}  }, -- [none]
-    { {"bc"},               {"abc"},             {2,3,{}}  }, -- [none]
     { {"\\(.\\)b.\\(d\\)"},         {"abcd"},            {1,4,{"a","d"}}},--[captures]
   }
 end
@@ -132,11 +95,6 @@ local function set_m_find (lib, flg)
     Name = "Method find",
     Method = "find",
   --{patt},                 {subj, st}           { results }
-    { {".+"},               {"abcd"},            {1,4}  }, -- [none]
-    { {".+"},               {"abcd",2},          {2,4}  }, -- positive st
-    { {".+"},               {"abcd",-2},         {3,4}  }, -- negative st
-    { {".*"},               {"abcd"},            {1,4}  }, -- [none]
-    { {"bc"},               {"abc"},             {2,3}  }, -- [none]
     { {"\\(.\\)b.\\(d\\)"},         {"abcd"},            {1,4,"a","d"}},--[captures]
   }
 end
@@ -146,75 +104,7 @@ local function set_m_match (lib, flg)
     Name = "Method match",
     Method = "match",
   --{patt},                 {subj, st}           { results }
-    { {".+"},               {"abcd"},            {"abcd"}  }, -- [none]
-    { {".+"},               {"abcd",2},          {"bcd" }  }, -- positive st
-    { {".+"},               {"abcd",-2},         {"cd"  }  }, -- negative st
-    { {".*"},               {"abcd"},            {"abcd"}  }, -- [none]
-    { {"bc"},               {"abc"},             {"bc"  }  }, -- [none]
     {{ "\\(.\\)b.\\(d\\)"},         {"abcd"},            {"a","d"} }, --[captures]
-  }
-end
-
-local function set_f_plainfind (lib, flg)
-  return {
-    Name = "Function plainfind",
-    Func = lib.plainfind,
-  --{ subj,  patt,  st, ci }      { results }
-    { {"abcd", "bc"},             {2,3} }, -- [none]
-    { {"abcd", "dc"},             {N}   }, -- [none]
-    { {"abcd", "cd"},             {3,4} }, -- positive st
-    { {"abcd", "cd", 3},          {3,4} }, -- positive st
-    { {"abcd", "cd", 4},          {N}   }, -- failing st
-    { {"abcd", "bc", 2},          {2,3} }, -- positive st
-    { {"abcd", "bc", -4},         {2,3} }, -- negative st
-    { {"abcd", "bc", 3},          {N}   }, -- failing st
-    { {"abcd", "BC"},             {N}   }, -- case sensitive
-    { {"abcd", "BC", N, true},    {2,3} }, -- case insensitive
-    { {"ab\0cd", "b\0c"},         {2,4} }, -- contains nul
-    { {"abcd", "", 1},            {1,0} }, -- empty pattern
-    { {"abcd", "", 5},            {5,4} }, -- empty pattern
-    { {"abcd", "", 6},            {N}   }, -- empty pattern
-  }
-end
-
-local function set_f_gsub1 (lib, flg)
-  local subj, pat = "abcdef", "[abef]+"
-  local cpat = lib.new(pat)
-  return {
-    Name = "Function gsub, set1",
-    Func = get_gsub (lib),
-  --{ s,       p,    f,   n,    res1,  res2, res3 },
-    { {subj,  cpat,  "",  0},   {subj,    0, 0} }, -- test "n" + empty_replace
-    { {subj,   pat,  "",  0},   {subj,    0, 0} }, -- test "n" + empty_replace
-    { {subj,   pat,  "", -1},   {subj,    0, 0} }, -- test "n" + empty_replace
-    { {subj,   pat,  "",  1},   {"cdef",  1, 1} },
-    { {subj,   pat,  "",  2},   {"cd",    2, 2} },
-    { {subj,   pat,  "",  3},   {"cd",    2, 2} },
-    { {subj,   pat,  ""    },   {"cd",    2, 2} },
-    { {subj,   pat,  "#", 0},   {subj,    0, 0} }, -- test "n" + non-empty_replace
-    { {subj,   pat,  "#", 1},   {"#cdef", 1, 1} },
-    { {subj,   pat,  "#", 2},   {"#cd#",  2, 2} },
-    { {subj,   pat,  "#", 3},   {"#cd#",  2, 2} },
-    { {subj,   pat,  "#"   },   {"#cd#",  2, 2} },
-    { {"abc",  "^.", "#"   },   {"#bc",   1, 1} }, -- anchored pattern
-  }
-end
-
-local function set_f_gsub2 (lib, flg)
-  local subj, pat = "abc", "\\([ac]\\)"
-  return {
-    Name = "Function gsub, set2",
-    Func = get_gsub (lib),
-  --{ s,     p,   f,   n,     res1,    res2, res3 },
-    { {subj, pat, "<%1>" },   {"<a>b<c>", 2, 2} }, -- test non-escaped chars in f
-    { {subj, pat, "%<%1%>" }, {"<a>b<c>", 2, 2} }, -- test escaped chars in f
-    { {subj, pat, "" },       {"b",       2, 2} }, -- test empty replace
-    { {subj, pat, "1" },      {"1b1",     2, 2} }, -- test odd and even %'s in f
-    { {subj, pat, "%1" },     {"abc",     2, 2} },
-    { {subj, pat, "%%1" },    {"%1b%1",   2, 2} },
-    { {subj, pat, "%%%1" },   {"%ab%c",   2, 2} },
-    { {subj, pat, "%%%%1" },  {"%%1b%%1", 2, 2} },
-    { {subj, pat, "%%%%%1" }, {"%%ab%%c", 2, 2} },
   }
 end
 
@@ -223,27 +113,8 @@ local function set_f_gsub3 (lib, flg)
     Name = "Function gsub, set3",
     Func = get_gsub (lib),
   --{ s,      p,      f,  n,   res1,res2,res3 },
-    { {"abc", "a",    "%0" }, {"abc", 1, 1} }, -- test (in)valid capture index
-    { {"abc", "a",    "%1" }, {"abc", 1, 1} },
-    { {"abc", "[ac]", "%1" }, {"abc", 2, 2} },
     { {"abc", "\\(a\\)",  "%1" }, {"abc", 1, 1} },
     { {"abc", "\\(a\\)",  "%2" }, "invalid capture index" },
-  }
-end
-
-local function set_f_gsub4 (lib, flg)
-  return {
-    Name = "Function gsub, set4",
-    Func = get_gsub (lib),
-  --{ s,           p,              f, n,  res1,      res2, res3 },
-    { {"a2c3",     ".",            "#" }, {"####",      4, 4} }, -- test .
-    { {"a2c3",     ".+",           "#" }, {"#",         1, 1} }, -- test .+
-    { {"a2c3",     ".*",           "#" }, {"##",        2, 2} }, -- test .*
-    { {"/* */ */", "\\/\\*\\(.*\\)\\*\\/", "#" }, {"#",     1, 1} },
-    { {"a2c3",     "[0-9]",        "#" }, {"a#c#",      2, 2} }, -- test %d
-    { {"a2c3",     "[^0-9]",       "#" }, {"#2#3",      2, 2} }, -- test %D
-    { {"a \t\nb",  "[ \t\n]",      "#" }, {"a###b",     3, 3} }, -- test %s
-    { {"a \t\nb",  "[^ \t\n]",     "#" }, {"# \t\n#",   2, 2} }, -- test %S
   }
 end
 
@@ -262,13 +133,6 @@ local function set_f_gsub5 (lib, flg)
     { {subj, "a\\(.\\)c\\(.\\)", frep1 }, {subj,        1, 0} },
     { {subj, "a\\(.\\)c\\(.\\)", frep2 }, {"#",         1, 1} },
     { {subj, "a\\(.\\)c\\(.\\)", frep3 }, {"2,3",       1, 1} },
-    { {subj, "a.c.",     frep3 }, {subj,        1, 1} },
-    { {subj, "z*",       frep1 }, {subj,        5, 0} },
-    { {subj, "z*",       frep2 }, {"#a#2#c#3#", 5, 5} },
-    { {subj, "z*",       frep3 }, {subj,        5, 5} },
-    { {subj, subj,       frep4 }, "invalid return type" },
-    { {"abc",".",        frep5 }, {"777",       3, 3} },
-    { {"abc",".",        frep6 }, {"777",       3, 3} },
   }
 end
 
@@ -282,45 +146,12 @@ local function set_f_gsub6 (lib, flg)
     { {subj, "a\\(.\\)c\\(.\\)", tab1 }, {subj,  1, 0} },
     { {subj, "a\\(.\\)c\\(.\\)", tab2 }, {"56",  1, 1} },
     { {subj, "a\\(.\\)c\\(.\\)", tab3 }, "invalid replacement type" },
-    { {subj, "a.c.",     tab1 }, {subj,  1, 0} },
-    { {subj, "a.c.",     tab2 }, {subj,  1, 0} },
-    { {subj, "a.c.",     tab3 }, {subj,  1, 0} },
-  }
-end
-
-local function set_f_gsub8 (lib, flg)
-  local subj, patt, repl = "abcdef", "..", "*"
-  return {
-    Name = "Function gsub, set8",
-    Func = get_gsub (lib),
-  --{ s,     p,       f, n,                                    res1,  res2, res3 },
-    { {subj, patt, repl, function() end },                    {"abcdef", 3, 0} },
-    { {subj, patt, repl, function() return nil end },         {"abcdef", 3, 0} },
-    { {subj, patt, repl, function() return false end },       {"abcdef", 3, 0} },
-    { {subj, patt, repl, function() return true end },        {"***",    3, 3} },
-    { {subj, patt, repl, function() return {} end },          {"***",    3, 3} },
-    { {subj, patt, repl, function() return "#" end },         {"###",    3, 3} },
-    { {subj, patt, repl, function() return 57 end },          {"575757", 3, 3} },
-    { {subj, patt, repl, function (from) return from end },   {"135",    3, 3} },
-    { {subj, patt, repl, function (from, to) return to end }, {"246",    3, 3} },
-    { {subj, patt, repl, function (from,to,rep) return rep end },
-                                                              {"***",    3, 3} },
-    { {subj, patt, repl, function (from, to, rep) return rep..to..from end },
-                                                           {"*21*43*65", 3, 3} },
-    { {subj, patt, repl, function() return nil end },         {"abcdef", 3, 0} },
-    { {subj, patt, repl, function() return nil, nil end },    {"abcdef", 3, 0} },
-    { {subj, patt, repl, function() return nil, false end },  {"abcdef", 3, 0} },
-    { {subj, patt, repl, function() return nil, true end },   {"ab**",   3, 2} },
-    { {subj, patt, repl, function() return true, true end },  {"***",    3, 3} },
-    { {subj, patt, repl, function() return nil, 0 end },      {"abcdef", 1, 0} },
-    { {subj, patt, repl, function() return true, 0 end },     {"*cdef",  1, 1} },
-    { {subj, patt, repl, function() return nil, 1 end },      {"ab*ef",  2, 1} },
-    { {subj, patt, repl, function() return true, 1 end },     {"**ef",   2, 2} },
   }
 end
 
 return function (libname)
   local lib = require (libname)
+  _G[libname].setsyntax ("EMACS")
   return {
     set_f_gmatch    (lib),
     set_f_split     (lib),
@@ -330,13 +161,8 @@ return function (libname)
     set_m_tfind     (lib),
     set_m_find      (lib),
     set_m_match     (lib),
-    set_f_gsub1     (lib),
-    set_f_gsub2     (lib),
     set_f_gsub3     (lib),
-    set_f_gsub4     (lib),
     set_f_gsub5     (lib),
     set_f_gsub6     (lib),
-    set_f_gsub8     (lib),
-    set_f_plainfind (lib),
   }
 end

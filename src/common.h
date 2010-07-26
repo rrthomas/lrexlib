@@ -31,10 +31,12 @@ typedef struct {            /* compile arguments */
   size_t       patlen;
   void       * ud;
   int          cflags;
-  const char * locale;            /* PCRE, Oniguruma */
-  const unsigned char * tables;   /* PCRE */
-  int          tablespos;         /* PCRE */
-  void       * syntax;            /* Oniguruma */
+  const char * locale;             /* PCRE, Oniguruma */
+  const unsigned char * tables;    /* PCRE */
+  int          tablespos;          /* PCRE */
+  void       * syntax;             /* Oniguruma */
+  const unsigned char * translate; /* GNU */
+  int          gnusyn;             /* GNU */
 } TArgComp;
 
 typedef struct {            /* exec arguments */

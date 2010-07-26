@@ -39,6 +39,12 @@ static int getcflags (lua_State *L, int pos);
   unsigned __REPB_PREFIX(newline_anchor) : 1;
 */
 
+static void opttranslate (TArgComp *argC, lua_State *L, int pos);
+#define ALG_OPTTRANSLATE(a,b,c)  opttranslate(a,b,c)
+
+static void optsyntax (TArgComp *argC, lua_State *L, int pos);
+#define ALG_OPTSYNTAX(a,b,c)  optsyntax(a,b,c)
+
 #define ALG_NOMATCH        -1 /* FIXME: -2 for internal error is also possible; take arg like ALG_ISMATCH */
 #define ALG_ISMATCH(res)   ((res) >= 0)
 #define ALG_SUBBEG(ud,n)   ud->match.start[n]
@@ -81,29 +87,9 @@ static int getcflags (lua_State *L, int pos) {
     case LUA_TNIL:
       return ALG_CFLAGS_DFLT;
     default:
-      return luaL_typeerror (L, pos, "FIXME: translation tables not yet implemented");
+      return luaL_typeerror (L, pos, "FIXME: compilation flags not yet implemented");
   }
 }
-
-/* Differs from ..._POSIX_BASIC only in that RE_BK_PLUS_QM becomes
-   RE_LIMITED_OPS, i.e., \? \+ \| are not recognized.  Actually, this
-   isn't minimal, since other operators, such as \`, aren't disabled.  */
-#define RE_SYNTAX_POSIX_MINIMAL_BASIC					\
-  (_RE_SYNTAX_POSIX_COMMON | RE_LIMITED_OPS)
-
-#define RE_SYNTAX_POSIX_EXTENDED					\
-  (_RE_SYNTAX_POSIX_COMMON  | RE_CONTEXT_INDEP_ANCHORS			\
-   | RE_CONTEXT_INDEP_OPS   | RE_NO_BK_BRACES				\
-   | RE_NO_BK_PARENS        | RE_NO_BK_VBAR				\
-   | RE_CONTEXT_INVALID_OPS | RE_UNMATCHED_RIGHT_PAREN_ORD)
-
-/* Differs from ..._POSIX_EXTENDED in that RE_CONTEXT_INDEP_OPS is
-   removed and RE_NO_BK_REFS is added.  */
-#define RE_SYNTAX_POSIX_MINIMAL_EXTENDED				\
-  (_RE_SYNTAX_POSIX_COMMON  | RE_CONTEXT_INDEP_ANCHORS			\
-   | RE_CONTEXT_INVALID_OPS | RE_NO_BK_BRACES				\
-   | RE_NO_BK_PARENS        | RE_NO_BK_REFS				\
-   | RE_NO_BK_VBAR          | RE_UNMATCHED_RIGHT_PAREN_ORD)
 
 static int generate_error  (lua_State *L, const TUserdata *ud, int errcode) {
   const char *errmsg;
@@ -118,24 +104,99 @@ static int generate_error  (lua_State *L, const TUserdata *ud, int errcode) {
     errmsg = "internal error in GNU regex";
     break;
   default:
-    errmsg = "internal error in lrexlib";
+    errmsg = "unknown error";
   }
   return luaL_error (L, "%s", errmsg);
+}
+
+#define ALG_TRANSLATE_SIZE (UCHAR_MAX + 1)
+static void opttranslate (TArgComp *argC, lua_State *L, int pos) {
+  if (!lua_isnoneornil (L, pos)) {
+    unsigned i;
+
+    argC->translate = (const unsigned char *) Lmalloc (L, ALG_TRANSLATE_SIZE);
+    memset ((unsigned char *) argC->translate, 0, ALG_TRANSLATE_SIZE); /* initialize all members to 0 */
+    for (i = 0; i < ALG_TRANSLATE_SIZE; i++) {
+      lua_pushinteger (L, i);
+      lua_gettable (L, pos);
+      if (lua_tostring (L, -1))
+        ((unsigned char *) argC->translate)[i] = *lua_tostring (L, -1);
+      lua_pop (L, 1);
+    }
+  } else
+    argC->translate = NULL;
+}
+
+typedef struct {
+  const char * name;
+  int value;
+} EncPair;
+
+/* ATTENTION:
+   This array must always be kept alphabetically sorted, as it's used in the
+   binary search, so take care when manually inserting new elements.
+ */
+static EncPair Syntaxes[] = {
+  { "AWK",                    RE_SYNTAX_AWK },
+  { "ED",                     RE_SYNTAX_ED },
+  { "EGREP",                  RE_SYNTAX_EGREP },
+  { "EMACS",                  RE_SYNTAX_EMACS },
+  { "GNU_AWK",                RE_SYNTAX_GNU_AWK },
+  { "GREP",                   RE_SYNTAX_GREP },
+  { "POSIX_AWK",              RE_SYNTAX_POSIX_AWK },
+  { "POSIX_BASIC",            RE_SYNTAX_POSIX_BASIC },
+  { "POSIX_EGREP",            RE_SYNTAX_POSIX_EGREP },
+  { "POSIX_EXTENDED",         RE_SYNTAX_POSIX_EXTENDED },
+  { "POSIX_MINIMAL_BASIC",    RE_SYNTAX_POSIX_MINIMAL_BASIC },
+  { "POSIX_MINIMAL_EXTENDED", RE_SYNTAX_POSIX_MINIMAL_EXTENDED },
+  { "SED",                    RE_SYNTAX_SED },
+};
+
+static int fcmp (const void *p1, const void *p2) {
+  return strcmp (((EncPair*) p1)->name, ((EncPair*) p2)->name);
+}
+
+static int getsyntax (lua_State *L, int pos) {
+  EncPair key, *found;
+  if ((key.name = luaL_optstring (L, pos, NULL)) == NULL)
+    return RE_SYNTAX_POSIX_EXTENDED;
+  found = (EncPair*) bsearch (&key, Syntaxes, sizeof (Syntaxes) / sizeof (EncPair),
+          sizeof (EncPair), fcmp);
+  if (found == NULL)
+    luaL_argerror (L, pos, "invalid or unsupported syntax string");
+  return found->value;
+}
+
+static void optsyntax (TArgComp *argC, lua_State *L, int pos) {
+  argC->gnusyn = getsyntax (L, pos);
+}
+
+/*
+   rex.setsyntax (syntax)
+   @param syntax: one of the predefined strings listed in array 'Syntaxes'
+   @return: nothing
+*/
+static int LGnu_setsyntax (lua_State *L) {
+  (void) luaL_checkstring (L, 1);
+  re_set_syntax (getsyntax (L, 1));
+  return 0;
 }
 
 static int compile_regex (lua_State *L, const TArgComp *argC, TGnu **pud) {
   const char *res;
   TGnu *ud;
-  reg_syntax_t old_syntax;
+  /* reg_syntax_t old_syntax; */
   int ret;
 
   ud = (TGnu *)lua_newuserdata (L, sizeof (TGnu));
   memset (ud, 0, sizeof (TGnu));          /* initialize all members to 0 */
 
-  /* translate table is never written to, so this cast is safe */
-  /* FIXME: ud->r.translate = (unsigned char *) translate; */
+  /* FIXME: take syntax parameter in cflags */
+  /* old_syntax = re_set_syntax (cflags->syntax); */
 
-  old_syntax = re_set_syntax (RE_SYNTAX_EMACS); /* FIXME: take syntax parameter in cflags */
+  /* translate table is never written to, so this cast is safe */
+  ud->r.translate = (unsigned char *) argC->translate;
+
   res = re_compile_pattern (argC->pattern, argC->patlen, &ud->r);
   if (res != NULL) {
       ud->errmsg = res;
@@ -151,7 +212,7 @@ static int compile_regex (lua_State *L, const TArgComp *argC, TGnu **pud) {
     ret = 1;
   }
 
-  re_set_syntax (old_syntax);
+  /* FIXME: re_set_syntax (old_syntax); */
   return ret;
 }
 
@@ -206,26 +267,10 @@ static int Gnu_tostring (lua_State *L) {
   return 1;
 }
 
-static flag_pair gnu_flags[] =
-{
-  { "SYNTAX_EMACS",       RE_SYNTAX_EMACS },
-  { "SYNTAX_AWK",         RE_SYNTAX_AWK },
-  { "SYNTAX_GNU_AWK",     RE_SYNTAX_GNU_AWK },
-  { "SYNTAX_POSIX_AWK",   RE_SYNTAX_POSIX_AWK },
-  { "SYNTAX_GREP",        RE_SYNTAX_GREP },
-  { "SYNTAX_EGREP",       RE_SYNTAX_EGREP },
-  { "SYNTAX_POSIX_EGREP", RE_SYNTAX_POSIX_EGREP },
-  { "SYNTAX_ED",          RE_SYNTAX_ED },
-  { "SYNTAX_SED",         RE_SYNTAX_SED },
-  { "SYNTAX_POSIX_BASIC", RE_SYNTAX_POSIX_BASIC },
-/*---------------------------------------------------------------------------*/
-  { NULL, 0 }
-};
-
-static int Gnu_get_flags (lua_State *L) {
-  const flag_pair* fps[] = { gnu_flags, NULL };
-  return get_flags (L, fps);
-}
+/* static int Gnu_get_flags (lua_State *L) { */
+/*   const flag_pair* fps[] = { gnu_flags, NULL }; */
+/*   return get_flags (L, fps); */
+/* } */
 
 static const luaL_reg gnumeta[] = {
   { "exec",       ud_exec },
@@ -247,15 +292,17 @@ static const luaL_reg rexlib[] = {
   { "gsub",       gsub },
   { "split",      split },
   { "new",        ud_new },
-  { "flags",      Gnu_get_flags },
+  /* { "flags",      Gnu_get_flags }, */
   { "plainfind",  plainfind_func },
-  /* { "set_syntax", set_syntax }, */
+  { "setsyntax",  LGnu_setsyntax },
   { NULL, NULL }
 };
 
 /* Open the library */
 REX_API int REX_OPENLIB (lua_State *L)
 {
+  re_set_syntax (RE_SYNTAX_POSIX_EXTENDED);
+
   /* create a new function environment to serve as a metatable for methods */
   lua_newtable (L);
   lua_pushvalue (L, -1);
