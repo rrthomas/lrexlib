@@ -14,17 +14,19 @@ Introduction
 (POSIX_, PCRE_, GNU_, TRE_ and Oniguruma_) to Lua_ 5.1.
 
 **Lrexlib** builds into shared libraries called by default *rex_posix.so*,
-*rex_pcre.so* and *rex_onig.so*, which can be used with *require*.
+*rex_pcre.so*, *rex_gnu*, *rex_tre* and *rex_onig.so*, which can be used with
+*require*.
 
 **Lrexlib** is copyright Reuben Thomas 2000-2010 and copyright Shmuel Zeigerman
-2004-2010, and is released under the MIT license.
+2004-2010, and is released under the MIT_ license.
 
 .. _POSIX: http://www.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap09.html
 .. _PCRE: http://www.pcre.org/pcre.txt
 .. _GNU: http://www.gnu.org/FIXME
-.. _TRE: FIXME
 .. _Oniguruma: http://www.geocities.jp/kosako3/oniguruma/doc/RE.txt
+.. _TRE: http://laurikari.net/tre/documentation/
 .. _Lua: http://www.lua.org
+.. _MIT: http://www.opensource.org/licenses/mit-license.php
 
 ------------------------------------------------------------
 
@@ -42,13 +44,13 @@ Notes
 
     MyFunc (arg1, arg2, [arg3], [arg4])
 
-3. Throughout this document (unless it causes ambiguity), the identifier *rex*
-   is used in place of either *rex_posix*, *rex_pcre* or *rex_onig*, that are
-   the default namespaces for the corresponding libraries.
+3. Throughout this document (unless it causes ambiguity), the identifier **rex**
+   is used in place of either *rex_posix*, *rex_pcre*, *rex_gnu*, *rex_onig* or
+   *rex_tre*, which are the default namespaces for the corresponding libraries.
 
 4. All functions that take a regular expression pattern as an argument will
    generate an error if that pattern is found invalid by the used
-   POSIX_ / PCRE_ / Oniguruma_ library.
+   POSIX_ / PCRE_ / Oniguruma_ / TRE_ library.
 
 5. All functions that take a string-type regex argument accept a compiled regex
    too. In this case, the cf_, locale_ and syntax_ arguments are ignored (should
@@ -59,7 +61,7 @@ Notes
 6. The default value for *compilation flags* (*cf*) that Lrexlib uses when
    the parameter is not supplied or ``nil`` is:
 
-     * REG_EXTENDED for POSIX regex library
+     * REG_EXTENDED for POSIX and TRE
      * 0 for PCRE
      * ONIG_OPTION_NONE for Oniguruma
 
@@ -86,8 +88,7 @@ Notes
      * 0 for standard POSIX regex library
      * REG_STARTEND for those POSIX regex libraries that support it,
        e.g. Spencer's.
-     * 0 for PCRE
-     * 0 for Oniguruma
+     * 0 for PCRE, Oniguruma and TRE
 
 .. _locale:
 
@@ -467,7 +468,7 @@ PCRE_ and Oniguruma_ documentation.
 The keys in the `tb` table are formed from the names of the corresponding
 constants in the used library. They are formed as follows:
 
-* **POSIX:** prefix REG\_ is omitted, e.g. REG_ICASE becomes ``"ICASE"``.
+* **POSIX**, **TRE**: prefix REG\_ is omitted, e.g. REG_ICASE becomes ``"ICASE"``.
 * **PCRE:** prefix PCRE\_ is omitted, e.g. PCRE_CASELESS becomes
   ``"CASELESS"``.
 * **Oniguruma:** names of constants are converted to strings with no alteration,
@@ -664,21 +665,12 @@ parameters used at PCRE library build-time. Those parameters (numbers) are
 keyed by their names (strings). If the table argument *tb* is supplied then it
 is used as the output table, else a new table is created.
 
-  +---------+--------------------------------+--------+-------------+
-  |Parameter|        Description             |  Type  |Default Value|
-  +=========+================================+========+=============+
-  |  [tb]   |a table for placing results into| table  |  ``nil``    |
-  +---------+--------------------------------+--------+-------------+
-
-**Returns:**
- 1. A table filled with the results.
-
 ------------------------------------------------------------
 
 .. _version:
 
-rex_pcre.version
-----------------
+version
+-------
 
 [See *pcre_version* in the PCRE_ docs.]
 
@@ -732,8 +724,8 @@ argument is passed to those functions explicitly.
 
 ------------------------------------------------------------
 
-rex_onig.version
-----------------
+version
+-------
 
 [See *onig_version* in the Oniguruma docs.]
 
@@ -741,6 +733,141 @@ rex_onig.version
 
 This function returns a string containing the version of the used Oniguruma
 library.
+
+------------------------------------------------------------
+
+TRE-only functions and methods
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+atfind
+-------
+
+:funcdef:`r:atfind (subj, params, [init], [ef])`
+
+The method searches for the first match of the compiled regexp *r* in the
+string *subj*, starting from offset *init*, subject to execution flags *ef*.
+
+  +---------+-----------------------------------+--------+-------------+
+  |Parameter|        Description                |  Type  |Default Value|
+  +=========+===================================+========+=============+
+  |    r    | regex object produced by new_     |userdata|     n/a     |
+  +---------+-----------------------------------+--------+-------------+
+  |  subj   |          subject                  | string |     n/a     |
+  +---------+-----------------------------------+--------+-------------+
+  | params  | Approximate matching parameters.  | table  |n/a          |
+  |         | The values are integers.          |        |             |
+  |         | The valid string key values are:  |        |(Default     |
+  |         | ``cost_ins``, ``cost_del``,       |        |value for    |
+  |         | ``cost_subst``, ``max_cost``,     |        |a missing    |
+  |         | ``max_ins``, ``max_del``,         |        |field is 0)  |
+  |         | ``max_subst``, ``max_err``        |        |             |
+  +---------+-----------------------------------+--------+-------------+
+  | [init]  |start offset in the subject        | number |      1      |
+  |         |(can be negative)                  |        |             |
+  +---------+-----------------------------------+--------+-------------+
+  |  [ef]   |  execution flags (bitwise OR)     | number |     ef_     |
+  +---------+-----------------------------------+--------+-------------+
+
+**Returns on success:**
+ 1. The start point of the match (a number).
+ 2. The end point of the match (a number).
+ 3. Substring matches ("captures" in Lua terminology) are returned as a third
+    result, in the array part of a table. Positions where the corresponding
+    sub-pattern did not participate in the match contain ``false``.
+    The hash part of the table contains additional information on the match,
+    in the following fields: ``cost``, ``num_ins``, ``num_del`` and ``num_subst``.
+
+**Returns on failure:**
+ 1. ``nil``
+
+------------------------------------------------------------
+
+aexec
+------
+
+:funcdef:`r:aexec (subj, params, [init], [ef])`
+
+The method searches for the first match of the compiled regexp *r* in the
+string *subj*, starting from offset *init*, subject to execution flags *ef*.
+
+  +---------+-----------------------------------+--------+-------------+
+  |Parameter|        Description                |  Type  |Default Value|
+  +=========+===================================+========+=============+
+  |    r    | regex object produced by new_     |userdata|     n/a     |
+  +---------+-----------------------------------+--------+-------------+
+  |  subj   |          subject                  | string |     n/a     |
+  +---------+-----------------------------------+--------+-------------+
+  | params  | Approximate matching parameters.  | table  |n/a          |
+  |         | The values are integers.          |        |             |
+  |         | The valid string key values are:  |        |(Default     |
+  |         | ``cost_ins``, ``cost_del``,       |        |value for    |
+  |         | ``cost_subst``, ``max_cost``,     |        |a missing    |
+  |         | ``max_ins``, ``max_del``,         |        |field is 0)  |
+  |         | ``max_subst``, ``max_err``        |        |             |
+  +---------+-----------------------------------+--------+-------------+
+  | [init]  |start offset in the subject        | number |      1      |
+  |         |(can be negative)                  |        |             |
+  +---------+-----------------------------------+--------+-------------+
+  |  [ef]   |  execution flags (bitwise OR)     | number |     ef_     |
+  +---------+-----------------------------------+--------+-------------+
+
+**Returns on success:**
+ 1. The start point of the first match (a number).
+ 2. The end point of the first match (a number).
+ 3. The offsets of substring matches ("captures" in Lua terminology) are
+    returned as a third result, in the array part of a table. Positions where
+    the corresponding sub-pattern did not participate in the match contain
+    ``false``. The hash part of the table contains additional information on
+    the match, in the following fields: ``cost``, ``num_ins``, ``num_del`` and
+    ``num_subst``.
+
+**Returns on failure:**
+ 1. ``nil``
+
+------------------------------------------------------------
+
+have_approx
+------------
+
+:funcdef:`r:have_approx ()`
+
+The method returns ``true`` if the compiled pattern uses approximate matching,
+and ``false`` if not.
+
+------------------------------------------------------------
+
+have_backrefs
+--------------
+
+:funcdef:`r:have_backrefs ()`
+
+The method returns ``true`` if the compiled pattern has back references,
+and ``false`` if not.
+
+------------------------------------------------------------
+
+config
+------
+
+[See *tre_config* in the TRE_ docs.]
+
+:funcdef:`rex_tre.config ([tb])`
+
+This function returns a table containing the values of the configuration
+parameters used at TRE library build-time. Those parameters are
+keyed by their names. If the table argument *tb* is supplied then it
+is used as the output table, else a new table is created.
+
+------------------------------------------------------------
+
+rex_tre.version
+---------------
+
+[See *tre_version* in the TRE docs.]
+
+:funcdef:`rex_tre.version ()`
+
+This function returns a string containing the version of the used TRE library.
 
 ------------------------------------------------------------
 
