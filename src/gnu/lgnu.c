@@ -27,8 +27,7 @@
 
 #define REX_TYPENAME REX_LIBNAME"_regex"
 
-static int getcflags (lua_State *L, int pos);
-#define ALG_GETCFLAGS(L,pos)  getcflags(L, pos)
+#define ALG_GETCFLAGS(L,pos)  ALG_CFLAGS_DFLT
 
 #define ALG_CFLAGS_DFLT 0
 #define ALG_EFLAGS_DFLT 0
@@ -80,16 +79,6 @@ typedef struct {
 /*  Functions
  ******************************************************************************
  */
-
-static int getcflags (lua_State *L, int pos) {
-  switch (lua_type (L, pos)) {
-    case LUA_TNONE:
-    case LUA_TNIL:
-      return ALG_CFLAGS_DFLT;
-    default:
-      return luaL_typeerror (L, pos, "FIXME: compilation flags not yet implemented");
-  }
-}
 
 static int generate_error  (lua_State *L, const TUserdata *ud, int errcode) {
   const char *errmsg;
@@ -159,7 +148,7 @@ static int fcmp (const void *p1, const void *p2) {
 static int getsyntax (lua_State *L, int pos) {
   EncPair key, *found;
   if ((key.name = luaL_optstring (L, pos, NULL)) == NULL)
-    return RE_SYNTAX_POSIX_EXTENDED;
+    return -1;
   found = (EncPair*) bsearch (&key, Syntaxes, sizeof (Syntaxes) / sizeof (EncPair),
           sizeof (EncPair), fcmp);
   if (found == NULL)
@@ -185,14 +174,14 @@ static int LGnu_setsyntax (lua_State *L) {
 static int compile_regex (lua_State *L, const TArgComp *argC, TGnu **pud) {
   const char *res;
   TGnu *ud;
-  /* reg_syntax_t old_syntax; */
+  reg_syntax_t old_syntax;
   int ret;
 
   ud = (TGnu *)lua_newuserdata (L, sizeof (TGnu));
   memset (ud, 0, sizeof (TGnu));          /* initialize all members to 0 */
 
-  /* FIXME: take syntax parameter in cflags */
-  /* old_syntax = re_set_syntax (cflags->syntax); */
+  if (argC->gnusyn >= 0)
+    old_syntax = re_set_syntax (argC->gnusyn);
 
   /* translate table is never written to, so this cast is safe */
   ud->r.translate = (unsigned char *) argC->translate;
@@ -212,7 +201,8 @@ static int compile_regex (lua_State *L, const TArgComp *argC, TGnu **pud) {
     ret = 1;
   }
 
-  /* FIXME: re_set_syntax (old_syntax); */
+  if (argC->gnusyn >= 0)
+    re_set_syntax (old_syntax);
   return ret;
 }
 
