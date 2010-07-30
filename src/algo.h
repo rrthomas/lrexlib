@@ -415,7 +415,7 @@ static int generic_find_func (lua_State *L, int method) {
 
   checkarg_find_func (L, &argC, &argE);
   if (argE.startoffset > (int)argE.textlen)
-    return lua_pushnil(L), 1;
+    return lua_pushnil (L), 1;
 
   if (argC.ud) {
     ud = (TUserdata*) argC.ud;
@@ -638,9 +638,8 @@ static int generic_find_method (lua_State *L, int method) {
         DO_NAMED_SUBPATTERNS (L, ud, argE.text);
         return 3;
       case METHOD_MATCH:
-        return finish_generic_find (L, ud, &argE, METHOD_MATCH, res);
       case METHOD_FIND:
-        return finish_generic_find (L, ud, &argE, METHOD_FIND, res);
+        return finish_generic_find (L, ud, &argE, method, res);
     }
     return 0;
   }
