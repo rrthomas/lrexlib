@@ -145,7 +145,7 @@ static int generic_atfind (lua_State *L, int tfind) {
     set_int_field (L, "num_subst", res_match.num_subst);
     return 3;
   }
-  else if (res == ALG_NOMATCH)
+  else if (ALG_NOMATCH (res))
     return lua_pushnil (L), 1;
   else
     return generate_error (L, ud, res);

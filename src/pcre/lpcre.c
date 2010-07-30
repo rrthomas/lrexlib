@@ -282,7 +282,7 @@ static int Lpcre_dfa_exec (lua_State *L)
   }
   else {
     free (buf);
-    if (res == ALG_NOMATCH)
+    if (ALG_NOMATCH (res))
       return lua_pushnil (L), 1;
     else
       return generate_error (L, ud, res);
