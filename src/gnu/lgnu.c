@@ -155,10 +155,8 @@ static void optsyntax (TArgComp *argC, lua_State *L, int pos) {
 }
 
 static void seteflags (TGnu *ud, TArgExec *argE) {
-  ud->r.no_sub = (argE->eflags & REG_NOSUB) != 0;
   ud->r.not_bol = (argE->eflags & REG_NOTBOL) != 0;
   ud->r.not_eol = (argE->eflags & REG_NOTEOL) != 0;
-  ud->r.newline_anchor = (argE->eflags & REG_NEWLINE) != 0;
 }
 
 /*
@@ -264,8 +262,6 @@ static int Gnu_tostring (lua_State *L) {
 
 static flag_pair gnu_flags[] =
 {
-  { "no_sub",          REG_NOSUB },
-  { "newline_anchor",  REG_NEWLINE },
   { "not_bol",         REG_NOTBOL },
   { "not_eol",         REG_NOTEOL },
 /*---------------------------------------------------------------------------*/
@@ -280,9 +276,7 @@ static int Gnu_get_flags (lua_State *L) {
 static const luaL_reg gnumeta[] = {
   { "exec",       ud_exec },
   { "tfind",      ud_tfind },    /* old match */
-  /* { "trfind",     ud_trfind }, */
   { "find",       ud_find },
-  /* { "rfind",      ud_rfind }, */
   { "match",      ud_match },
   { "__gc",       Gnu_gc },
   { "__tostring", Gnu_tostring },
@@ -292,7 +286,6 @@ static const luaL_reg gnumeta[] = {
 static const luaL_reg rexlib[] = {
   { "match",      match },
   { "find",       find },
-  /* { "rfind",      rfind }, */
   { "gmatch",     gmatch },
   { "gsub",       gsub },
   { "split",      split },
