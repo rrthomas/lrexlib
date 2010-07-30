@@ -25,7 +25,7 @@ TRG = rex_tre
 # ===========================================================================
 # === END OF USER SETTINGS ===
 
-OBJ    = ltre.o common.o
+OBJ    = ltre.o ../common.o
 
 include ../common.mak
 
@@ -36,7 +36,7 @@ ar_tre: $(TRG_AR)
 so_tre: $(TRG_SO)
 
 # Dependencies
-ltre.o: ltre.c common.h algo.h
-common.o: common.c common.h
+ltre.o: ltre.c ../common.h ../algo.h
+../common.o: ../common.c ../common.h
 
 # (End of Makefile)
