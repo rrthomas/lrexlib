@@ -127,7 +127,7 @@ static void checkarg_new (lua_State *L, TArgComp *argC) {
 }
 
 
-/* function gsub (s, patt, f, [n], [cf], [ef], [lo]) */
+/* function gsub (s, patt, f, [n], [cf], [ef], [larg...]) */
 static void checkarg_gsub (lua_State *L, TArgComp *argC, TArgExec *argE) {
   argE->text = luaL_checklstring (L, 1, &argE->textlen);
   check_pattern (L, 2, argC);
@@ -148,8 +148,8 @@ static void checkarg_gsub (lua_State *L, TArgComp *argC, TArgExec *argE) {
 }
 
 
-/* function find  (s, patt, [st], [cf], [ef], [lo]) */
-/* function match (s, patt, [st], [cf], [ef], [lo]) */
+/* function find  (s, patt, [st], [cf], [ef], [larg...]) */
+/* function match (s, patt, [st], [cf], [ef], [larg...]) */
 static void checkarg_find_func (lua_State *L, TArgComp *argC, TArgExec *argE) {
   argE->text = luaL_checklstring (L, 1, &argE->textlen);
   check_pattern (L, 2, argC);
@@ -162,8 +162,8 @@ static void checkarg_find_func (lua_State *L, TArgComp *argC, TArgExec *argE) {
 }
 
 
-/* function gmatch (s, patt, [cf], [ef], [lo]) */
-/* function split  (s, patt, [cf], [ef], [lo]) */
+/* function gmatch (s, patt, [cf], [ef], [larg...]) */
+/* function split  (s, patt, [cf], [ef], [larg...]) */
 static void checkarg_gmatch_split (lua_State *L, TArgComp *argC, TArgExec *argE) {
   argE->text = luaL_checklstring (L, 1, &argE->textlen);
   check_pattern (L, 2, argC);
