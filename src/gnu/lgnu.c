@@ -27,16 +27,10 @@
 
 #define REX_TYPENAME REX_LIBNAME"_regex"
 
-#define ALG_GETCFLAGS(L,pos)  ALG_CFLAGS_DFLT
-
 #define ALG_CFLAGS_DFLT 0
 #define ALG_EFLAGS_DFLT 0
-/* FIXME: Need to be able to set the following fields, so treat eflags like cflags:
-  unsigned __REPB_PREFIX(no_sub) : 1;
-  unsigned __REPB_PREFIX(not_bol) : 1;
-  unsigned __REPB_PREFIX(not_eol) : 1;
-  unsigned __REPB_PREFIX(newline_anchor) : 1;
-*/
+
+#define ALG_GETCFLAGS(L,pos)  ALG_CFLAGS_DFLT
 
 static void opttranslate (TArgComp *argC, lua_State *L, int pos);
 #define ALG_OPTTRANSLATE(a,b,c)  opttranslate(a,b,c)
@@ -160,6 +154,13 @@ static void optsyntax (TArgComp *argC, lua_State *L, int pos) {
   argC->gnusyn = getsyntax (L, pos);
 }
 
+static void seteflags (TGnu *ud, TArgExec *argE) {
+  ud->r.no_sub = (argE->eflags & REG_NOSUB) != 0;
+  ud->r.not_bol = (argE->eflags & REG_NOTBOL) != 0;
+  ud->r.not_eol = (argE->eflags & REG_NOTEOL) != 0;
+  ud->r.newline_anchor = (argE->eflags & REG_NEWLINE) != 0;
+}
+
 /*
    rex.setsyntax (syntax)
    @param syntax: one of the predefined strings listed in array 'Syntaxes'
@@ -207,6 +208,7 @@ static int compile_regex (lua_State *L, const TArgComp *argC, TGnu **pud) {
 }
 
 static int gmatch_exec (TUserdata *ud, TArgExec *argE) {
+  seteflags (ud, argE);
   if (argE->startoffset > 0)
     ud->r.not_bol = 1;
   argE->text += argE->startoffset;
@@ -221,16 +223,19 @@ static void gmatch_pushsubject (lua_State *L, TArgExec *argE) {
 static int findmatch_exec (TGnu *ud, TArgExec *argE) {
   argE->text += argE->startoffset;
   argE->textlen -= argE->startoffset;
+  seteflags (ud, argE);
   return re_search (&ud->r, argE->text, argE->textlen, 0, argE->textlen, &ud->match);
 }
 
 static int gsub_exec (TGnu *ud, TArgExec *argE, int st) {
+  seteflags (ud, argE);
   if (st > 0)
     ud->r.not_bol = 1;
   return re_search (&ud->r, argE->text + st, argE->textlen - st, 0, argE->textlen - st, &ud->match);
 }
 
 static int split_exec (TGnu *ud, TArgExec *argE, int offset) {
+  seteflags (ud, argE);
   if (offset > 0)
     ud->r.not_bol = 1;
   return re_search (&ud->r, argE->text + offset, argE->textlen - offset, 0, argE->textlen - offset, &ud->match);
@@ -257,10 +262,20 @@ static int Gnu_tostring (lua_State *L) {
   return 1;
 }
 
-/* static int Gnu_get_flags (lua_State *L) { */
-/*   const flag_pair* fps[] = { gnu_flags, NULL }; */
-/*   return get_flags (L, fps); */
-/* } */
+static flag_pair gnu_flags[] =
+{
+  { "no_sub",          REG_NOSUB },
+  { "newline_anchor",  REG_NEWLINE },
+  { "not_bol",         REG_NOTBOL },
+  { "not_eol",         REG_NOTEOL },
+/*---------------------------------------------------------------------------*/
+  { NULL, 0 }
+};
+
+static int Gnu_get_flags (lua_State *L) {
+  const flag_pair* fps[] = { gnu_flags, NULL };
+  return get_flags (L, fps);
+}
 
 static const luaL_reg gnumeta[] = {
   { "exec",       ud_exec },
@@ -282,7 +297,7 @@ static const luaL_reg rexlib[] = {
   { "gsub",       gsub },
   { "split",      split },
   { "new",        ud_new },
-  /* { "flags",      Gnu_get_flags }, */
+  { "flags",      Gnu_get_flags },
   { "plainfind",  plainfind_func },
   { "setsyntax",  LGnu_setsyntax },
   { NULL, NULL }
