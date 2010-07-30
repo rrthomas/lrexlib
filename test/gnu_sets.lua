@@ -30,9 +30,23 @@ local function set_f_gmatch (lib, flg)
     { {"abA",           "a"},        {{"a",N}, {"A",N} } },
   }
 end
+
+local function set_f_match (lib, flg)
+return {
+  Name = "Function match",
+  Func = lib.match,
+  --{subj,   patt,      st,cf,ef},           { results }
+  { {"abcd", ".+",      5},                  { N }    }, -- failing st
+  { {"abc",  "^abc"},                        {"abc" } }, -- anchor
+  { {"^abc", "^abc",    N,N,flg.NOTBOL},     { N }    }, -- anchor + ef
+}
+end
+
 return function (libname)
   local lib = require (libname)
+  local flags = lib.flags ()
   return {
+    set_f_match     (lib, flags),
     set_f_gmatch    (lib),
   }
 end
