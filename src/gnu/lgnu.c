@@ -105,7 +105,7 @@ static void opttranslate (TArgComp *argC, lua_State *L, int pos) {
 
     argC->translate = (const unsigned char *) Lmalloc (L, ALG_TRANSLATE_SIZE);
     memset ((unsigned char *) argC->translate, 0, ALG_TRANSLATE_SIZE); /* initialize all members to 0 */
-    for (i = 0; i < ALG_TRANSLATE_SIZE; i++) {
+    for (i = 0; i <= UCHAR_MAX; i++) {
       lua_pushinteger (L, i);
       lua_gettable (L, pos);
       if (lua_tostring (L, -1))
