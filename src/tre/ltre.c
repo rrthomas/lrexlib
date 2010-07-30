@@ -25,7 +25,7 @@
 #define ALG_CFLAGS_DFLT REG_EXTENDED
 #define ALG_EFLAGS_DFLT 0
 
-#define ALG_NOMATCH        REG_NOMATCH
+#define ALG_NOMATCH(res)   ((res) == REG_NOMATCH)
 #define ALG_ISMATCH(res)   ((res) == 0)
 #define ALG_SUBBEG(ud,n)   ud->match[n].rm_so
 #define ALG_SUBEND(ud,n)   ud->match[n].rm_eo
@@ -355,4 +355,3 @@ REX_API int REX_OPENLIB (lua_State *L)
   lua_setfield (L, -2, "_VERSION");
   return 1;
 }
-

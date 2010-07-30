@@ -36,7 +36,7 @@ static int getcflags (lua_State *L, int pos);
 static void optlocale (TArgComp *argC, lua_State *L, int pos);
 #define ALG_OPTLOCALE(a,b,c)  optlocale(a,b,c)
 
-#define ALG_NOMATCH        PCRE_ERROR_NOMATCH
+#define ALG_NOMATCH(res)   ((res) == PCRE_ERROR_NOMATCH)
 #define ALG_ISMATCH(res)   ((res) >= 0)
 #define ALG_SUBBEG(ud,n)   ud->match[n+n]
 #define ALG_SUBEND(ud,n)   ud->match[n+n+1]

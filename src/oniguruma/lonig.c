@@ -37,7 +37,7 @@ static void optlocale (TArgComp *argC, lua_State *L, int pos);
 static void optsyntax (TArgComp *argC, lua_State *L, int pos);
 #define ALG_OPTSYNTAX(a,b,c)  optsyntax(a,b,c)
 
-#define ALG_NOMATCH        ONIG_MISMATCH
+#define ALG_NOMATCH(res)   ((res) == ONIG_MISMATCH)
 #define ALG_ISMATCH(res)   ((res) >= 0)
 #define ALG_SUBBEG(ud,n)   ud->region->beg[n]
 #define ALG_SUBEND(ud,n)   ud->region->end[n]

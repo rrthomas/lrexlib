@@ -44,7 +44,7 @@ static void opttranslate (TArgComp *argC, lua_State *L, int pos);
 static void optsyntax (TArgComp *argC, lua_State *L, int pos);
 #define ALG_OPTSYNTAX(a,b,c)  optsyntax(a,b,c)
 
-#define ALG_NOMATCH        -1 /* FIXME: -2 for internal error is also possible; take arg like ALG_ISMATCH */
+#define ALG_NOMATCH(res)   ((res) == 1 || (res) == -2)
 #define ALG_ISMATCH(res)   ((res) >= 0)
 #define ALG_SUBBEG(ud,n)   ud->match.start[n]
 #define ALG_SUBEND(ud,n)   ud->match.end[n]

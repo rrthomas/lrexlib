@@ -238,7 +238,7 @@ static int gsub (lua_State *L) {
     int from, to, res;
     int curr_subst = 0;
     res = GSUB_EXEC (ud, &argE, st, retry);
-    if (res == ALG_NOMATCH) {
+    if (ALG_NOMATCH (res)) {
 #ifdef ALG_USERETRY
       if (retry) {
         if (st < (int)argE.textlen) {  /* advance by 1 char (not replaced) */
@@ -400,7 +400,7 @@ static int finish_generic_find (lua_State *L, TUserdata *ud, TArgExec *argE,
     }
     return (method == METHOD_FIND) ? ALG_NSUB(ud) + 2 : ALG_NSUB(ud);
   }
-  else if (res == ALG_NOMATCH)
+  else if (ALG_NOMATCH (res))
     return lua_pushnil (L), 1;
   else
     return generate_error (L, ud, res);
@@ -481,7 +481,7 @@ static int gmatch_iter (lua_State *L) {
         return 1;
       }
     }
-    else if (res == ALG_NOMATCH) {
+    else if (ALG_NOMATCH (res)) {
 #ifdef ALG_USERETRY
       if (retry) {
         if (argE.startoffset < (int)argE.textlen) {
@@ -531,7 +531,7 @@ static int split_iter (lua_State *L) {
       return 2;
     }
   }
-  else if (res == ALG_NOMATCH) {
+  else if (ALG_NOMATCH (res)) {
     lua_pushinteger (L, argE.textlen + 1);    /* mark as last iteration */
     lua_replace (L, lua_upvalueindex (4));    /* update start offset */
     lua_pushlstring (L, argE.text+argE.startoffset, argE.textlen-argE.startoffset);
@@ -644,7 +644,7 @@ static int generic_find_method (lua_State *L, int method) {
     }
     return 0;
   }
-  else if (res == ALG_NOMATCH)
+  else if (ALG_NOMATCH (res))
     return lua_pushnil (L), 1;
   else
     return generate_error(L, ud, res);
