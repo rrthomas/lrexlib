@@ -2,6 +2,7 @@
 
 V = 2.5
 
+TRG    = rex_$(REGNAME)
 DEFS   = -DREX_OPENLIB=luaopen_$(TRG) -DREX_LIBNAME=\"$(TRG)\"
 CFLAGS = $(MYCFLAGS) $(DEFS) $(INC)
 TRG_AR = lib$(TRG).a
@@ -20,3 +21,6 @@ $(TRG_SO): $(OBJ)
 
 clean:
 	rm -f $(OBJ) $(TRG_AR) $(TRG_SO)*
+
+check:
+	LUA_INIT= LUA_PATH=../../test/?.lua lua ../../test/runtest.lua -d. $(REGNAME)

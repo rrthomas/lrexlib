@@ -15,7 +15,7 @@ LIB = -lonig
 #LIB = -lonig
 
 # Target name
-TRG = rex_onig
+REGNAME = onig
 
 # ===========================================================================
 # === END OF USER SETTINGS ===

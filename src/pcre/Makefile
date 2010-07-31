@@ -15,7 +15,7 @@ LIB = -lpcre
 #LIB = -lpcre
 
 # Target name
-TRG = rex_pcre
+REGNAME = pcre
 
 # ===========================================================================
 # === END OF USER SETTINGS ===

@@ -20,7 +20,7 @@ LIB = -ltre
 #   match, and you may well get segmentation faults (or worse).
 
 # Target name
-TRG = rex_tre
+REGNAME = tre
 
 # ===========================================================================
 # === END OF USER SETTINGS ===
