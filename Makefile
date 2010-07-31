@@ -60,8 +60,3 @@ clean_onig:
 
 clean_tre:
 	make -C $(TRE) clean
-
-.PHONY: all build test clean build_gnu test_gnu clean_gnu \
-  build_pcre test_pcre clean_pcre build_posix \
-  test_posix clean_posix build_onig test_onig clean_onig \
-  build_tre clean_tre
