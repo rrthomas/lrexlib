@@ -31,11 +31,8 @@ extern int LOnig_get_flags (lua_State *L);
 static int getcflags (lua_State *L, int pos);
 #define ALG_GETCFLAGS(L,pos)  getcflags(L, pos)
 
-static void optlocale (TArgComp *argC, lua_State *L, int pos);
-#define ALG_OPTLOCALE(a,b,c)  optlocale(a,b,c)
-
-static void optsyntax (TArgComp *argC, lua_State *L, int pos);
-#define ALG_OPTSYNTAX(a,b,c)  optsyntax(a,b,c)
+static void checkarg_compile (lua_State *L, int pos, TArgComp *argC);
+#define ALG_GETCARGS(a,b,c)  checkarg_compile(a,b,c)
 
 #define ALG_NOMATCH(res)   ((res) == ONIG_MISMATCH)
 #define ALG_ISMATCH(res)   ((res) >= 0)
@@ -176,17 +173,19 @@ static int fcmp(const void *p1, const void *p2) {
   return strcmp(((EncPair*)p1)->name, ((EncPair*)p2)->name);
 }
 
-static void optlocale (TArgComp *argC, lua_State *L, int pos) {
+static const char *getlocale (lua_State *L, int pos) {
   EncPair key;
   if ((key.name = luaL_optstring(L, pos, NULL)) == NULL)
-    argC->locale = (const char*)ONIG_ENCODING_ASCII;
+    return (const char*)ONIG_ENCODING_ASCII;
   else {
     EncPair *pair = (EncPair*) bsearch(&key, Encodings,
       sizeof(Encodings)/sizeof(EncPair), sizeof(EncPair), fcmp);
     if (pair != NULL)
-      argC->locale = (const char*)pair->value;
-    else
+      return (const char*)pair->value;
+    else {
       luaL_argerror(L, pos, "invalid or unsupported encoding string");
+      return NULL;
+    }
   }
 }
 
@@ -201,8 +200,9 @@ static void *getsyntax (lua_State *L, int pos) {
   return found->value;
 }
 
-static void optsyntax (TArgComp *argC, lua_State *L, int pos) {
-  argC->syntax = getsyntax(L, pos);
+static void checkarg_compile (lua_State *L, int pos, TArgComp *argC) {
+  argC->locale = getlocale (L, pos);
+  argC->syntax = getsyntax (L, pos + 1);
 }
 
 /*

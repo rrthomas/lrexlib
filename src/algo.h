@@ -12,16 +12,8 @@ static int split_exec      (TUserdata *ud, TArgExec *argE, int offset);
 static int compile_regex   (lua_State *L, const TArgComp *argC, TUserdata **pud);
 static int generate_error  (lua_State *L, const TUserdata *ud, int errcode);
 
-#ifndef ALG_OPTLOCALE
-#  define ALG_OPTLOCALE(a,b,c)
-#endif
-
-#ifndef ALG_OPTSYNTAX
-#  define ALG_OPTSYNTAX(a,b,c)
-#endif
-
-#ifndef ALG_OPTTRANSLATE
-#  define ALG_OPTTRANSLATE(a,b,c)
+#ifndef ALG_GETCARGS
+#  define ALG_GETCARGS(a,b,c)
 #endif
 
 #ifndef DO_NAMED_SUBPATTERNS
@@ -121,9 +113,7 @@ static void check_pattern (lua_State *L, int pos, TArgComp *argC)
 static void checkarg_new (lua_State *L, TArgComp *argC) {
   argC->pattern = luaL_checklstring (L, 1, &argC->patlen);
   argC->cflags = ALG_GETCFLAGS (L, 2);
-  ALG_OPTLOCALE (argC, L, 3);
-  ALG_OPTTRANSLATE (argC, L, 3);
-  ALG_OPTSYNTAX (argC, L, 4);
+  ALG_GETCARGS (L, 3, argC);
 }
 
 
@@ -142,9 +132,7 @@ static void checkarg_gsub (lua_State *L, TArgComp *argC, TArgExec *argE) {
   argE->maxmatch = OptLimit (L, 4);
   argC->cflags = ALG_GETCFLAGS (L, 5);
   argE->eflags = luaL_optint (L, 6, ALG_EFLAGS_DFLT);
-  ALG_OPTLOCALE (argC, L, 7);
-  ALG_OPTTRANSLATE (argC, L, 7);
-  ALG_OPTSYNTAX (argC, L, 8);
+  ALG_GETCARGS (L, 7, argC);
 }
 
 
@@ -156,9 +144,7 @@ static void checkarg_find_func (lua_State *L, TArgComp *argC, TArgExec *argE) {
   argE->startoffset = get_startoffset (L, 3, argE->textlen);
   argC->cflags = ALG_GETCFLAGS (L, 4);
   argE->eflags = luaL_optint (L, 5, ALG_EFLAGS_DFLT);
-  ALG_OPTLOCALE (argC, L, 6);
-  ALG_OPTTRANSLATE (argC, L, 6);
-  ALG_OPTSYNTAX (argC, L, 7);
+  ALG_GETCARGS (L, 6, argC);
 }
 
 
@@ -169,9 +155,7 @@ static void checkarg_gmatch_split (lua_State *L, TArgComp *argC, TArgExec *argE)
   check_pattern (L, 2, argC);
   argC->cflags = ALG_GETCFLAGS (L, 3);
   argE->eflags = luaL_optint (L, 4, ALG_EFLAGS_DFLT);
-  ALG_OPTLOCALE (argC, L, 5);
-  ALG_OPTTRANSLATE (argC, L, 5);
-  ALG_OPTSYNTAX (argC, L, 6);
+  ALG_GETCARGS (L, 5, argC);
 }
 
 

@@ -33,8 +33,8 @@ extern flag_pair pcre_error_flags[];
 static int getcflags (lua_State *L, int pos);
 #define ALG_GETCFLAGS(L,pos)  getcflags(L, pos)
 
-static void optlocale (TArgComp *argC, lua_State *L, int pos);
-#define ALG_OPTLOCALE(a,b,c)  optlocale(a,b,c)
+static void checkarg_compile (lua_State *L, int pos, TArgComp *argC);
+#define ALG_GETCARGS(a,b,c)  checkarg_compile(a,b,c)
 
 #define ALG_NOMATCH(res)   ((res) == PCRE_ERROR_NOMATCH)
 #define ALG_ISMATCH(res)   ((res) >= 0)
@@ -169,7 +169,7 @@ static int chartables_gc (lua_State *L) {
   return 0;
 }
 
-static void optlocale (TArgComp *argC, lua_State *L, int pos) {
+static void checkarg_compile (lua_State *L, int pos, TArgComp *argC) {
   argC->locale = NULL;
   argC->tables = NULL;
   if (!lua_isnoneornil (L, pos)) {

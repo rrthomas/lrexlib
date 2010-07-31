@@ -32,11 +32,8 @@
 
 #define ALG_GETCFLAGS(L,pos)  ALG_CFLAGS_DFLT
 
-static void opttranslate (TArgComp *argC, lua_State *L, int pos);
-#define ALG_OPTTRANSLATE(a,b,c)  opttranslate(a,b,c)
-
-static void optsyntax (TArgComp *argC, lua_State *L, int pos);
-#define ALG_OPTSYNTAX(a,b,c)  optsyntax(a,b,c)
+static void checkarg_compile (lua_State *L, int pos, TArgComp *argC);
+#define ALG_GETCARGS(a,b,c)  checkarg_compile(a,b,c)
 
 #define ALG_NOMATCH(res)   ((res) == -1 || (res) == -2)
 #define ALG_ISMATCH(res)   ((res) >= 0)
@@ -98,21 +95,23 @@ static int generate_error  (lua_State *L, const TUserdata *ud, int errcode) {
 }
 
 #define ALG_TRANSLATE_SIZE (UCHAR_MAX + 1)
-static void opttranslate (TArgComp *argC, lua_State *L, int pos) {
-  if (!lua_isnoneornil (L, pos)) {
-    unsigned i;
+static const unsigned char *gettranslate (lua_State *L, int pos) {
+  unsigned i;
+  const unsigned char *translate;
 
-    argC->translate = (const unsigned char *) Lmalloc (L, ALG_TRANSLATE_SIZE);
-    memset ((unsigned char *) argC->translate, 0, ALG_TRANSLATE_SIZE); /* initialize all members to 0 */
-    for (i = 0; i <= UCHAR_MAX; i++) {
-      lua_pushinteger (L, i);
-      lua_gettable (L, pos);
-      if (lua_tostring (L, -1))
-        ((unsigned char *) argC->translate)[i] = *lua_tostring (L, -1);
-      lua_pop (L, 1);
-    }
-  } else
-    argC->translate = NULL;
+  if (lua_isnoneornil (L, pos))
+    return NULL;
+
+  translate = (const unsigned char *) Lmalloc (L, ALG_TRANSLATE_SIZE);
+  memset ((unsigned char *) translate, 0, ALG_TRANSLATE_SIZE); /* initialize all members to 0 */
+  for (i = 0; i <= UCHAR_MAX; i++) {
+    lua_pushinteger (L, i);
+    lua_gettable (L, pos);
+    if (lua_tostring (L, -1))
+      ((unsigned char *) translate)[i] = *lua_tostring (L, -1);
+    lua_pop (L, 1);
+  }
+  return translate;
 }
 
 typedef struct {
@@ -155,8 +154,9 @@ static int getsyntax (lua_State *L, int pos) {
   return found->value;
 }
 
-static void optsyntax (TArgComp *argC, lua_State *L, int pos) {
-  argC->gnusyn = getsyntax (L, pos);
+static void checkarg_compile (lua_State *L, int pos, TArgComp *argC) {
+  argC->translate = gettranslate (L, pos);
+  argC->gnusyn = getsyntax (L, pos + 1);
 }
 
 static void seteflags (TGnu *ud, TArgExec *argE) {
