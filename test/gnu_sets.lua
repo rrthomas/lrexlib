@@ -39,6 +39,7 @@ return {
   { {"abcd", ".+",      5},                  { N }    }, -- failing st
   { {"abc",  "^abc"},                        {"abc" } }, -- anchor
   { {"abc",  "^abc",    N,N,flg.not_bol},    { N }    }, -- anchor + ef
+  { {"cabcaab", "ca+b", N,N,flg.reverse},    {"caab" }  }, -- reverse search
 }
 end
 

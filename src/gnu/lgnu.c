@@ -64,7 +64,6 @@ typedef struct {
   struct re_registers      match;
   int                      freed;
   const char *             errmsg;
-  int                      reverse;
 } TGnu;
 
 #define TUserdata TGnu
@@ -163,7 +162,6 @@ static void optsyntax (TArgComp *argC, lua_State *L, int pos) {
 static void seteflags (TGnu *ud, TArgExec *argE) {
   ud->r.not_bol = (argE->eflags & GNU_NOTBOL) != 0;
   ud->r.not_eol = (argE->eflags & GNU_NOTEOL) != 0;
-  ud->reverse = (argE->eflags & GNU_REVERSE) != 0;
 }
 
 /*
@@ -218,7 +216,10 @@ static int gmatch_exec (TUserdata *ud, TArgExec *argE) {
     ud->r.not_bol = 1;
   argE->text += argE->startoffset;
   argE->textlen -= argE->startoffset;
-  return re_search (&ud->r, argE->text, argE->textlen, 0, argE->textlen, &ud->match);
+  if (argE->eflags & GNU_REVERSE)
+    return re_search (&ud->r, argE->text, argE->textlen, argE->textlen, -argE->textlen, &ud->match);
+  else
+    return re_search (&ud->r, argE->text, argE->textlen, 0, argE->textlen, &ud->match);
 }
 
 static void gmatch_pushsubject (lua_State *L, TArgExec *argE) {
@@ -229,21 +230,30 @@ static int findmatch_exec (TGnu *ud, TArgExec *argE) {
   argE->text += argE->startoffset;
   argE->textlen -= argE->startoffset;
   seteflags (ud, argE);
-  return re_search (&ud->r, argE->text, argE->textlen, 0, argE->textlen, &ud->match);
+  if (argE->eflags & GNU_REVERSE)
+    return re_search (&ud->r, argE->text, argE->textlen, argE->textlen, -argE->textlen, &ud->match);
+  else
+    return re_search (&ud->r, argE->text, argE->textlen, 0, argE->textlen, &ud->match);
 }
 
 static int gsub_exec (TGnu *ud, TArgExec *argE, int st) {
   seteflags (ud, argE);
   if (st > 0)
     ud->r.not_bol = 1;
-  return re_search (&ud->r, argE->text + st, argE->textlen - st, 0, argE->textlen - st, &ud->match);
+  if (argE->eflags & GNU_REVERSE)
+    return re_search (&ud->r, argE->text + st, argE->textlen - st, argE->textlen - st, -(argE->textlen - st), &ud->match);
+  else
+    return re_search (&ud->r, argE->text + st, argE->textlen - st, 0, argE->textlen - st, &ud->match);
 }
 
 static int split_exec (TGnu *ud, TArgExec *argE, int offset) {
   seteflags (ud, argE);
   if (offset > 0)
     ud->r.not_bol = 1;
-  return re_search (&ud->r, argE->text + offset, argE->textlen - offset, 0, argE->textlen - offset, &ud->match);
+  if (argE->eflags & GNU_REVERSE)
+    return re_search (&ud->r, argE->text + offset, argE->textlen - offset, argE->textlen - offset, -(argE->textlen - offset), &ud->match);
+  else
+    return re_search (&ud->r, argE->text + offset, argE->textlen - offset, 0, argE->textlen - offset, &ud->match);
 }
 
 static int Gnu_gc (lua_State *L) {
