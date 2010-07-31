@@ -60,3 +60,6 @@ clean_onig:
 
 clean_tre:
 	make -C $(TRE) clean
+
+dist:
+	git2cl > ChangeLog
