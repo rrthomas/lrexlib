@@ -400,7 +400,11 @@ constants in the used library. They are formed as follows:
   but for ONIG_OPTION_xxx constants, alias strings are created additionally,
   e.g., the value of ONIG_OPTION_IGNORECASE constant becomes accessible via
   either of two keys: ``"ONIG_OPTION_IGNORECASE"`` and ``"IGNORECASE"``.
-* **GNU**: the GNU library does not define any flags.
+* **GNU**: the GNU library provides the flags ``not_bol``, which stops
+  a beginning-of-line anchor from matching at the start of a string,
+  ``not_eol``, which stops an end-of-line anchor from matching at the
+  end of a string, and ``reverse`` which causes the search to be
+  performed backwards.
 
 ------------------------------------------------------------
 
