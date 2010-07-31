@@ -1,17 +1,15 @@
 # Makefile for lrexlib
 
-# See src/*/Makefile for user-definable settings
+# See src/*/Makefile and src/defaults.mak for user-definable settings
 
 REGNAMES = gnu pcre posix oniguruma tre
 
-all: build check
-
-build:
+all:
 	@for i in $(REGNAMES); do \
 	  make -C src/$$i; \
 	done
 
-check:
+check: all
 	@for i in $(REGNAMES); do \
 	  make -C src/$$i check; \
 	done
