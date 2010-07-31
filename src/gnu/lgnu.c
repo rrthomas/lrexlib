@@ -64,6 +64,7 @@ typedef struct {
   struct re_registers      match;
   int                      freed;
   const char *             errmsg;
+  int                      reverse;
 } TGnu;
 
 #define TUserdata TGnu
@@ -73,6 +74,11 @@ typedef struct {
 /*  Functions
  ******************************************************************************
  */
+
+/* Execution flags, which we need to simulate as GNU does not use flags for this. */
+#define GNU_NOTBOL  1
+#define GNU_NOTEOL  2
+#define GNU_REVERSE 4
 
 static int generate_error  (lua_State *L, const TUserdata *ud, int errcode) {
   const char *errmsg;
@@ -155,8 +161,9 @@ static void optsyntax (TArgComp *argC, lua_State *L, int pos) {
 }
 
 static void seteflags (TGnu *ud, TArgExec *argE) {
-  ud->r.not_bol = (argE->eflags & REG_NOTBOL) != 0;
-  ud->r.not_eol = (argE->eflags & REG_NOTEOL) != 0;
+  ud->r.not_bol = (argE->eflags & GNU_NOTBOL) != 0;
+  ud->r.not_eol = (argE->eflags & GNU_NOTEOL) != 0;
+  ud->reverse = (argE->eflags & GNU_REVERSE) != 0;
 }
 
 /*
@@ -262,8 +269,9 @@ static int Gnu_tostring (lua_State *L) {
 
 static flag_pair gnu_flags[] =
 {
-  { "not_bol",         REG_NOTBOL },
-  { "not_eol",         REG_NOTEOL },
+  { "not_bol", GNU_NOTBOL },
+  { "not_eol", GNU_NOTEOL },
+  { "reverse", GNU_REVERSE },
 /*---------------------------------------------------------------------------*/
   { NULL, 0 }
 };
