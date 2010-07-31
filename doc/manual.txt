@@ -7,26 +7,9 @@ Lrexlib 2.5 Reference Manual
 
 ------------------------------------------------------------
 
-Introduction
-~~~~~~~~~~~~
-
-**Lrexlib** provides bindings of five regular expression library APIs
-(POSIX_, PCRE_, GNU_, TRE_ and Oniguruma_) to Lua_ 5.1.
-
 **Lrexlib** builds into shared libraries called by default *rex_posix.so*,
-*rex_pcre.so*, *rex_gnu*, *rex_tre* and *rex_onig.so*, which can be used with
+*rex_pcre.so*, *rex_gnu.so*, *rex_tre.so* and *rex_onig.so*, which can be used with
 *require*.
-
-**Lrexlib** is copyright Reuben Thomas 2000-2010 and copyright Shmuel Zeigerman
-2004-2010, and is released under the MIT_ license.
-
-.. _POSIX: http://www.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap09.html
-.. _PCRE: http://www.pcre.org/pcre.txt
-.. _GNU: ftp://ftp.gnu.org/old-gnu/regex/
-.. _Oniguruma: http://www.geocities.jp/kosako3/oniguruma/doc/RE.txt
-.. _TRE: http://laurikari.net/tre/documentation/
-.. _Lua: http://www.lua.org
-.. _MIT: http://www.opensource.org/licenses/mit-license.php
 
 ------------------------------------------------------------
 
