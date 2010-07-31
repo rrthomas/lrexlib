@@ -38,7 +38,7 @@ return {
   --{subj,   patt,      st,cf,ef},           { results }
   { {"abcd", ".+",      5},                  { N }    }, -- failing st
   { {"abc",  "^abc"},                        {"abc" } }, -- anchor
-  { {"^abc", "^abc",    N,N,flg.NOTBOL},     { N }    }, -- anchor + ef
+  { {"abc",  "^abc",    N,N,flg.not_bol},    { N }    }, -- anchor + ef
 }
 end
 

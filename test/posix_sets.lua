@@ -47,7 +47,7 @@ return {
   { {".+"},            {"abcd",5},            { N }    }, -- failing st
   { {"aBC",flg.ICASE}, {"abc"},               {1,3,{}} }, -- cf
   { {"^abc"},          {"abc"},               {1,3,{}} }, -- anchor
-  { {"^abc"},          {"^abc",N,flg.NOTBOL}, { N }    }, -- anchor + ef
+  { {"^abc"},          {"abc",N,flg.NOTBOL},  { N }    }, -- anchor + ef
 }
 end
 
@@ -61,4 +61,3 @@ return function (libname)
     set_m_tfind  (lib, flags),
   }
 end
-
