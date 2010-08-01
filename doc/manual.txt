@@ -32,8 +32,7 @@ Notes
    *rex_tre*, which are the default namespaces for the corresponding libraries.
 
 4. All functions that take a regular expression pattern as an argument will
-   generate an error if that pattern is found invalid by the used
-   POSIX_ / PCRE_ / GNU_ / Oniguruma_ / TRE_ library.
+   generate an error if that pattern is found invalid by the regex library.
 
 5. All functions that take a string-type regex argument accept a compiled regex
    too. In this case, the cf_ and larg_ arguments are ignored (should
@@ -100,7 +99,7 @@ The function searches for the first match of the regexp *patt* in the string
   +---------+-------------------------------+--------+-------------+
   |Parameter|        Description            |  Type  |Default Value|
   +=========+===============================+========+=============+
-  |    r    |regex object produced by new_  |userdata|     n/a     |
+  |    r    |regex object produced by new   |userdata|     n/a     |
   +---------+-------------------------------+--------+-------------+
   |  subj   |          subject              | string |     n/a     |
   +---------+-------------------------------+--------+-------------+
@@ -144,7 +143,7 @@ The function searches for the first match of the regexp *patt* in the string
   +---------+-------------------------------+--------+-------------+
   |Parameter|        Description            |  Type  |Default Value|
   +=========+===============================+========+=============+
-  |    r    |regex object produced by new_  |userdata|     n/a     |
+  |    r    |regex object produced by new   |userdata|     n/a     |
   +---------+-------------------------------+--------+-------------+
   |  subj   |subject                        | string |     n/a     |
   +---------+-------------------------------+--------+-------------+
@@ -377,8 +376,8 @@ table, otherwise a new table is created.
 The constants contained in the returned table can then be used in most functions
 and methods where *compilation flags* or *execution flags* can be specified.
 They can also be used for comparing with return codes of some functions and
-methods for determining the reason of failure. For details, see the POSIX_,
-PCRE_ and Oniguruma_ documentation.
+methods for determining the reason of failure. For details, see the relevant
+regex library's documentation.
 
   +---------+--------------------------------+--------+-------------+
   |Parameter|        Description             |  Type  |Default Value|
@@ -446,7 +445,7 @@ string *subj*, starting from offset *init*, subject to execution flags *ef*.
   +---------+-----------------------------------+--------+-------------+
   |Parameter|        Description                |  Type  |Default Value|
   +=========+===================================+========+=============+
-  |    r    |regex object produced by new_      |userdata|     n/a     |
+  |    r    |regex object produced by new       |userdata|     n/a     |
   +---------+-----------------------------------+--------+-------------+
   |  subj   |subject                            | string |     n/a     |
   +---------+-----------------------------------+--------+-------------+
@@ -471,7 +470,7 @@ string *subj*, starting from offset *init*, subject to execution flags *ef*.
  1. ``nil``
 
 **Notes:**
- 1. If *named subpatterns* (see PCRE_ and Oniguruma_ docs) are used then the
+ 1. If *named subpatterns* (see PCRE and Oniguruma docs) are used then the
     returned table also contains substring matches keyed by their correspondent
     subpattern names (strings).
 
@@ -488,7 +487,7 @@ string *subj*, starting from offset *init*, subject to execution flags *ef*.
   +---------+-----------------------------------+--------+-------------+
   |Parameter|        Description                |  Type  |Default Value|
   +=========+===================================+========+=============+
-  |    r    |regex object produced by new_      |userdata|     n/a     |
+  |    r    |regex object produced by new       |userdata|     n/a     |
   +---------+-----------------------------------+--------+-------------+
   |  subj   |subject                            | string |     n/a     |
   +---------+-----------------------------------+--------+-------------+
@@ -536,7 +535,7 @@ tables.
 dfa_exec
 --------
 
-[PCRE 6.0 and later. See *pcre_dfa_exec* in the PCRE_ docs.]
+[PCRE 6.0 and later. See *pcre_dfa_exec* in the PCRE docs.]
 
 :funcdef:`r:dfa_exec (subj, [init], [ef], [ovecsize], [wscount])`
 
@@ -546,7 +545,7 @@ string *subj*, using a DFA matching algorithm.
   +----------+-------------------------------------+--------+-------------+
   |Parameter |                 Description         |  Type  |Default Value|
   +==========+=====================================+========+=============+
-  |    r     |regex object produced by new_        |userdata|     n/a     |
+  |    r     |regex object produced by new         |userdata|     n/a     |
   +----------+-------------------------------------+--------+-------------+
   |  subj    |subject                              | string |     n/a     |
   +----------+-------------------------------------+--------+-------------+
@@ -579,7 +578,7 @@ string *subj*, using a DFA matching algorithm.
 maketables
 ----------
 
-[See *pcre_maketables* in the PCRE_ docs.]
+[See *pcre_maketables* in the PCRE docs.]
 
 :funcdef:`rex_pcre.maketables ()`
 
@@ -592,7 +591,7 @@ function accepting the *locale* parameter.
 config
 ------
 
-[PCRE 4.0 and later. See *pcre_config* in the PCRE_ docs.]
+[PCRE 4.0 and later. See *pcre_config* in the PCRE docs.]
 
 :funcdef:`rex_pcre.config ([tb])`
 
@@ -608,7 +607,7 @@ is used as the output table, else a new table is created.
 version
 -------
 
-[See *pcre_version* in the PCRE_ docs.]
+[See *pcre_version* in the PCRE docs.]
 
 :funcdef:`rex_pcre.version ()`
 
@@ -638,7 +637,7 @@ setsyntax
 :funcdef:`rex_gnu.setsyntax (syntax)`
 
 This function sets the default syntax for the GNU library, according to the
-value of the string syntax_. The specified syntax will be further used for
+value of the string syntax. The specified syntax will be further used for
 interpreting string regex patterns by all relevant functions, unless the `syntax`
 argument is passed to those functions explicitly.
 
@@ -683,7 +682,7 @@ setdefaultsyntax
 :funcdef:`rex_onig.setdefaultsyntax (syntax)`
 
 This function sets the default syntax for the Oniguruma library, according to the
-value of the string syntax_. The specified syntax will be further used for
+value of the string syntax. The specified syntax will be further used for
 interpreting string regex patterns by all relevant functions, unless the `syntax`
 argument is passed to those functions explicitly.
 
@@ -727,7 +726,7 @@ string *subj*, starting from offset *init*, subject to execution flags *ef*.
   +---------+-----------------------------------+--------+-------------+
   |Parameter|        Description                |  Type  |Default Value|
   +=========+===================================+========+=============+
-  |    r    |regex object produced by new_      |userdata|     n/a     |
+  |    r    |regex object produced by new       |userdata|     n/a     |
   +---------+-----------------------------------+--------+-------------+
   |  subj   |subject                            | string |     n/a     |
   +---------+-----------------------------------+--------+-------------+
@@ -770,7 +769,7 @@ string *subj*, starting from offset *init*, subject to execution flags *ef*.
   +---------+-----------------------------------+--------+-------------+
   |Parameter|        Description                |  Type  |Default Value|
   +=========+===================================+========+=============+
-  |    r    |regex object produced by new_      |userdata|     n/a     |
+  |    r    |regex object produced by new       |userdata|     n/a     |
   +---------+-----------------------------------+--------+-------------+
   |  subj   |subject                            | string |     n/a     |
   +---------+-----------------------------------+--------+-------------+
@@ -826,7 +825,7 @@ and ``false`` if not.
 config
 ------
 
-[See *tre_config* in the TRE_ docs.]
+[See *tre_config* in the TRE docs.]
 
 :funcdef:`rex_tre.config ([tb])`
 
@@ -906,7 +905,7 @@ Incompatibilities with previous versions
 **Incompatibilities between versions 2.0 and 1.19:**
 
   1. Lua 5.1 is required
-  #. Functions ``newPCRE`` and ``newPOSIX`` renamed to new_
+  #. Functions ``newPCRE`` and ``newPOSIX`` renamed to new
   #. Functions ``flagsPCRE`` and ``flagsPOSIX`` renamed to flags_
   #. Function ``versionPCRE`` renamed to version_
   #. Method ``match`` renamed to tfind_
