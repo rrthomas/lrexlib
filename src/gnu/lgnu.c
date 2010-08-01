@@ -178,7 +178,7 @@ static int LGnu_setsyntax (lua_State *L) {
 static int compile_regex (lua_State *L, const TArgComp *argC, TGnu **pud) {
   const char *res;
   TGnu *ud;
-  reg_syntax_t old_syntax;
+  reg_syntax_t old_syntax = 0;
   int ret;
 
   ud = (TGnu *)lua_newuserdata (L, sizeof (TGnu));
