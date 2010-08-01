@@ -2,3 +2,5 @@
 *~
 *.so.*
 *.so
+ChangeLog
+*.zip
