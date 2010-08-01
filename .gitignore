@@ -3,4 +3,5 @@
 *.so.*
 *.so
 ChangeLog
+README
 *.zip

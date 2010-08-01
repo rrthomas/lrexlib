@@ -2,7 +2,10 @@
 
 # See src/*/Makefile and src/defaults.mak for user-definable settings
 
+include src/defaults.mak
+
 REGNAMES = gnu pcre posix oniguruma tre
+DISTFILE = lrexlib-$(V).zip
 
 all:
 	@for i in $(REGNAMES); do \
@@ -21,3 +24,6 @@ clean:
 
 dist:
 	git2cl > ChangeLog
+	cp -a doc/index.txt README
+	rm -f $(DISTFILE)
+	zip $(DISTFILE) -r . -x ".git/*" "*.gitignore" "*.o" "*.a" "*.so" "*.so.*"
