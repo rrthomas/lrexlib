@@ -11,6 +11,7 @@ all:
 	@for i in $(REGNAMES); do \
 	  make -C src/$$i; \
 	done
+	@make -C doc
 
 check: all
 	@for i in $(REGNAMES); do \
@@ -21,8 +22,9 @@ clean:
 	@for i in $(REGNAMES); do \
 	  make -C src/$$i clean; \
 	done
+	@make -C doc clean
 
-dist:
+dist: all
 	git2cl > ChangeLog
 	cp -a doc/index.txt README
 	rm -f $(DISTFILE)
