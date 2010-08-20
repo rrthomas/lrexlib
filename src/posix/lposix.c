@@ -193,8 +193,7 @@ static int Posix_gc (lua_State *L) {
   if (ud->freed == 0) {           /* precaution against "manual" __gc calling */
     ud->freed = 1;
     regfree (&ud->r);
-    if (ud->match)
-      free (ud->match);
+    free (ud->match);
   }
   return 0;
 }

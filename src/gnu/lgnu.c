@@ -260,10 +260,9 @@ static int Gnu_gc (lua_State *L) {
   TGnu *ud = check_ud (L);
   if (ud->freed == 0) {           /* precaution against "manual" __gc calling */
     ud->freed = 1;
-    if (ud->r.regs_allocated != REGS_UNALLOCATED) {
-      free (ud->match.start);
-      free (ud->match.end);
-    }
+    regfree (&ud->r);
+    free (ud->match.start);
+    free (ud->match.end);
   }
   return 0;
 }

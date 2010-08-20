@@ -337,7 +337,7 @@ static int Lpcre_gc (lua_State *L) {
     if (ud->pr)      pcre_free (ud->pr);
     if (ud->extra)   pcre_free (ud->extra);
     if (ud->tables)  pcre_free ((void *)ud->tables);
-    if (ud->match)   free (ud->match);
+    free (ud->match);
   }
   return 0;
 }
