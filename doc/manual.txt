@@ -414,7 +414,7 @@ new
 
 The function compiles regular expression *patt* into a regular expression object
 whose internal representation is corresponding to the library used. The returned
-result then can be used by the methods, e.g. ``tfind``_, ``exec``_, etc. Regular
+result then can be used by the methods, e.g. `tfind`_, `exec`_, etc. Regular
 expression objects are automatically garbage collected. See the library-specific
 documentation below for details of the library-specific arguments *larg...*, if
 any.
