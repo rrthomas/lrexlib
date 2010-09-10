@@ -414,7 +414,7 @@ new
 
 The function compiles regular expression *patt* into a regular expression object
 whose internal representation is corresponding to the library used. The returned
-result then can be used by the methods, e.g. `tfind`_, `exec`_, etc. Regular
+result then can be used by the methods, e.g. ``tfind``_, ``exec``_, etc. Regular
 expression objects are automatically garbage collected. See the library-specific
 documentation below for details of the library-specific arguments *larg...*, if
 any.
@@ -622,9 +622,9 @@ GNU-only functions and methods
 new
 ---
 
-:funcdef:`rex.new (patt, [cf], [tr])`
+:funcdef:`rex.new (patt, [cf], [tr], [syn])`
 
-Parameter *syntax* (*syn*) must be one of the predefined strings that are formed
+The *syntax* parameter (*syn*) must be one of the predefined strings that are formed
 from the RE_SYNTAX_xxx identifiers defined in regex.h, by means of omitting the
 RE_SYNTAX\_ part. For example, RE_SYNTAX_GREP becomes ``"GREP"`` on the Lua
 side. The default value, used when the parameter is not supplied or ``nil``, is
@@ -636,10 +636,10 @@ setsyntax
 
 :funcdef:`rex_gnu.setsyntax (syntax)`
 
-This function sets the default syntax for the GNU library, according to the
-value of the string syntax. The specified syntax will be further used for
-interpreting string regex patterns by all relevant functions, unless the `syntax`
-argument is passed to those functions explicitly.
+This function sets the default syntax for the GNU library (see the ``new``
+method above for the interpretation of the *syntax* parameter). The specified
+syntax will be further used for compiling string regex patterns by all relevant
+functions, unless the *syn* argument is passed to those functions explicitly.
 
 **Returns:** nothing
 
@@ -666,7 +666,7 @@ supplied or ``nil``, is ``"ASCII"``.
 If the caller-supplied value of this parameter is not one of the predefined
 "encoding" string set, an error is raised.
 
-The parameter *syntax* (*syn*) must be one of the predefined strings that are
+The *syntax* parameter (*syn*) must be one of the predefined strings that are
 formed from the ONIG_SYNTAX_xxx identifiers defined in oniguruma.h, by means of
 omitting the ONIG_SYNTAX\_ part. For example, ONIG_SYNTAX_JAVA becomes
 ``"JAVA"`` on the Lua side. The default value, used when the parameter is not
@@ -683,7 +683,7 @@ setdefaultsyntax
 
 This function sets the default syntax for the Oniguruma library, according to the
 value of the string syntax. The specified syntax will be further used for
-interpreting string regex patterns by all relevant functions, unless the `syntax`
+interpreting string regex patterns by all relevant functions, unless the *syntax*
 argument is passed to those functions explicitly.
 
 **Returns:** nothing
