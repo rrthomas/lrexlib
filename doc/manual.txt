@@ -622,14 +622,19 @@ GNU-only functions and methods
 new
 ---
 
-:funcdef:`rex.new (patt, [cf], [tr], [syn])`
+:funcdef:`rex.new (patt, [cf], [syn], [tr])`
 
-The *syntax* parameter (*syn*) must be one of the predefined strings that are formed
-from the RE_SYNTAX_xxx identifiers defined in regex.h, by means of omitting the
-RE_SYNTAX\_ part. For example, RE_SYNTAX_GREP becomes ``"GREP"`` on the Lua
-side. The default value, used when the parameter is not supplied or ``nil``, is
-either ``"POSIX_EXTENDED"`` (at start-up), or the value set by the last
-setsyntax_ call.
+The *syntax* parameter (*syn*) must be one of the predefined strings that are
+formed from the RE_SYNTAX_xxx identifiers defined in regex.h, by means of
+omitting the RE_SYNTAX\_ part. For example, RE_SYNTAX_GREP becomes ``"GREP"`` on
+the Lua side. The default value, used when the parameter is not supplied or
+``nil``, is either ``"POSIX_EXTENDED"`` (at start-up), or the value set by the
+last setsyntax_ call.
+
+The *translation* parameter (*tr*) is a map of eight-bit character codes (0 to
+255 inclusive) to 8-bit characters (strings). If this parameter is given, the
+pattern is translated at compilation time, and each string to be matched is
+translated when it is being matched.
 
 setsyntax
 ---------
