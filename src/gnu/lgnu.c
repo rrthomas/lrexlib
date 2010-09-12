@@ -8,7 +8,10 @@
 #include "lauxlib.h"
 #include "../common.h"
 
-#define __USE_GNU
+#define _GNU_SOURCE
+#ifndef __USE_GNU
+#  define __USE_GNU
+#endif
 #ifndef REX_GNU_INCLUDE
 #  include <regex.h>
 #else
