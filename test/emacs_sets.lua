@@ -12,7 +12,7 @@ local function set_f_gmatch (lib, flg)
   -- gmatch (s, p, [cf], [ef])
   local function test_gmatch (subj, patt)
     local out, guard = {}, 10
-    for a, b in lib.gmatch (subj, patt, nil, nil, nil, "EMACS") do
+    for a, b in lib.gmatch (subj, patt, flg.SYNTAX_EMACS, nil) do
       table.insert (out, { norm(a), norm(b) })
       guard = guard - 1
       if guard == 0 then break end
@@ -31,7 +31,7 @@ local function set_f_split (lib, flg)
   -- split (s, p, [cf], [ef])
   local function test_split (subj, patt)
     local out, guard = {}, 10
-    for a, b, c in lib.split (subj, patt, nil, nil, nil, "EMACS") do
+    for a, b, c in lib.split (subj, patt, flg.SYNTAX_EMACS, nil) do
       table.insert (out, { norm(a), norm(b), norm(c) })
       guard = guard - 1
       if guard == 0 then break end
@@ -48,8 +48,9 @@ end
 
 return function (libname)
   local lib = require (libname)
+  local flags = lib.flags ()
   return {
-    set_f_gmatch    (lib),
-    set_f_split     (lib),
+    set_f_gmatch    (lib, flags),
+    set_f_split     (lib, flags),
   }
 end

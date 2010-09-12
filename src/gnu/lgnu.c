@@ -27,13 +27,13 @@
 
 #define REX_TYPENAME REX_LIBNAME"_regex"
 
-#define ALG_CFLAGS_DFLT 0
+#define ALG_CFLAGS_DFLT RE_SYNTAX_POSIX_EXTENDED
 #define ALG_EFLAGS_DFLT 0
 
-#define ALG_GETCFLAGS(L,pos)  ALG_CFLAGS_DFLT
+#define ALG_GETCFLAGS(L,pos)  luaL_optint(L, pos, ALG_CFLAGS_DFLT)
 
-static void checkarg_compile (lua_State *L, int pos, TArgComp *argC);
-#define ALG_GETCARGS(a,b,c)  checkarg_compile(a,b,c)
+static const unsigned char *gettranslate (lua_State *L, int pos);
+#define ALG_GETCARGS(L,pos,argC)  argC->translate = gettranslate (L, pos)
 
 #define ALG_NOMATCH(res)   ((res) == -1 || (res) == -2)
 #define ALG_ISMATCH(res)   ((res) >= 0)
@@ -72,9 +72,9 @@ typedef struct {
  */
 
 /* Execution flags, which we need to simulate as GNU does not use flags for this. */
-#define GNU_NOTBOL  1
-#define GNU_NOTEOL  2
-#define GNU_REVERSE 4
+#define GNU_NOTBOL   1
+#define GNU_NOTEOL   2
+#define GNU_BACKWARD 4
 
 static int generate_error  (lua_State *L, const TUserdata *ud, int errcode) {
   const char *errmsg;
@@ -114,78 +114,20 @@ static const unsigned char *gettranslate (lua_State *L, int pos) {
   return translate;
 }
 
-typedef struct {
-  const char * name;
-  int value;
-} EncPair;
-
-/* ATTENTION:
-   This array must always be kept alphabetically sorted, as it's used in the
-   binary search, so take care when manually inserting new elements.
- */
-static EncPair Syntaxes[] = {
-  { "AWK",                    RE_SYNTAX_AWK },
-  { "ED",                     RE_SYNTAX_ED },
-  { "EGREP",                  RE_SYNTAX_EGREP },
-  { "EMACS",                  RE_SYNTAX_EMACS },
-  { "GNU_AWK",                RE_SYNTAX_GNU_AWK },
-  { "GREP",                   RE_SYNTAX_GREP },
-  { "POSIX_AWK",              RE_SYNTAX_POSIX_AWK },
-  { "POSIX_BASIC",            RE_SYNTAX_POSIX_BASIC },
-  { "POSIX_EGREP",            RE_SYNTAX_POSIX_EGREP },
-  { "POSIX_EXTENDED",         RE_SYNTAX_POSIX_EXTENDED },
-  { "POSIX_MINIMAL_BASIC",    RE_SYNTAX_POSIX_MINIMAL_BASIC },
-  { "POSIX_MINIMAL_EXTENDED", RE_SYNTAX_POSIX_MINIMAL_EXTENDED },
-  { "SED",                    RE_SYNTAX_SED },
-};
-
-static int fcmp (const void *p1, const void *p2) {
-  return strcmp (((EncPair*) p1)->name, ((EncPair*) p2)->name);
-}
-
-static int getsyntax (lua_State *L, int pos) {
-  EncPair key, *found;
-  if ((key.name = luaL_optstring (L, pos, NULL)) == NULL)
-    return -1;
-  found = (EncPair*) bsearch (&key, Syntaxes, sizeof (Syntaxes) / sizeof (EncPair),
-          sizeof (EncPair), fcmp);
-  if (found == NULL)
-    luaL_argerror (L, pos, "invalid or unsupported syntax string");
-  return found->value;
-}
-
-static void checkarg_compile (lua_State *L, int pos, TArgComp *argC) {
-  argC->translate = gettranslate (L, pos);
-  argC->gnusyn = getsyntax (L, pos + 1);
-}
-
 static void seteflags (TGnu *ud, TArgExec *argE) {
   ud->r.not_bol = (argE->eflags & GNU_NOTBOL) != 0;
   ud->r.not_eol = (argE->eflags & GNU_NOTEOL) != 0;
 }
 
-/*
-   rex.setsyntax (syntax)
-   @param syntax: one of the predefined strings listed in array 'Syntaxes'
-   @return: nothing
-*/
-static int LGnu_setsyntax (lua_State *L) {
-  (void) luaL_checkstring (L, 1);
-  re_set_syntax (getsyntax (L, 1));
-  return 0;
-}
-
 static int compile_regex (lua_State *L, const TArgComp *argC, TGnu **pud) {
   const char *res;
   TGnu *ud;
-  reg_syntax_t old_syntax = 0;
   int ret;
 
   ud = (TGnu *)lua_newuserdata (L, sizeof (TGnu));
   memset (ud, 0, sizeof (TGnu));          /* initialize all members to 0 */
 
-  if (argC->gnusyn >= 0)
-    old_syntax = re_set_syntax (argC->gnusyn);
+  re_set_syntax (argC->cflags);
 
   /* translate table is never written to, so this cast is safe */
   ud->r.translate = (unsigned char *) argC->translate;
@@ -195,9 +137,6 @@ static int compile_regex (lua_State *L, const TArgComp *argC, TGnu **pud) {
       ud->errmsg = res;
       ret = generate_error (L, ud, 0);
   } else {
-    if (argC->cflags & REG_NOSUB)
-      ud->r.no_sub = 1;
-
     lua_pushvalue (L, LUA_ENVIRONINDEX);
     lua_setmetatable (L, -2);
 
@@ -205,8 +144,6 @@ static int compile_regex (lua_State *L, const TArgComp *argC, TGnu **pud) {
     ret = 1;
   }
 
-  if (argC->gnusyn >= 0)
-    re_set_syntax (old_syntax);
   return ret;
 }
 
@@ -216,7 +153,7 @@ static int gmatch_exec (TUserdata *ud, TArgExec *argE) {
     ud->r.not_bol = 1;
   argE->text += argE->startoffset;
   argE->textlen -= argE->startoffset;
-  if (argE->eflags & GNU_REVERSE)
+  if (argE->eflags & GNU_BACKWARD)
     return re_search (&ud->r, argE->text, argE->textlen, argE->textlen, -argE->textlen, &ud->match);
   else
     return re_search (&ud->r, argE->text, argE->textlen, 0, argE->textlen, &ud->match);
@@ -230,7 +167,7 @@ static int findmatch_exec (TGnu *ud, TArgExec *argE) {
   argE->text += argE->startoffset;
   argE->textlen -= argE->startoffset;
   seteflags (ud, argE);
-  if (argE->eflags & GNU_REVERSE)
+  if (argE->eflags & GNU_BACKWARD)
     return re_search (&ud->r, argE->text, argE->textlen, argE->textlen, -argE->textlen, &ud->match);
   else
     return re_search (&ud->r, argE->text, argE->textlen, 0, argE->textlen, &ud->match);
@@ -240,7 +177,7 @@ static int gsub_exec (TGnu *ud, TArgExec *argE, int st) {
   seteflags (ud, argE);
   if (st > 0)
     ud->r.not_bol = 1;
-  if (argE->eflags & GNU_REVERSE)
+  if (argE->eflags & GNU_BACKWARD)
     return re_search (&ud->r, argE->text + st, argE->textlen - st, argE->textlen - st, -(argE->textlen - st), &ud->match);
   else
     return re_search (&ud->r, argE->text + st, argE->textlen - st, 0, argE->textlen - st, &ud->match);
@@ -250,7 +187,7 @@ static int split_exec (TGnu *ud, TArgExec *argE, int offset) {
   seteflags (ud, argE);
   if (offset > 0)
     ud->r.not_bol = 1;
-  if (argE->eflags & GNU_REVERSE)
+  if (argE->eflags & GNU_BACKWARD)
     return re_search (&ud->r, argE->text + offset, argE->textlen - offset, argE->textlen - offset, -(argE->textlen - offset), &ud->match);
   else
     return re_search (&ud->r, argE->text + offset, argE->textlen - offset, 0, argE->textlen - offset, &ud->match);
@@ -278,15 +215,67 @@ static int Gnu_tostring (lua_State *L) {
 
 static flag_pair gnu_flags[] =
 {
-  { "not_bol", GNU_NOTBOL },
-  { "not_eol", GNU_NOTEOL },
-  { "reverse", GNU_REVERSE },
+  { "not_bol",  GNU_NOTBOL },
+  { "not_eol",  GNU_NOTEOL },
+  { "backward", GNU_BACKWARD },
+/*---------------------------------------------------------------------------*/
+  { NULL, 0 }
+};
+
+static flag_pair gnu_syntax_flags[] = {
+  /* Syntax flag sets. */
+  { "SYNTAX_EMACS",                     RE_SYNTAX_EMACS },
+  { "SYNTAX_AWK",                       RE_SYNTAX_AWK },
+  { "SYNTAX_GNU_AWK",                   RE_SYNTAX_GNU_AWK },
+  { "SYNTAX_POSIX_AWK",                 RE_SYNTAX_POSIX_AWK },
+  { "SYNTAX_POSIX_AWK",                 RE_SYNTAX_POSIX_AWK },
+  { "SYNTAX_EGREP",                     RE_SYNTAX_EGREP },
+  { "SYNTAX_POSIX_EGREP",               RE_SYNTAX_POSIX_EGREP },
+  { "SYNTAX_ED",                        RE_SYNTAX_ED },
+  { "SYNTAX_SED",                       RE_SYNTAX_SED },
+  { "SYNTAX_POSIX_AWK",                 RE_SYNTAX_POSIX_AWK },
+  { "SYNTAX_GREP",                      RE_SYNTAX_GREP },
+  { "SYNTAX_POSIX_BASIC",               RE_SYNTAX_POSIX_BASIC },
+  { "SYNTAX_POSIX_MINIMAL_BASIC",       RE_SYNTAX_POSIX_MINIMAL_BASIC },
+  { "SYNTAX_POSIX_EXTENDED",            RE_SYNTAX_POSIX_EXTENDED },
+  { "SYNTAX_POSIX_MINIMAL_EXTENDED",    RE_SYNTAX_POSIX_MINIMAL_EXTENDED },
+
+  /* Individual syntax flags. */
+  { "BACKSLASH_ESCAPE_IN_LISTS",        RE_BACKSLASH_ESCAPE_IN_LISTS },
+  { "BK_PLUS_QM",                       RE_BK_PLUS_QM },
+  { "CHAR_CLASSES",                     RE_CHAR_CLASSES },
+  { "CONTEXT_INDEP_ANCHORS",            RE_CONTEXT_INDEP_ANCHORS },
+  { "CONTEXT_INDEP_OPS",                RE_CONTEXT_INDEP_OPS },
+  { "CONTEXT_INVALID_OPS",              RE_CONTEXT_INVALID_OPS },
+  { "DOT_NEWLINE",                      RE_DOT_NEWLINE },
+  { "DOT_NOT_NULL",                     RE_DOT_NOT_NULL },
+  { "HAT_LISTS_NOT_NEWLINE",            RE_HAT_LISTS_NOT_NEWLINE },
+  { "INTERVALS",                        RE_INTERVALS },
+  { "LIMITED_OPS",                      RE_LIMITED_OPS },
+  { "NEWLINE_ALT",                      RE_NEWLINE_ALT },
+  { "NO_BK_BRACES",                     RE_NO_BK_BRACES },
+  { "NO_BK_PARENS",                     RE_NO_BK_PARENS },
+  { "NO_BK_REFS",                       RE_NO_BK_REFS },
+  { "NO_BK_VBAR",                       RE_NO_BK_VBAR },
+  { "NO_EMPTY_RANGES",                  RE_NO_EMPTY_RANGES },
+  { "UNMATCHED_RIGHT_PAREN_ORD",        RE_UNMATCHED_RIGHT_PAREN_ORD },
+  { "NO_POSIX_BACKTRACKING",            RE_NO_POSIX_BACKTRACKING },
+  { "NO_GNU_OPS",                       RE_NO_GNU_OPS },
+  { "DEBUG",                            RE_DEBUG },
+  { "INVALID_INTERVAL_ORD",             RE_INVALID_INTERVAL_ORD },
+  { "ICASE",                            RE_ICASE },
+  { "CARET_ANCHORS_HERE",               RE_CARET_ANCHORS_HERE },
+  { "CONTEXT_INVALID_DUP",              RE_CONTEXT_INVALID_DUP },
+  { "NO_SUB",                           RE_NO_SUB },
+#ifdef RE_PLAIN
+  { "PLAIN",                            RE_PLAIN },
+#endif
 /*---------------------------------------------------------------------------*/
   { NULL, 0 }
 };
 
 static int Gnu_get_flags (lua_State *L) {
-  const flag_pair* fps[] = { gnu_flags, NULL };
+  const flag_pair* fps[] = { gnu_flags, gnu_syntax_flags, NULL };
   return get_flags (L, fps);
 }
 
@@ -309,15 +298,12 @@ static const luaL_reg rexlib[] = {
   { "new",        ud_new },
   { "flags",      Gnu_get_flags },
   { "plainfind",  plainfind_func },
-  { "setsyntax",  LGnu_setsyntax },
   { NULL, NULL }
 };
 
 /* Open the library */
 REX_API int REX_OPENLIB (lua_State *L)
 {
-  re_set_syntax (RE_SYNTAX_POSIX_EXTENDED);
-
   /* create a new function environment to serve as a metatable for methods */
   lua_newtable (L);
   lua_pushvalue (L, -1);
