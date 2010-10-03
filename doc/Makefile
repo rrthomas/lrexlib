@@ -14,5 +14,8 @@ PAGES = index.html manual.html
 
 all: $(PAGES)
 
+index.txt: ../README
+	cp -a $< $@
+
 clean:
 	rm $(PAGES)
