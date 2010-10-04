@@ -46,8 +46,7 @@ Notes
      * REG_EXTENDED for POSIX and TRE
      * 0 for PCRE
      * ONIG_OPTION_NONE for Oniguruma
-     * GNU does not use this argument; it is ignored (but must be
-       present if further arguments are used)
+     * SYNTAX_POSIX_EXTENDED for GNU
 
    **PCRE**, **Oniguruma**: *cf* may also be supplied as a string, whose
    characters stand for compilation flags. Combinations of the following
