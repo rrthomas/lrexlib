@@ -5,7 +5,7 @@
 include src/defaults.mak
 
 REGNAMES = gnu pcre posix oniguruma tre
-DISTFILE = lrexlib-$(V).zip
+DISTFILE = lrexlib-$(V).$(MINORV).zip
 
 all:
 	@for i in $(REGNAMES); do \
