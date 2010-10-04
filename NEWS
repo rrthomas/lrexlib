@@ -1,4 +1,9 @@
-2010-09-15  Release 2.5.0
+2010-10-04  Release 2.5.1
+
+  * Minor improvements and fixes, no changes to library code.
+
+
+2010-10-03  Release 2.5.0
 
   * Added bindings of the TRE and GNU regex APIs.
 
