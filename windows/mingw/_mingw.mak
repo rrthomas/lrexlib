@@ -22,7 +22,9 @@ clean:
 install: $(BININSTALL)
 
 test:
-	cd $(TESTPATH) && lua runtest.lua $(TESTNAME)
+	cd $(TESTPATH) && lua runtest.lua $(TESTNAME) -d$(CURDIR)
+
+#../windows/mingw
 
 $(BIN): $(OBJ) $(DEFFILE)
 	$(CC) $(DEFFILE) $(OBJ) $(LIBS) -o $@ -shared
