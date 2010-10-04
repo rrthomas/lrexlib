@@ -5,7 +5,8 @@ Lrexlib 2.5
 |  and Shmuel Zeigerman (shmuz@013net.net) [maintainer]
 
 **Lrexlib** provides bindings of five regular expression library APIs
-(POSIX_, PCRE_, GNU_, TRE_ and Oniguruma_) to Lua_ 5.1.
+(POSIX_, PCRE_, GNU_, TRE_ and Oniguruma_) to Lua_ 5.1. The bindings
+for TRE and Oniguruma are not currently complete.
 
 **Lrexlib** is copyright Reuben Thomas 2000-2010 and copyright Shmuel
 Zeigerman 2004-2010, and is released under the same license as Lua,
