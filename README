@@ -8,7 +8,7 @@ Lrexlib 2.5
 (POSIX_, PCRE_, GNU_, TRE_ and Oniguruma_) to Lua_ 5.1.
 
 **Lrexlib** is copyright Reuben Thomas 2000-2010 and copyright Shmuel
-Zeigerman 2004-2010, and is released under under the license as Lua,
+Zeigerman 2004-2010, and is released under the same license as Lua,
 the MIT_ license (otherwise known as the revised BSD license). There
 is no warranty.
 
