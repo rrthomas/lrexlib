@@ -1,8 +1,5 @@
 -- See Copyright Notice in the file LICENSE
 
--- This file should contain only test sets that behave identically
--- when being run with pcre or posix regex libraries.
-
 local luatest = require "luatest"
 local N = luatest.NT
 
@@ -39,6 +36,7 @@ return {
   { {"abcd", ".+",      5},                  { N }    }, -- failing st
   { {"abc",  "^abc"},                        {"abc" } }, -- anchor
   { {"abc",  "^abc",    N,N,flg.not_bol},    { N }    }, -- anchor + ef
+  { {"abc",  "abc$",    N,N,flg.not_eol},    { N }    }, -- anchor + ef
   { {"cabcaab", "ca+b", N,N,flg.backward},    {"caab" }  }, -- reverse search
 }
 end
