@@ -5,7 +5,7 @@
 include src/defaults.mak
 
 REGNAMES = gnu pcre posix oniguruma tre
-DISTFILE = lrexlib-$(V).zip
+DISTFILE = lrexlib-$(V).$(MINORV).zip
 
 all:
 	@for i in $(REGNAMES); do \
@@ -26,6 +26,5 @@ clean:
 
 dist: all
 	git2cl > ChangeLog
-	cp -a doc/index.txt README
 	rm -f $(DISTFILE)
-	zip $(DISTFILE) -r . -x ".git/*" "*.gitignore" "*.o" "*.a" "*.so" "*.so.*"
+	zip $(DISTFILE) -r . -x ".git/*" "*.gitignore" "*.o" "*.a" "*.so" "*.so.*" "*SciTE.properties" "*scite.properties"
