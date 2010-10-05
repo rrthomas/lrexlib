@@ -402,9 +402,11 @@ constants in the used library. They are formed as follows:
 * **GNU**: the GNU library provides the flags ``not_bol``, which stops a
   beginning-of-line anchor from matching at the start of a string, ``not_eol``,
   which stops an end-of-line anchor from matching at the end of a string, and
-  ``backward`` which causes the search to be performed backwards, as well as the
-  RE_xxx syntax specifiers (as defined in regex.h), omitting the RE\_ prefix.
-  For example, RE_SYNTAX_GREP becomes ``SYNTAX_GREP`` in Lua.
+  ``backward`` which causes the search to be performed backwards (that is, the
+  pattern is matched from positions starting at the end of the string; however,
+  the matches themselves are still made forwards), as well as the RE_xxx syntax
+  specifiers (as defined in regex.h), omitting the RE\_ prefix. For example,
+  RE_SYNTAX_GREP becomes ``SYNTAX_GREP`` in Lua.
 
 ------------------------------------------------------------
 
