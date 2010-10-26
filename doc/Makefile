@@ -1,8 +1,12 @@
 # Documentation Makefile
 
+APP = rst2html
+CP  = cp -a
+RM  = rm
+IDX = ../README
+
 .SUFFIXES: .txt .html
 
-APP = rst2html
 CSS = --stylesheet-path=lrexlib.css --link-stylesheet
 HDR = --initial-header-level=2
 DT  = --date --time
@@ -14,8 +18,8 @@ PAGES = index.html manual.html
 
 all: $(PAGES)
 
-index.txt: ../README
-	cp -a $< $@
+index.txt: $(IDX)
+	$(CP) $< $@
 
 clean:
-	rm $(PAGES)
+	$(RM) $(PAGES) index.txt
