@@ -471,11 +471,6 @@ string *subj*, starting from offset *init*, subject to execution flags *ef*.
 **Returns on failure:**
  1. ``nil``
 
-**Notes:**
- 1. If *named subpatterns* (see PCRE and Oniguruma docs) are used then the
-    returned table also contains substring matches keyed by their correspondent
-    subpattern names (strings).
-
 ------------------------------------------------------------
 
 exec
