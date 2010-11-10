@@ -27,4 +27,4 @@ clean:
 dist: all
 	git2cl > ChangeLog
 	rm -f $(DISTFILE)
-	zip $(DISTFILE) -r . -x ".git/*" "*.gitignore" "*.o" "*.a" "*.so" "*.so.*" "*SciTE.properties" "*scite.properties"
+	zip $(DISTFILE) -r . -x ".git/*" "*.gitignore" "*.o" "*.a" "*.so" "*.so.*" "*.zip" "*SciTE.properties" "*scite.properties"
