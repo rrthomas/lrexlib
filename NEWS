@@ -1,3 +1,10 @@
+2010-11-10  Release 2.5.2
+
+  * Important bug fix (thanks to Enrico Tassi for the report)
+    affecting platforms with certain alignment requirements.
+  * Improved build system for Windows.
+  * Minor improvements to the manual.
+
 2010-10-04  Release 2.5.1
 
   * Minor improvements and fixes, no changes to library code.
