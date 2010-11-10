@@ -13,8 +13,8 @@ LIB =
 # try to uncomment and edit the settings below.
 # The default settings below work with a libgnu.a in the current directory,
 # copied from any libgnu.a built with the regex module.
-INC = -I. -DREX_GNU_INCLUDE='"regex.h"'
-LIB = -L. -lgnu
+#INC = -I. -DREX_GNU_INCLUDE='"regex.h"'
+#LIB = -L. -lgnu
 
 # Regex library name
 REGNAME = gnu
