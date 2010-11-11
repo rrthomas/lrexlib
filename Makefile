@@ -6,7 +6,8 @@ include src/defaults.mak
 
 REGNAMES = gnu pcre posix oniguruma tre
 PROJECT = lrexlib
-PROJECT_VERSIONED = $(PROJECT)-$(V).$(MINORV)
+VERSION = $(V).$(MINORV)
+PROJECT_VERSIONED = $(PROJECT)-$(VERSION)
 DISTFILE = $(PROJECT_VERSIONED).zip
 
 all:
