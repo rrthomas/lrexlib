@@ -5,7 +5,9 @@
 include src/defaults.mak
 
 REGNAMES = gnu pcre posix oniguruma tre
-DISTFILE = lrexlib-$(V).$(MINORV).zip
+PROJECT = lrexlib
+PROJECT_VERSIONED = $(PROJECT)-$(V).$(MINORV)
+DISTFILE = $(PROJECT_VERSIONED).zip
 
 all:
 	@for i in $(REGNAMES); do \
@@ -26,5 +28,4 @@ clean:
 
 dist: all
 	git2cl > ChangeLog
-	rm -f $(DISTFILE)
-	zip $(DISTFILE) -r . -x ".git/*" "*.gitignore" "*.o" "*.a" "*.so" "*.so.*" "*.zip" "*SciTE.properties" "*scite.properties"
+	cd .. && rm -f $(DISTFILE) && zip $(DISTFILE) -r $(PROJECT) -x "lrexlib/.git/*" "*.gitignore" "*.o" "*.a" "*.so" "*.so.*" "*.zip" "*SciTE.properties" "*scite.properties" && mv $(DISTFILE) $(PROJECT) && cd $(PROJECT) && unzip $(DISTFILE) && mv $(PROJECT) $(PROJECT_VERSIONED) && rm -f $(DISTFILE) && zip $(DISTFILE) -r $(PROJECT_VERSIONED) && rm -rf $(PROJECT_VERSIONED)
