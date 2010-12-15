@@ -36,5 +36,8 @@ release:
 	git diff --exit-code && \
 	git tag -a -m "Release tag" rel-`echo $(VERSION) | sed -e 's/\./-/g'` && \
 	git push && \
-	woger lua-l $(PROJECT) "$(PROJECT)" $(VERSION) "Lua binding for regex libraries" release-notes && \
+	woger lua-l $(PROJECT) "$(PROJECT)" $(VERSION) "Lua binding for regex libraries" release-notes
+
+foo:
+	@cat release-notes && echo "Don't forget to release on LuaForge!"
 	rm -f release-notes
