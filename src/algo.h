@@ -3,7 +3,7 @@
 
 #include "common.h"
 
-#define REX_VERSION "Lrexlib 2.5.1"
+#define REX_VERSION "Lrexlib 2.5.3"
 
 /* Forward declarations */
 static void gmatch_pushsubject (lua_State *L, TArgExec *argE);
@@ -495,7 +495,9 @@ static int split_iter (lua_State *L) {
   if (argE.startoffset > (int)argE.textlen)
     return 0;
 
-  newoffset = argE.startoffset + incr;
+  if ((newoffset = argE.startoffset + incr) > (int)argE.textlen)
+    goto nomatch;
+
   res = split_exec (ud, &argE, newoffset);
   if (ALG_ISMATCH (res)) {
     ALG_PUSHEND (L, ud, ALG_BASE(newoffset), 0);          /* update start offset */
@@ -515,14 +517,16 @@ static int split_iter (lua_State *L) {
       return 2;
     }
   }
-  else if (ALG_NOMATCH (res)) {
-    lua_pushinteger (L, argE.textlen + 1);    /* mark as last iteration */
-    lua_replace (L, lua_upvalueindex (4));    /* update start offset */
-    lua_pushlstring (L, argE.text+argE.startoffset, argE.textlen-argE.startoffset);
-    return 1;
-  }
+  else if (ALG_NOMATCH (res))
+    goto nomatch;
   else
     return generate_error (L, ud, res);
+
+nomatch:
+  lua_pushinteger (L, argE.textlen + 1);    /* mark as last iteration */
+  lua_replace (L, lua_upvalueindex (4));    /* update start offset */
+  lua_pushlstring (L, argE.text+argE.startoffset, argE.textlen-argE.startoffset);
+  return 1;
 }
 
 

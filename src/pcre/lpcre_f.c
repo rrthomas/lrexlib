@@ -164,6 +164,12 @@ flag_pair pcre_error_flags[] = {
 #ifdef PCRE_ERROR_NULLWSLIMIT
   { "ERROR_NULLWSLIMIT",             PCRE_ERROR_NULLWSLIMIT },
 #endif
+#ifdef PCRE_ERROR_BADOFFSET
+  { "ERROR_BADOFFSET",               PCRE_ERROR_BADOFFSET },
+#endif
+#ifdef PCRE_ERROR_SHORTUTF8
+  { "ERROR_SHORTUTF8",               PCRE_ERROR_SHORTUTF8 },
+#endif
 /*---------------------------------------------------------------------------*/
   { NULL, 0 }
 };
