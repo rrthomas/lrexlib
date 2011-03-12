@@ -79,7 +79,7 @@ typedef struct {
 #define GNU_NOTEOL   2
 #define GNU_BACKWARD 4
 
-static int generate_error  (lua_State *L, const TUserdata *ud, int errcode) {
+static int generate_error (lua_State *L, const TUserdata *ud, int errcode) {
   const char *errmsg;
   switch (errcode) {
   case 0:
