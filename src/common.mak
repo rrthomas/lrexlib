@@ -5,8 +5,10 @@ DEFS   = -DREX_OPENLIB=luaopen_$(TRG) -DREX_LIBNAME=\"$(TRG)\"
 CFLAGS = $(MYCFLAGS) $(DEFS) $(INC)
 TRG_AR = lib$(TRG).a
 TRG_SO = $(TRG).so
-LD     = ld
+LD     = $(CC)
 LDFLAGS= -shared
+# For Darwin:
+#LDFLAGS= -bundle -undefined dynamic_lookup
 
 all: $(TRG_AR) $(TRG_SO)
 
