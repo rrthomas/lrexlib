@@ -170,6 +170,9 @@ flag_pair pcre_error_flags[] = {
 #ifdef PCRE_ERROR_SHORTUTF8
   { "ERROR_SHORTUTF8",               PCRE_ERROR_SHORTUTF8 },
 #endif
+#ifdef PCRE_ERROR_RECURSELOOP
+  { "ERROR_RECURSELOOP",             PCRE_ERROR_RECURSELOOP },
+#endif
 /*---------------------------------------------------------------------------*/
   { NULL, 0 }
 };
