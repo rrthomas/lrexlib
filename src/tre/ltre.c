@@ -309,7 +309,7 @@ static int Ltre_version (lua_State *L) {
   return 1;
 }
 
-static const luaL_reg posixmeta[] = {
+static const luaL_Reg posixmeta[] = {
   { "exec",          ud_exec },
   { "tfind",         ud_tfind },
   { "find",          ud_find },
@@ -323,7 +323,7 @@ static const luaL_reg posixmeta[] = {
   { NULL, NULL}
 };
 
-static const luaL_reg rexlib[] = {
+static const luaL_Reg rexlib[] = {
   { "match",      match },
   { "find",       find },
   { "gmatch",     gmatch },

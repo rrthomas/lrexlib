@@ -362,13 +362,13 @@ static int Lpcre_version (lua_State *L) {
   return 1;
 }
 
-static const luaL_reg chartables_meta[] = {
+static const luaL_Reg chartables_meta[] = {
   { "__gc",        chartables_gc },
   { "__tostring",  chartables_tostring },
   { NULL, NULL }
 };
 
-static const luaL_reg regex_meta[] = {
+static const luaL_Reg regex_meta[] = {
   { "exec",        ud_exec },
   { "tfind",       ud_tfind },    /* old name: match */
   { "find",        ud_find },
@@ -381,7 +381,7 @@ static const luaL_reg regex_meta[] = {
   { NULL, NULL }
 };
 
-static const luaL_reg rexlib[] = {
+static const luaL_Reg rexlib[] = {
   { "match",       match },
   { "find",        find },
   { "gmatch",      gmatch },

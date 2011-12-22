@@ -253,7 +253,7 @@ static int Posix_get_flags (lua_State *L) {
   return get_flags (L, fps);
 }
 
-static const luaL_reg posixmeta[] = {
+static const luaL_Reg posixmeta[] = {
   { "exec",       ud_exec },
   { "tfind",      ud_tfind },    /* old match */
   { "find",       ud_find },
@@ -263,7 +263,7 @@ static const luaL_reg posixmeta[] = {
   { NULL, NULL}
 };
 
-static const luaL_reg rexlib[] = {
+static const luaL_Reg rexlib[] = {
   { "match",      match },
   { "find",       find },
   { "gmatch",     gmatch },

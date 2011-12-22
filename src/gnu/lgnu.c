@@ -282,7 +282,7 @@ static int Gnu_get_flags (lua_State *L) {
   return get_flags (L, fps);
 }
 
-static const luaL_reg gnumeta[] = {
+static const luaL_Reg gnumeta[] = {
   { "exec",       ud_exec },
   { "tfind",      ud_tfind },    /* old match */
   { "find",       ud_find },
@@ -292,7 +292,7 @@ static const luaL_reg gnumeta[] = {
   { NULL, NULL}
 };
 
-static const luaL_reg rexlib[] = {
+static const luaL_Reg rexlib[] = {
   { "match",      match },
   { "find",       find },
   { "gmatch",     gmatch },
