@@ -106,6 +106,12 @@ static flag_pair pcre_flags[] = {
 #ifdef PCRE_INFO_MINLENGTH
   { "INFO_MINLENGTH",                PCRE_INFO_MINLENGTH },
 #endif
+#ifdef PCRE_INFO_JIT
+  { "INFO_JIT",                      PCRE_INFO_JIT },
+#endif
+#ifdef PCRE_INFO_JITSIZE
+  { "INFO_JITSIZE",                  PCRE_INFO_JITSIZE },
+#endif
 /*---------------------------------------------------------------------------*/
 #if VERSION_PCRE >= 400
   { "EXTRA_STUDY_DATA",              PCRE_EXTRA_STUDY_DATA },
