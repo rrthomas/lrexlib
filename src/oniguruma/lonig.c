@@ -174,19 +174,14 @@ static int fcmp(const void *p1, const void *p2) {
 }
 
 static const char *getlocale (lua_State *L, int pos) {
-  EncPair key;
+  EncPair key, *found;
   if ((key.name = luaL_optstring(L, pos, NULL)) == NULL)
     return (const char*)ONIG_ENCODING_ASCII;
-  else {
-    EncPair *pair = (EncPair*) bsearch(&key, Encodings,
-      sizeof(Encodings)/sizeof(EncPair), sizeof(EncPair), fcmp);
-    if (pair != NULL)
-      return (const char*)pair->value;
-    else {
-      luaL_argerror(L, pos, "invalid or unsupported encoding string");
-      return NULL;
-    }
-  }
+  found = (EncPair*) bsearch(&key, Encodings, sizeof(Encodings)/sizeof(EncPair),
+    sizeof(EncPair), fcmp);
+  if (found == NULL)
+    luaL_argerror(L, pos, "invalid or unsupported encoding string");
+  return (const char*)found->value;
 }
 
 static void *getsyntax (lua_State *L, int pos) {
@@ -194,7 +189,7 @@ static void *getsyntax (lua_State *L, int pos) {
   if ((key.name = luaL_optstring(L, pos, NULL)) == NULL)
     return ONIG_SYNTAX_DEFAULT;
   found = (EncPair*) bsearch(&key, Syntaxes, sizeof(Syntaxes)/sizeof(EncPair),
-          sizeof(EncPair), fcmp);
+    sizeof(EncPair), fcmp);
   if (found == NULL)
     luaL_argerror(L, pos, "invalid or unsupported syntax string");
   return found->value;
