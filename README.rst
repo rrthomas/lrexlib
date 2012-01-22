@@ -33,11 +33,11 @@ Links
 -----
 
 - License_
-- Reference Manual_
-- LuaForge Project Page_
+- `Reference Manual`_
+- `LuaForge Project Page`_
 - Download_
 
 .. _License: http://rrthomas.github.com/lrexlib/license.html
-.. _Manual: http://rrthomas.github.com/lrexlib/manual.html
-.. _Page: http://luaforge.net/projects/lrexlib/
-.. _Download: http://luaforge.net/frs/?group_id=63
+.. _Reference Manual: http://rrthomas.github.com/lrexlib/manual.html
+.. _LuaForge Project Page: http://luaforge.net/projects/lrexlib/
+.. _Download: https://github.com/rrthomas/lrexlib/downloads

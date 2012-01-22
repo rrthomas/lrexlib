@@ -3,7 +3,7 @@
 APP = rst2html.py
 CP  = "copy /y"
 RM  = del
-IDX = ..\README
+IDX = ..\README.rst
 
 ALLVAR = APP=$(APP) CP=$(CP) RM=$(RM) IDX=$(IDX)
 
