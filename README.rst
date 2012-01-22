@@ -38,6 +38,6 @@ Links
 - Download_
 
 .. _License: http://rrthomas.github.com/lrexlib/license.html
-.. _Reference Manual: http://rrthomas.github.com/lrexlib/manual.html
-.. _LuaForge Project Page: http://luaforge.net/projects/lrexlib/
+.. _Manual: http://rrthomas.github.com/lrexlib/manual.html
+.. _Page: http://luaforge.net/projects/lrexlib/
 .. _Download: http://luaforge.net/frs/?group_id=63
