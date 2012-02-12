@@ -185,7 +185,7 @@ local function set_f_wgsub1 (lib, flg)
   return {
     Name = "Function wgsub, set1",
     Func = get_wgsub (lib),
-  --{ s,       p,    f,   n,    res1,  res2, res3 },
+  --{ s,       p,    f,    n,    res1,   res2, res3 },
     { {subj,  cpat,  L"",  0},   {subj,     0, 0} }, -- test "n" + empty_replace
     { {subj,   pat,  L"",  0},   {subj,     0, 0} }, -- test "n" + empty_replace
     { {subj,   pat,  L"", -1},   {subj,     0, 0} }, -- test "n" + empty_replace
@@ -207,7 +207,7 @@ local function set_f_wgsub2 (lib, flg)
   return {
     Name = "Function wgsub, set2",
     Func = get_wgsub (lib),
-  --{ s,     p,   f,   n,     res1,    res2, res3 },
+  --{ s,     p,   f,   n,      res1,     res2, res3 },
     { {subj, pat, L"<%1>" },   {L"<a>b<c>", 2, 2} }, -- test non-escaped chars in f
     { {subj, pat, L"%<%1%>" }, {L"<a>b<c>", 2, 2} }, -- test escaped chars in f
     { {subj, pat, L"" },       {L"b",       2, 2} }, -- test empty replace
@@ -224,12 +224,12 @@ local function set_f_wgsub3 (lib, flg)
   return {
     Name = "Function wgsub, set3",
     Func = get_wgsub (lib),
-  --{ s,      p,      f,  n,   res1,res2,res3 },
-    { {L"abc", L"a",    "%0" }, {"abc", 1, 1} }, -- test (in)valid capture index
-    { {L"abc", L"a",    "%1" }, {"abc", 1, 1} },
-    { {L"abc", L"[ac]", "%1" }, {"abc", 2, 2} },
-    { {L"abc", L"(a)",  "%1" }, {"abc", 1, 1} },
-    { {L"abc", L"(a)",  "%2" }, "invalid capture index" },
+  --{ s,       p,       f,  n,    res1,res2,res3 },
+    { {L"abc", L"a",    L"%0" }, {L"abc", 1, 1} }, -- test (in)valid capture index
+    { {L"abc", L"a",    L"%1" }, {L"abc", 1, 1} },
+    { {L"abc", L"[ac]", L"%1" }, {L"abc", 2, 2} },
+    { {L"abc", L"(a)",  L"%1" }, {L"abc", 1, 1} },
+    { {L"abc", L"(a)",  L"%2" }, "invalid capture index" },
   }
 end
 
@@ -237,87 +237,87 @@ local function set_f_wgsub4 (lib, flg)
   return {
     Name = "Function wgsub, set4",
     Func = get_wgsub (lib),
-  --{ s,           p,              f, n,  res1,      res2, res3 },
-    { {"a2c3",     ".",            "#" }, {"####",      4, 4} }, -- test .
-    { {"a2c3",     ".+",           "#" }, {"#",         1, 1} }, -- test .+
-    { {"a2c3",     ".*",           "#" }, {"##",        2, 2} }, -- test .*
-    { {"/* */ */", "\\/\\*(.*)\\*\\/", "#" }, {"#",     1, 1} },
-    { {"a2c3",     "[0-9]",        "#" }, {"a#c#",      2, 2} }, -- test %d
-    { {"a2c3",     "[^0-9]",       "#" }, {"#2#3",      2, 2} }, -- test %D
-    { {"a \t\nb",  "[ \t\n]",      "#" }, {"a###b",     3, 3} }, -- test %s
-    { {"a \t\nb",  "[^ \t\n]",     "#" }, {"# \t\n#",   2, 2} }, -- test %S
+  --{ s,           p,                f, n,   res1,       res2, res3 },
+    { {L"a2c3",     L".",            L"#" }, {L"####",      4, 4} }, -- test .
+    { {L"a2c3",     L".+",           L"#" }, {L"#",         1, 1} }, -- test .+
+    { {L"a2c3",     L".*",           L"#" }, {L"##",        2, 2} }, -- test .*
+    { {L"/* */ */", L"\\/\\*(.*)\\*\\/", L"#" }, {L"#",     1, 1} },
+    { {L"a2c3",     L"[0-9]",        L"#" }, {L"a#c#",      2, 2} }, -- test %d
+    { {L"a2c3",     L"[^0-9]",       L"#" }, {L"#2#3",      2, 2} }, -- test %D
+    { {L"a \t\nb",  L"[ \t\n]",      L"#" }, {L"a###b",     3, 3} }, -- test %s
+    { {L"a \t\nb",  L"[^ \t\n]",     L"#" }, {L"# \t\n#",   2, 2} }, -- test %S
   }
 end
 
 local function set_f_wgsub5 (lib, flg)
   local function frep1 () end                       -- returns nothing
-  local function frep2 () return "#" end            -- ignores arguments
-  local function frep3 (...) return table.concat({...}, ",") end -- "normal"
+  local function frep2 () return L"#" end           -- ignores arguments
+  local function frep3 (...) return table.concat({...}, L",") end -- "normal"
   local function frep4 () return {} end             -- invalid return type
-  local function frep5 () return "7", "a" end       -- 2-nd return is "a"
-  local function frep6 () return "7", "break" end   -- 2-nd return is "break"
-  local subj = "a2c3"
+  local function frep5 () return L"7", L"a" end     -- 2-nd return is "a"
+  local function frep6 () return L"7", "break" end  -- 2-nd return is "break"
+  local subj = L"a2c3"
   return {
     Name = "Function wgsub, set5",
     Func = get_wgsub (lib),
-  --{ s,     p,          f,   n,   res1,     res2, res3 },
-    { {subj, "a(.)c(.)", frep1 }, {subj,        1, 0} },
-    { {subj, "a(.)c(.)", frep2 }, {"#",         1, 1} },
-    { {subj, "a(.)c(.)", frep3 }, {"2,3",       1, 1} },
-    { {subj, "a.c.",     frep3 }, {subj,        1, 1} },
-    { {subj, "z*",       frep1 }, {subj,        5, 0} },
-    { {subj, "z*",       frep2 }, {"#a#2#c#3#", 5, 5} },
-    { {subj, "z*",       frep3 }, {subj,        5, 5} },
-    { {subj, subj,       frep4 }, "invalid return type" },
-    { {"abc",".",        frep5 }, {"777",       3, 3} },
-    { {"abc",".",        frep6 }, {"777",       3, 3} },
+  --{ s,     p,          f,   n,   res1,       res2, res3 },
+    { {subj, L"a(.)c(.)", frep1 }, {subj,         1, 0} },
+    { {subj, L"a(.)c(.)", frep2 }, {L"#",         1, 1} },
+    { {subj, L"a(.)c(.)", frep3 }, {L"2,3",       1, 1} },
+    { {subj, L"a.c.",     frep3 }, {subj,         1, 1} },
+    { {subj, L"z*",       frep1 }, {subj,         5, 0} },
+    { {subj, L"z*",       frep2 }, {L"#a#2#c#3#", 5, 5} },
+    { {subj, L"z*",       frep3 }, {subj,         5, 5} },
+    { {subj, subj,        frep4 }, "invalid return type" },
+    { {L"abc",L".",       frep5 }, {L"777",       3, 3} },
+    { {L"abc",L".",       frep6 }, {L"777",       3, 3} },
   }
 end
 
 local function set_f_wgsub6 (lib, flg)
-  local tab1, tab2, tab3 = {}, { ["2"] = 56 }, { ["2"] = {} }
-  local subj = "a2c3"
+  local tab1, tab2, tab3 = {}, { [L"2"] = 56 }, { [L"2"] = {} }
+  local subj = L"a2c3"
   return {
     Name = "Function wgsub, set6",
     Func = get_wgsub (lib),
-  --{ s,     p,          f, n,   res1,res2,res3 },
-    { {subj, "a(.)c(.)", tab1 }, {subj,  1, 0} },
-    { {subj, "a(.)c(.)", tab2 }, {"56",  1, 1} },
-    { {subj, "a(.)c(.)", tab3 }, "invalid replacement type" },
-    { {subj, "a.c.",     tab1 }, {subj,  1, 0} },
-    { {subj, "a.c.",     tab2 }, {subj,  1, 0} },
-    { {subj, "a.c.",     tab3 }, {subj,  1, 0} },
+  --{ s,     p,           f, n,    res1,res2,res3 },
+    { {subj, L"a(.)c(.)", tab1 }, {subj,  1, 0} },
+    { {subj, L"a(.)c(.)", tab2 }, {"56",  1, 1} },
+    { {subj, L"a(.)c(.)", tab3 }, "invalid replacement type" },
+    { {subj, L"a.c.",     tab1 }, {subj,  1, 0} },
+    { {subj, L"a.c.",     tab2 }, {subj,  1, 0} },
+    { {subj, L"a.c.",     tab3 }, {subj,  1, 0} },
   }
 end
 
 local function set_f_wgsub8 (lib, flg)
-  local subj, patt, repl = "abcdef", "..", "*"
+  local subj, patt, repl = L"abcdef", L"..", L"*"
   return {
     Name = "Function wgsub, set8",
     Func = get_wgsub (lib),
   --{ s,     p,       f, n,                                    res1,  res2, res3 },
-    { {subj, patt, repl, function() end },                    {"abcdef", 3, 0} },
-    { {subj, patt, repl, function() return nil end },         {"abcdef", 3, 0} },
-    { {subj, patt, repl, function() return false end },       {"abcdef", 3, 0} },
-    { {subj, patt, repl, function() return true end },        {"***",    3, 3} },
-    { {subj, patt, repl, function() return {} end },          {"***",    3, 3} },
-    { {subj, patt, repl, function() return "#" end },         {"###",    3, 3} },
-    { {subj, patt, repl, function() return 57 end },          {"575757", 3, 3} },
-    { {subj, patt, repl, function (from) return from end },   {"135",    3, 3} },
-    { {subj, patt, repl, function (from, to) return to end }, {"246",    3, 3} },
+    { {subj, patt, repl, function() end },                    {L"abcdef", 3, 0} },
+    { {subj, patt, repl, function() return nil end },         {L"abcdef", 3, 0} },
+    { {subj, patt, repl, function() return false end },       {L"abcdef", 3, 0} },
+    { {subj, patt, repl, function() return true end },        {L"***",    3, 3} },
+    { {subj, patt, repl, function() return {} end },          {L"***",    3, 3} },
+    { {subj, patt, repl, function() return L"#" end },        {L"###",    3, 3} },
+    { {subj, patt, repl, function() return 57 end },          {"575757",  3, 3} },
+    { {subj, patt, repl, function (from) return from end },   {"135",     3, 3} },
+    { {subj, patt, repl, function (from, to) return to end }, {"246",     3, 3} },
     { {subj, patt, repl, function (from,to,rep) return rep end },
-                                                              {"***",    3, 3} },
+                                                              {L"***",    3, 3} },
     { {subj, patt, repl, function (from, to, rep) return rep..to..from end },
-                                                           {"*21*43*65", 3, 3} },
-    { {subj, patt, repl, function() return nil end },         {"abcdef", 3, 0} },
-    { {subj, patt, repl, function() return nil, nil end },    {"abcdef", 3, 0} },
-    { {subj, patt, repl, function() return nil, false end },  {"abcdef", 3, 0} },
-    { {subj, patt, repl, function() return nil, true end },   {"ab**",   3, 2} },
-    { {subj, patt, repl, function() return true, true end },  {"***",    3, 3} },
-    { {subj, patt, repl, function() return nil, 0 end },      {"abcdef", 1, 0} },
-    { {subj, patt, repl, function() return true, 0 end },     {"*cdef",  1, 1} },
-    { {subj, patt, repl, function() return nil, 1 end },      {"ab*ef",  2, 1} },
-    { {subj, patt, repl, function() return true, 1 end },     {"**ef",   2, 2} },
+                                     {L"*".."21"..L"*".."43"..L"*".."65", 3, 3} },
+    { {subj, patt, repl, function() return nil end },         {L"abcdef", 3, 0} },
+    { {subj, patt, repl, function() return nil, nil end },    {L"abcdef", 3, 0} },
+    { {subj, patt, repl, function() return nil, false end },  {L"abcdef", 3, 0} },
+    { {subj, patt, repl, function() return nil, true end },   {L"ab**",   3, 2} },
+    { {subj, patt, repl, function() return true, true end },  {L"***",    3, 3} },
+    { {subj, patt, repl, function() return nil, 0 end },      {L"abcdef", 1, 0} },
+    { {subj, patt, repl, function() return true, 0 end },     {L"*cdef",  1, 1} },
+    { {subj, patt, repl, function() return nil, 1 end },      {L"ab*ef",  2, 1} },
+    { {subj, patt, repl, function() return true, 1 end },     {L"**ef",   2, 2} },
   }
 end
 
@@ -334,12 +334,12 @@ return function (libname)
     set_m_wfind      (lib),
     set_m_wmatch     (lib),
     set_f_wgsub1     (lib),
-    --set_f_wgsub2     (lib),
-    --set_f_wgsub3     (lib),
-    --set_f_wgsub4     (lib),
-    --set_f_wgsub5     (lib),
-    --set_f_wgsub6     (lib),
-    --set_f_wgsub8     (lib),
+    set_f_wgsub2     (lib),
+    set_f_wgsub3     (lib),
+    set_f_wgsub4     (lib),
+    set_f_wgsub5     (lib),
+    set_f_wgsub6     (lib),
+    set_f_wgsub8     (lib),
     --set_f_plainfind (lib),
   }
 end

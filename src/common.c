@@ -220,6 +220,45 @@ void bufferZ_putrepstring (TBuffer *BufRep, int reppos, int nsub) {
   }
 }
 
+/* 1. When called repeatedly on the same TBuffer, its existing data
+      is discarded and overwritten by the new data.
+   2. The TBuffer's array is never shrunk by this function.
+*/
+void bufferZ_putrepstringW (TBuffer *BufRep, int reppos, int nsub) {
+  char dbuf[] = { 0, 0 };
+  size_t replen;
+  const wchar_t *p = (const wchar_t*) lua_tolstring (BufRep->L, reppos, &replen);
+  replen /= sizeof(wchar_t);
+  const wchar_t *end = p + replen;
+  BufRep->top = 0;
+  while (p < end) {
+    const wchar_t *q;
+    for (q = p; q < end && *q != L'%'; ++q)
+      {}
+    if (q != p)
+      bufferZ_addlstring (BufRep, p, (q - p) * sizeof(wchar_t));
+    if (q < end) {
+      if (++q < end) {  /* skip % */
+        if (iswdigit (*q)) {
+          int num;
+          *dbuf = *q & 0xFF;
+          num = atoi (dbuf);
+          if (num == 1 && nsub == 0)
+            num = 0;
+          else if (num > nsub) {
+            freelist_free (BufRep->freelist);
+            luaL_error (BufRep->L, "invalid capture index");
+          }
+          bufferZ_addnum (BufRep, num);
+        }
+        else bufferZ_addlstring (BufRep, q, 1 * sizeof(wchar_t));
+      }
+      p = q + 1;
+    }
+    else break;
+  }
+}
+
 /******************************************************************************
   The intended use of this function is as follows:
         size_t iter = 0;

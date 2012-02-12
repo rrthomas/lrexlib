@@ -17,6 +17,10 @@ static int generate_error  (lua_State *L, const TUserdata *ud, int errcode);
 #  define ALG_CHARSIZE 1
 #endif
 
+#ifndef BUFFERZ_PUTREPSTRING
+#  define BUFFERZ_PUTREPSTRING bufferZ_putrepstring
+#endif
+
 #ifndef ALG_GETCARGS
 #  define ALG_GETCARGS(a,b,c)
 #endif
@@ -213,7 +217,7 @@ static int gsub (lua_State *L) {
   /*------------------------------------------------------------------*/
   if (argE.reptype == LUA_TSTRING) {
     buffer_init (&BufRep, 256, L, &freelist);
-    bufferZ_putrepstring (&BufRep, argE.funcpos, ALG_NSUB(ud));
+    BUFFERZ_PUTREPSTRING (&BufRep, argE.funcpos, ALG_NSUB(ud));
   }
   /*------------------------------------------------------------------*/
   if (argE.maxmatch == GSUB_CONDITIONAL) {
@@ -231,8 +235,8 @@ static int gsub (lua_State *L) {
 #ifdef ALG_USERETRY
       if (retry) {
         if (st < (int)argE.textlen) {  /* advance by 1 char (not replaced) */
-          buffer_addlstring (&BufOut, argE.text + st, 1);
-          ++st;
+          buffer_addlstring (&BufOut, argE.text + st, ALG_CHARSIZE);
+          st += ALG_CHARSIZE;
           retry = 0;
           continue;
         }
@@ -309,8 +313,8 @@ static int gsub (lua_State *L) {
     if (argE.maxmatch == GSUB_CONDITIONAL) {
       /* Call the function */
       lua_pushvalue (L, argE.funcpos2);
-      lua_pushinteger (L, from + 1);
-      lua_pushinteger (L, to);
+      lua_pushinteger (L, from/ALG_CHARSIZE + 1);
+      lua_pushinteger (L, to/ALG_CHARSIZE);
       if (argE.reptype == LUA_TSTRING)
         buffer_pushresult (&BufTemp);
       else {
@@ -359,8 +363,8 @@ static int gsub (lua_State *L) {
       retry = 1;
 #else
       /* advance by 1 char (not replaced) */
-      buffer_addlstring (&BufOut, argE.text + st, 1);
-      ++st;
+      buffer_addlstring (&BufOut, argE.text + st, ALG_CHARSIZE);
+      st += ALG_CHARSIZE;
 #endif
     }
     else break;

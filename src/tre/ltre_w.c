@@ -25,6 +25,7 @@
 #define ALG_CFLAGS_DFLT REG_EXTENDED
 #define ALG_EFLAGS_DFLT 0
 #define ALG_CHARSIZE 2
+#define BUFFERZ_PUTREPSTRING bufferZ_putrepstringW
 
 #define ALG_NOMATCH(res)   ((res) == REG_NOMATCH)
 #define ALG_ISMATCH(res)   ((res) == 0)

@@ -83,6 +83,7 @@ void buffer_addvalue (TBuffer *buf, int stackpos);
 void buffer_pushresult (TBuffer *buf);
 
 void bufferZ_putrepstring (TBuffer *buf, int reppos, int nsub);
+void bufferZ_putrepstringW (TBuffer *buf, int reppos, int nsub);
 int  bufferZ_next (TBuffer *buf, size_t *iter, size_t *len, const char **str);
 
 int  get_int_field (lua_State *L, const char* field);
