@@ -13,6 +13,10 @@ static int split_exec      (TUserdata *ud, TArgExec *argE, int offset);
 static int compile_regex   (lua_State *L, const TArgComp *argC, TUserdata **pud);
 static int generate_error  (lua_State *L, const TUserdata *ud, int errcode);
 
+#ifndef ALG_CHARSIZE
+#  define ALG_CHARSIZE 1
+#endif
+
 #ifndef ALG_GETCARGS
 #  define ALG_GETCARGS(a,b,c)
 #endif
@@ -72,11 +76,11 @@ static int get_startoffset(lua_State *L, int stackpos, size_t len) {
   if(startoffset > 0)
     startoffset--;
   else if(startoffset < 0) {
-    startoffset += len;
+    startoffset += len/ALG_CHARSIZE;
     if(startoffset < 0)
       startoffset = 0;
   }
-  return startoffset;
+  return startoffset*ALG_CHARSIZE;
 }
 
 
@@ -447,10 +451,10 @@ static int gmatch_iter (lua_State *L) {
 #ifdef ALG_USERETRY
         SET_RETRY (retry, 1);
 #else
-        incr = 1;
+        incr = ALG_CHARSIZE;
 #endif
       }
-      ALG_PUSHEND (L, ud, ALG_BASE(argE.startoffset)+incr, 0); /* update start offset */
+      lua_pushinteger(L, ALG_BASE(argE.startoffset) + incr + ALG_SUBEND(ud,0)); /* update start offset */
       lua_replace (L, lua_upvalueindex (4));
 #ifdef ALG_USERETRY
       lua_pushinteger (L, retry);
@@ -501,9 +505,9 @@ static int split_iter (lua_State *L) {
 
   res = split_exec (ud, &argE, newoffset);
   if (ALG_ISMATCH (res)) {
-    ALG_PUSHEND (L, ud, ALG_BASE(newoffset), 0);          /* update start offset */
+    lua_pushinteger(L, ALG_BASE(newoffset) + ALG_SUBEND(ud,0)); /* update start offset */
     lua_replace (L, lua_upvalueindex (4));
-    lua_pushinteger (L, ALG_SUBLEN(ud,0) ? 0 : 1);    /* update incr */
+    lua_pushinteger (L, ALG_SUBLEN(ud,0) ? 0 : ALG_CHARSIZE);    /* update incr */
     lua_replace (L, lua_upvalueindex (5));
     /* push text preceding the match */
     lua_pushlstring (L, argE.text + argE.startoffset,

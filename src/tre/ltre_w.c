@@ -7,7 +7,6 @@
 #include "lua.h"
 #include "lauxlib.h"
 #include "../common.h"
-extern void add_wide_lib (lua_State *L, int methods);
 
 #include <tre/tre.h>
 
@@ -25,11 +24,12 @@ extern void add_wide_lib (lua_State *L, int methods);
 
 #define ALG_CFLAGS_DFLT REG_EXTENDED
 #define ALG_EFLAGS_DFLT 0
+#define ALG_CHARSIZE 2
 
 #define ALG_NOMATCH(res)   ((res) == REG_NOMATCH)
 #define ALG_ISMATCH(res)   ((res) == 0)
-#define ALG_SUBBEG(ud,n)   ud->match[n].rm_so
-#define ALG_SUBEND(ud,n)   ud->match[n].rm_eo
+#define ALG_SUBBEG(ud,n)   (ALG_CHARSIZE * ud->match[n].rm_so)
+#define ALG_SUBEND(ud,n)   (ALG_CHARSIZE * ud->match[n].rm_eo)
 #define ALG_SUBLEN(ud,n)   (ALG_SUBEND(ud,n) - ALG_SUBBEG(ud,n))
 #define ALG_SUBVALID(ud,n) (ALG_SUBBEG(ud,n) >= 0)
 #define ALG_NSUB(ud)       ((int)ud->r.re_nsub)
@@ -40,8 +40,8 @@ extern void add_wide_lib (lua_State *L, int methods);
 #define ALG_PUSHSUB_OR_FALSE(L,ud,text,n) \
   (ALG_SUBVALID(ud,n) ? ALG_PUSHSUB (L,ud,text,n) : lua_pushboolean (L,0))
 
-#define ALG_PUSHSTART(L,ud,offs,n)   lua_pushinteger(L, (offs) + ALG_SUBBEG(ud,n) + 1)
-#define ALG_PUSHEND(L,ud,offs,n)     lua_pushinteger(L, (offs) + ALG_SUBEND(ud,n))
+#define ALG_PUSHSTART(L,ud,offs,n)   lua_pushinteger(L, ((offs) + ALG_SUBBEG(ud,n))/ALG_CHARSIZE + 1)
+#define ALG_PUSHEND(L,ud,offs,n)     lua_pushinteger(L, ((offs) + ALG_SUBEND(ud,n))/ALG_CHARSIZE)
 #define ALG_PUSHOFFSETS(L,ud,offs,n) \
   (ALG_PUSHSTART(L,ud,offs,n), ALG_PUSHEND(L,ud,offs,n))
 
@@ -101,7 +101,7 @@ static int compile_regex (lua_State *L, const TArgComp *argC, TPosix **pud) {
   ud = (TPosix *)lua_newuserdata (L, sizeof (TPosix));
   memset (ud, 0, sizeof (TPosix));          /* initialize all members to 0 */
 
-  res = tre_regncomp (&ud->r, argC->pattern, argC->patlen, argC->cflags);
+  res = tre_regwncomp (&ud->r, (const wchar_t*)argC->pattern, argC->patlen/ALG_CHARSIZE, argC->cflags);
   if (res != 0)
     return generate_error (L, ud, res);
 
@@ -164,7 +164,7 @@ static int gmatch_exec (TUserdata *ud, TArgExec *argE) {
   if (argE->startoffset > 0)
     argE->eflags |= REG_NOTBOL;
   argE->text += argE->startoffset;
-  return tre_regnexec (&ud->r, argE->text, argE->textlen - argE->startoffset,
+  return tre_regwnexec (&ud->r, (const wchar_t*)argE->text, (argE->textlen - argE->startoffset)/ALG_CHARSIZE,
                    ALG_NSUB(ud) + 1, ud->match, argE->eflags);
 }
 
@@ -174,186 +174,46 @@ static void gmatch_pushsubject (lua_State *L, TArgExec *argE) {
 
 static int findmatch_exec (TPosix *ud, TArgExec *argE) {
   argE->text += argE->startoffset;
-  return tre_regnexec (&ud->r, argE->text, argE->textlen - argE->startoffset,
+  return tre_regwnexec (&ud->r, (const wchar_t*)argE->text, (argE->textlen - argE->startoffset)/ALG_CHARSIZE,
                    ALG_NSUB(ud) + 1, ud->match, argE->eflags);
 }
 
 static int gsub_exec (TPosix *ud, TArgExec *argE, int st) {
   if (st > 0)
     argE->eflags |= REG_NOTBOL;
-  return tre_regnexec (&ud->r, argE->text+st, argE->textlen-st, ALG_NSUB(ud)+1,
+  return tre_regwnexec (&ud->r, (const wchar_t*)(argE->text+st), (argE->textlen-st)/ALG_CHARSIZE, ALG_NSUB(ud)+1,
                     ud->match, argE->eflags);
 }
 
 static int split_exec (TPosix *ud, TArgExec *argE, int offset) {
   if (offset > 0)
     argE->eflags |= REG_NOTBOL;
-  return tre_regnexec (&ud->r, argE->text + offset, argE->textlen - offset,
+  return tre_regwnexec (&ud->r, (const wchar_t*)(argE->text + offset), (argE->textlen - offset)/ALG_CHARSIZE,
                    ALG_NSUB(ud) + 1, ud->match, argE->eflags);
 }
 
-static int Ltre_have_backrefs (lua_State *L) {
-  TPosix *ud = check_ud (L);
-  lua_pushboolean (L, tre_have_backrefs (&ud->r));
-  return 1;
-}
-
-static int Ltre_have_approx (lua_State *L) {
-  TPosix *ud = check_ud (L);
-  lua_pushboolean (L, tre_have_approx (&ud->r));
-  return 1;
-}
-
-static int Ltre_gc (lua_State *L) {
-  TPosix *ud = check_ud (L);
-  if (ud->freed == 0) {           /* precaution against "manual" __gc calling */
-    ud->freed = 1;
-    tre_regfree (&ud->r);
-    free (ud->match);
-  }
-  return 0;
-}
-
-static int Ltre_tostring (lua_State *L) {
-  TPosix *ud = check_ud (L);
-  if (ud->freed == 0)
-    lua_pushfstring (L, "%s (%p)", REX_TYPENAME, (void*)ud);
-  else
-    lua_pushfstring (L, "%s (deleted)", REX_TYPENAME);
-  return 1;
-}
-
-static flag_pair tre_flags[] =
-{
-  { "BASIC",    REG_BASIC },
-  { "NOSPEC",   REG_NOSPEC },
-  { "EXTENDED", REG_EXTENDED },
-  { "ICASE",    REG_ICASE },
-  { "NOSUB",    REG_NOSUB },
-  { "NEWLINE",  REG_NEWLINE },
-  { "NOTBOL",   REG_NOTBOL },
-  { "NOTEOL",   REG_NOTEOL },
-  /* TRE-specific flags */
-  { "LITERAL",              REG_LITERAL },
-  { "RIGHT_ASSOC",          REG_RIGHT_ASSOC },
-  { "UNGREEDY",             REG_UNGREEDY },
-  { "APPROX_MATCHER",       REG_APPROX_MATCHER },
-  { "BACKTRACKING_MATCHER", REG_BACKTRACKING_MATCHER },
-/*---------------------------------------------------------------------------*/
-  { NULL, 0 }
-};
-
-static flag_pair tre_error_flags[] = {
-  { "OK",       REG_OK }, /* TRE-specific */
-  { "NOMATCH",  REG_NOMATCH },
-  { "BADPAT",   REG_BADPAT },
-  { "ECOLLATE", REG_ECOLLATE },
-  { "ECTYPE",   REG_ECTYPE },
-  { "EESCAPE",  REG_EESCAPE },
-  { "ESUBREG",  REG_ESUBREG },
-  { "EBRACK",   REG_EBRACK },
-  { "EPAREN",   REG_EPAREN },
-  { "EBRACE",   REG_EBRACE },
-  { "BADBR",    REG_BADBR },
-  { "ERANGE",   REG_ERANGE },
-  { "ESPACE",   REG_ESPACE },
-  { "BADRPT",   REG_BADRPT },
-/*---------------------------------------------------------------------------*/
-  { NULL, 0 }
-};
-
-/* config. flags with integer value */
-static flag_pair tre_config_flags_int[] = {
-  { "CONFIG_APPROX",     TRE_CONFIG_APPROX },
-  { "CONFIG_WCHAR",      TRE_CONFIG_WCHAR },
-  { "CONFIG_MULTIBYTE",  TRE_CONFIG_MULTIBYTE },
-  { "CONFIG_SYSTEM_ABI", TRE_CONFIG_SYSTEM_ABI },
-  { NULL, 0 }
-};
-
-/* config. flags with string value */
-static flag_pair tre_config_flags_str[] = {
-  { "CONFIG_VERSION",    TRE_CONFIG_VERSION },
-  { NULL, 0 }
-};
-
-static int Ltre_get_flags (lua_State *L) {
-  const flag_pair* fps[] = { tre_flags, tre_error_flags, NULL };
-  return get_flags (L, fps);
-}
-
-static int Ltre_config (lua_State *L) {
-  int intval;
-  const char *strval;
-  flag_pair *fp;
-  if (lua_istable (L, 1))
-    lua_settop (L, 1);
-  else
-    lua_newtable (L);
-  for (fp = tre_config_flags_int; fp->key; ++fp) {
-    if (0 == tre_config (fp->val, &intval)) {
-      lua_pushinteger (L, intval);
-      lua_setfield (L, -2, fp->key);
-    }
-  }
-  for (fp = tre_config_flags_str; fp->key; ++fp) {
-    if (0 == tre_config (fp->val, &strval)) {
-      lua_pushstring (L, strval);
-      lua_setfield (L, -2, fp->key);
-    }
-  }
-  return 1;
-}
-
-static int Ltre_version (lua_State *L) {
-  lua_pushstring (L, tre_version ());
-  return 1;
-}
-
 static const luaL_Reg posixmeta[] = {
-  { "exec",          ud_exec },
-  { "tfind",         ud_tfind },
-  { "find",          ud_find },
-  { "match",         ud_match },
-  { "aexec",         Ltre_aexec },
-  { "atfind",        Ltre_atfind },
-  { "have_backrefs", Ltre_have_backrefs },
-  { "have_approx",   Ltre_have_approx },
-  { "__gc",          Ltre_gc },
-  { "__tostring",    Ltre_tostring },
+  { "wexec",          ud_exec },
+  { "wtfind",         ud_tfind },
+  { "wfind",          ud_find },
+  { "wmatch",         ud_match },
+  { "waexec",         Ltre_aexec },
+  { "watfind",        Ltre_atfind },
   { NULL, NULL}
 };
 
 static const luaL_Reg rexlib[] = {
-  { "match",      match },
-  { "find",       find },
-  { "gmatch",     gmatch },
-  { "gsub",       gsub },
-  { "split",      split },
-  { "new",        ud_new },
-  { "flags",      Ltre_get_flags },
-  { "plainfind",  plainfind_func },
-  { "config",     Ltre_config },
-  { "version",    Ltre_version },
+  { "wmatch",      match },
+  { "wfind",       find },
+  { "wgmatch",     gmatch },
+  { "wgsub",       gsub },
+  { "wsplit",      split },
+  { "wnew",        ud_new },
   { NULL, NULL }
 };
 
-/* Open the library */
-REX_API int REX_OPENLIB (lua_State *L)
+/* Add the library */
+void add_wide_lib (lua_State *L, int methods)
 {
-  /* create a new function environment to serve as a metatable for methods */
-  lua_newtable (L);
-  lua_pushvalue (L, -1);
-  lua_replace (L, LUA_ENVIRONINDEX);
-  lua_pushvalue(L, -1); /* mt.__index = mt */
-  lua_setfield(L, -2, "__index");
-  luaL_register (L, NULL, posixmeta);
-  add_wide_lib (L, 1);
-
-  /* register functions */
-  luaL_register (L, REX_LIBNAME, rexlib);
-  add_wide_lib (L, 0);
-  lua_pushliteral (L, REX_VERSION" (for TRE regexes)");
-  lua_setfield (L, -2, "_VERSION");
-  return 1;
+  luaL_register(L, NULL, methods ? posixmeta : rexlib);
 }

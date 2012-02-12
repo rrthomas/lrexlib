@@ -25,7 +25,7 @@ REGNAME = tre
 # ===========================================================================
 # === END OF USER SETTINGS ===
 
-OBJ    = ltre.o ../common.o
+OBJ    = ltre.o ltre_w.o ../common.o
 
 include ../common.mak
 
@@ -37,6 +37,7 @@ so_tre: $(TRG_SO)
 
 # Dependencies
 ltre.o: ltre.c ../common.h ../algo.h
+ltre_w.o: ltre_w.c ../common.h ../algo.h
 ../common.o: ../common.c ../common.h
 
 # (End of Makefile)
