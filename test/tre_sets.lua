@@ -6,9 +6,7 @@
 local luatest = require "luatest"
 local N = luatest.NT
 
-local sysutils = require "sysutils"
-local L = sysutils.Utf8ToUtf16
-local U = sysutils.Utf16ToUtf8
+local L = function(s) return (string.gsub(s, ".", "%0\0")) end
 
 local function norm(a) return a==nil and N or a end
 
