@@ -331,7 +331,6 @@ static const luaL_Reg rexlib[] = {
   { "gsub",             gsub },
   { "split",            split },
   { "new",              ud_new },
-  { "plainfind",        plainfind_func },
   { "flags",            LOnig_get_flags },
   { "version",          LOnig_version },
   { "setdefaultsyntax", LOnig_setdefaultsyntax },

@@ -829,45 +829,6 @@ This function returns a string containing the version of the used TRE library.
 
 ------------------------------------------------------------
 
-Other functions
-~~~~~~~~~~~~~~~
-
-plainfind
----------
-
-:funcdef:`rex.plainfind (subj, patt, [init], [ci])`
-
-The function searches for the first match of the string *patt* in the subject
-*subj*, starting from offset *init*.
-
-  * The string *patt* is not regular expression, all its characters stand for
-    themselves.
-  * Both strings *subj* and *patt* can have embedded zeros.
-  * The flag *ci* specifies case-insensitive search (current locale is used).
-  * This function uses no regex library.
-
-  +---------+---------------------------+--------+-------------+
-  |Parameter|        Description        |  Type  |Default Value|
-  +=========+===========================+========+=============+
-  |  subj   |subject                    | string |     n/a     |
-  +---------+---------------------------+--------+-------------+
-  |  patt   |text to find               | string |     n/a     |
-  +---------+---------------------------+--------+-------------+
-  | [init]  |start offset in the subject| number |      1      |
-  |         |(can be negative)          |        |             |
-  +---------+---------------------------+--------+-------------+
-  |  [ci]   |case insensitive search    |boolean |  ``false``  |
-  +---------+---------------------------+--------+-------------+
-
-**Returns on success:**
-  1. The start point of the match (a number).
-  2. The end point of the match (a number).
-
-**Returns on failure:**
-  1. ``nil``
-
-------------------------------------------------------------
-
 Incompatibilities with previous versions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

@@ -271,7 +271,6 @@ static const luaL_Reg rexlib[] = {
   { "split",      split },
   { "new",        ud_new },
   { "flags",      Posix_get_flags },
-  { "plainfind",  plainfind_func },
   { NULL, NULL }
 };
 

@@ -203,7 +203,7 @@ void bufferZ_putrepstring (TBuffer *BufRep, int reppos, int nsub) {
         if (isdigit (*q)) {
           int num;
           *dbuf = *q;
-          num = atoi (dbuf);
+          num = strtol (dbuf, NULL, 10);
           if (num == 1 && nsub == 0)
             num = 0;
           else if (num > nsub) {
@@ -220,12 +220,13 @@ void bufferZ_putrepstring (TBuffer *BufRep, int reppos, int nsub) {
   }
 }
 
+#ifdef WIDE_CHAR_GSUB
 /* 1. When called repeatedly on the same TBuffer, its existing data
       is discarded and overwritten by the new data.
    2. The TBuffer's array is never shrunk by this function.
 */
 void bufferZ_putrepstringW (TBuffer *BufRep, int reppos, int nsub) {
-  char dbuf[] = { 0, 0 };
+  wchar_t dbuf[] = { 0, 0 };
   size_t replen;
   const wchar_t *p = (const wchar_t*) lua_tolstring (BufRep->L, reppos, &replen);
   replen /= sizeof(wchar_t);
@@ -241,8 +242,8 @@ void bufferZ_putrepstringW (TBuffer *BufRep, int reppos, int nsub) {
       if (++q < end) {  /* skip % */
         if (iswdigit (*q)) {
           int num;
-          *dbuf = *q & 0xFF;
-          num = atoi (dbuf);
+          *dbuf = *q;
+          num = wcstol (dbuf, NULL, 10);
           if (num == 1 && nsub == 0)
             num = 0;
           else if (num > nsub) {
@@ -258,6 +259,7 @@ void bufferZ_putrepstringW (TBuffer *BufRep, int reppos, int nsub) {
     else break;
   }
 }
+#endif
 
 /******************************************************************************
   The intended use of this function is as follows:

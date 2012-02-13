@@ -26,6 +26,7 @@ REGNAME = tre
 # === END OF USER SETTINGS ===
 
 OBJ    = ltre.o ltre_w.o ../common.o
+MYCFLAGS = -DWIDE_CHAR_GSUB
 
 include ../common.mak
 
