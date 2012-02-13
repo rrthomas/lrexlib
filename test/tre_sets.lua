@@ -115,6 +115,21 @@ local function set_m_wexec (lib, flg)
   }
 end
 
+local function set_m_waexec (lib, flg)
+  return {
+    Name = "Method waexec",
+    Method = "waexec",
+  --{patt},                 {subj, st}           { results }
+    { {L".+"},              {L"abcd",{}},        {1,4,{}}  }, -- [none]
+    { {L".+"},              {L"abcd",{},2},      {2,4,{}}  }, -- positive st
+    { {L".+"},              {L"abcd",{},-2},     {3,4,{}}  }, -- negative st
+    { {L".*"},              {L"abcd",{}},        {1,4,{}}  }, -- [none]
+    { {L"bc"},              {L"abc", {}},        {2,3,{}}  }, -- [none]
+    { {L "(.)b.(d)"},       {L"abcd",{}},        {1,4,{1,1,4,4}}},--[captures]
+    { {L"(a+)6+(b+)"},      {L"Taa66bbT",{},2},  {2,7,{2,3,6,7}}},--[st+captures]
+  }
+end
+
 local function set_m_wtfind (lib, flg)
   return {
     Name = "Method wtfind",
@@ -126,6 +141,20 @@ local function set_m_wtfind (lib, flg)
     { {L".*"},              {L"abcd"},           {1,4,{}}  }, -- [none]
     { {L"bc"},              {L"abc"},            {2,3,{}}  }, -- [none]
     { {L"(.)b.(d)"},        {L"abcd"},           {1,4,{L"a",L"d"}}},--[captures]
+  }
+end
+
+local function set_m_watfind (lib, flg)
+  return {
+    Name = "Method watfind",
+    Method = "watfind",
+  --{patt},                 {subj, st}           { results }
+    { {L".+"},              {L"abcd",{}},        {1,4,{}}  }, -- [none]
+    { {L".+"},              {L"abcd",{},2},      {2,4,{}}  }, -- positive st
+    { {L".+"},              {L"abcd",{},-2},     {3,4,{}}  }, -- negative st
+    { {L".*"},              {L"abcd",{}},        {1,4,{}}  }, -- [none]
+    { {L"bc"},              {L"abc", {}},        {2,3,{}}  }, -- [none]
+    { {L"(.)b.(d)"},        {L"abcd",{}},        {1,4,{L"a",L"d"}}},--[captures]
   }
 end
 
@@ -308,7 +337,9 @@ return function (libname)
     set_f_wfind      (lib),
     set_f_wmatch     (lib),
     set_m_wexec      (lib),
+    set_m_waexec     (lib),
     set_m_wtfind     (lib),
+    set_m_watfind    (lib),
     set_m_wfind      (lib),
     set_m_wmatch     (lib),
     set_f_wgsub1     (lib),

@@ -10,6 +10,8 @@
 
 #include <tre/tre.h>
 
+void bufferZ_putrepstringW (TBuffer *BufRep, int reppos, int nsub);
+
 /* These 2 settings may be redefined from the command-line or the makefile.
  * They should be kept in sync between themselves and with the target name.
  */
@@ -132,8 +134,8 @@ static int generic_atfind (lua_State *L, int tfind) {
   res_match.pmatch = ud->match;
 
   /* execute the search */
-  res = tre_reganexec (&ud->r, argE.text, argE.textlen - argE.startoffset,
-                   &res_match, argP, argE.eflags);
+  res = tre_regawnexec (&ud->r, (const wchar_t*)argE.text,
+    (argE.textlen - argE.startoffset)/ALG_CHARSIZE, &res_match, argP, argE.eflags);
   if (ALG_ISMATCH (res)) {
     ALG_PUSHOFFSETS (L, ud, argE.startoffset, 0);
     if (tfind)
@@ -217,4 +219,43 @@ static const luaL_Reg rexlib[] = {
 void add_wide_lib (lua_State *L, int methods)
 {
   luaL_register(L, NULL, methods ? posixmeta : rexlib);
+}
+
+/* 1. When called repeatedly on the same TBuffer, its existing data
+      is discarded and overwritten by the new data.
+   2. The TBuffer's array is never shrunk by this function.
+*/
+void bufferZ_putrepstringW (TBuffer *BufRep, int reppos, int nsub) {
+  wchar_t dbuf[] = { 0, 0 };
+  size_t replen;
+  const wchar_t *p = (const wchar_t*) lua_tolstring (BufRep->L, reppos, &replen);
+  replen /= sizeof(wchar_t);
+  const wchar_t *end = p + replen;
+  BufRep->top = 0;
+  while (p < end) {
+    const wchar_t *q;
+    for (q = p; q < end && *q != L'%'; ++q)
+      {}
+    if (q != p)
+      bufferZ_addlstring (BufRep, p, (q - p) * sizeof(wchar_t));
+    if (q < end) {
+      if (++q < end) {  /* skip % */
+        if (iswdigit (*q)) {
+          int num;
+          *dbuf = *q;
+          num = wcstol (dbuf, NULL, 10);
+          if (num == 1 && nsub == 0)
+            num = 0;
+          else if (num > nsub) {
+            freelist_free (BufRep->freelist);
+            luaL_error (BufRep->L, "invalid capture index");
+          }
+          bufferZ_addnum (BufRep, num);
+        }
+        else bufferZ_addlstring (BufRep, q, 1 * sizeof(wchar_t));
+      }
+      p = q + 1;
+    }
+    else break;
+  }
 }

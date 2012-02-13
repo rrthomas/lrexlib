@@ -42,8 +42,8 @@ $(BIN): $(OBJ) $(DEFFILE)
 	$(CC) $(DEFFILE) $(OBJ) $(LIBS) -o $@ -shared
 
 $(DEFFILE):
-	lua -e"print('EXPORTS') for k,v in ipairs{$(EXPORTED)} do \
-      print('\t'..v) end" > $@
+	echo EXPORTS > $@
+	for %%d in ($(EXPORTED)) do echo   %%d>> $@
 
 $(BININSTALL): $(BIN)
 	copy /Y $< $@
