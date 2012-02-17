@@ -368,11 +368,11 @@ static const luaL_Reg chartables_meta[] = {
   { NULL, NULL }
 };
 
-static const luaL_Reg regex_meta[] = {
-  { "exec",        ud_exec },
-  { "tfind",       ud_tfind },    /* old name: match */
-  { "find",        ud_find },
-  { "match",       ud_match },
+static const luaL_Reg r_methods[] = {
+  { "exec",        algm_exec },
+  { "tfind",       algm_tfind },    /* old name: match */
+  { "find",        algm_find },
+  { "match",       algm_match },
 #if PCRE_MAJOR >= 6
   { "dfa_exec",    Lpcre_dfa_exec },
 #endif
@@ -381,13 +381,13 @@ static const luaL_Reg regex_meta[] = {
   { NULL, NULL }
 };
 
-static const luaL_Reg rexlib[] = {
-  { "match",       match },
-  { "find",        find },
-  { "gmatch",      gmatch },
-  { "gsub",        gsub },
-  { "split",       split },
-  { "new",         ud_new },
+static const luaL_Reg r_functions[] = {
+  { "match",       algf_match },
+  { "find",        algf_find },
+  { "gmatch",      algf_gmatch },
+  { "gsub",        algf_gsub },
+  { "split",       algf_split },
+  { "new",         algf_new },
   { "flags",       Lpcre_get_flags },
   { "version",     Lpcre_version },
   { "maketables",  Lpcre_maketables },
@@ -409,10 +409,10 @@ REX_API int REX_OPENLIB (lua_State *L) {
   lua_replace (L, LUA_ENVIRONINDEX);
   lua_pushvalue(L, -1); /* mt.__index = mt */
   lua_setfield(L, -2, "__index");
-  luaL_register (L, NULL, regex_meta);
+  luaL_register (L, NULL, r_methods);
 
   /* register functions */
-  luaL_register (L, REX_LIBNAME, rexlib);
+  luaL_register (L, REX_LIBNAME, r_functions);
   lua_pushliteral (L, REX_VERSION" (for PCRE)");
   lua_setfield (L, -2, "_VERSION");
 

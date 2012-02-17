@@ -196,22 +196,22 @@ static int split_exec (TPosix *ud, TArgExec *argE, int offset) {
 }
 
 static const luaL_Reg posixmeta[] = {
-  { "wexec",          ud_exec },
-  { "wtfind",         ud_tfind },
-  { "wfind",          ud_find },
-  { "wmatch",         ud_match },
-  { "waexec",         Ltre_aexec },
-  { "watfind",        Ltre_atfind },
+  { "wexec",         algm_exec },
+  { "wfind",         algm_find },
+  { "wmatch",        algm_match },
+  { "wtfind",        algm_tfind },
+  { "waexec",        Ltre_aexec },
+  { "watfind",       Ltre_atfind },
   { NULL, NULL}
 };
 
 static const luaL_Reg rexlib[] = {
-  { "wmatch",      match },
-  { "wfind",       find },
-  { "wgmatch",     gmatch },
-  { "wgsub",       gsub },
-  { "wsplit",      split },
-  { "wnew",        ud_new },
+  { "wnew",          algf_new },
+  { "wfind",         algf_find },
+  { "wgmatch",       algf_gmatch },
+  { "wgsub",         algf_gsub },
+  { "wmatch",        algf_match },
+  { "wsplit",        algf_split },
   { NULL, NULL }
 };
 

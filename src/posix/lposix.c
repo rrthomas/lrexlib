@@ -253,23 +253,23 @@ static int Posix_get_flags (lua_State *L) {
   return get_flags (L, fps);
 }
 
-static const luaL_Reg posixmeta[] = {
-  { "exec",       ud_exec },
-  { "tfind",      ud_tfind },    /* old match */
-  { "find",       ud_find },
-  { "match",      ud_match },
+static const luaL_Reg r_methods[] = {
+  { "exec",       algm_exec },
+  { "tfind",      algm_tfind },    /* old match */
+  { "find",       algm_find },
+  { "match",      algm_match },
   { "__gc",       Posix_gc },
   { "__tostring", Posix_tostring },
   { NULL, NULL}
 };
 
-static const luaL_Reg rexlib[] = {
-  { "match",      match },
-  { "find",       find },
-  { "gmatch",     gmatch },
-  { "gsub",       gsub },
-  { "split",      split },
-  { "new",        ud_new },
+static const luaL_Reg r_functions[] = {
+  { "match",      algf_match },
+  { "find",       algf_find },
+  { "gmatch",     algf_gmatch },
+  { "gsub",       algf_gsub },
+  { "split",      algf_split },
+  { "new",        algf_new },
   { "flags",      Posix_get_flags },
   { NULL, NULL }
 };
@@ -283,10 +283,10 @@ REX_API int REX_OPENLIB (lua_State *L)
   lua_replace (L, LUA_ENVIRONINDEX);
   lua_pushvalue(L, -1); /* mt.__index = mt */
   lua_setfield(L, -2, "__index");
-  luaL_register (L, NULL, posixmeta);
+  luaL_register (L, NULL, r_methods);
 
   /* register functions */
-  luaL_register (L, REX_LIBNAME, rexlib);
+  luaL_register (L, REX_LIBNAME, r_functions);
   lua_pushliteral (L, REX_VERSION" (for POSIX regexes)");
   lua_setfield (L, -2, "_VERSION");
   return 1;

@@ -310,30 +310,30 @@ static int Ltre_version (lua_State *L) {
   return 1;
 }
 
-static const luaL_Reg posixmeta[] = {
-  { "exec",          ud_exec },
-  { "tfind",         ud_tfind },
-  { "find",          ud_find },
-  { "match",         ud_match },
+static const luaL_Reg r_methods[] = {
+  { "exec",          algm_exec },
+  { "find",          algm_find },
+  { "match",         algm_match },
+  { "tfind",         algm_tfind },
   { "aexec",         Ltre_aexec },
   { "atfind",        Ltre_atfind },
-  { "have_backrefs", Ltre_have_backrefs },
   { "have_approx",   Ltre_have_approx },
+  { "have_backrefs", Ltre_have_backrefs },
   { "__gc",          Ltre_gc },
   { "__tostring",    Ltre_tostring },
   { NULL, NULL}
 };
 
-static const luaL_Reg rexlib[] = {
-  { "match",      match },
-  { "find",       find },
-  { "gmatch",     gmatch },
-  { "gsub",       gsub },
-  { "split",      split },
-  { "new",        ud_new },
-  { "flags",      Ltre_get_flags },
-  { "config",     Ltre_config },
-  { "version",    Ltre_version },
+static const luaL_Reg r_functions[] = {
+  { "new",           algf_new },
+  { "find",          algf_find },
+  { "gmatch",        algf_gmatch },
+  { "gsub",          algf_gsub },
+  { "match",         algf_match },
+  { "split",         algf_split },
+  { "config",        Ltre_config },
+  { "flags",         Ltre_get_flags },
+  { "version",       Ltre_version },
   { NULL, NULL }
 };
 
@@ -346,11 +346,11 @@ REX_API int REX_OPENLIB (lua_State *L)
   lua_replace (L, LUA_ENVIRONINDEX);
   lua_pushvalue(L, -1); /* mt.__index = mt */
   lua_setfield(L, -2, "__index");
-  luaL_register (L, NULL, posixmeta);
+  luaL_register (L, NULL, r_methods);
   add_wide_lib (L, 1);
 
   /* register functions */
-  luaL_register (L, REX_LIBNAME, rexlib);
+  luaL_register (L, REX_LIBNAME, r_functions);
   add_wide_lib (L, 0);
   lua_pushliteral (L, REX_VERSION" (for TRE regexes)");
   lua_setfield (L, -2, "_VERSION");

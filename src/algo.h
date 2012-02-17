@@ -180,7 +180,7 @@ static void checkarg_find_method (lua_State *L, TArgExec *argE, TUserdata **ud) 
 }
 
 
-static int ud_new (lua_State *L) {
+static int algf_new (lua_State *L) {
   TArgComp argC;
   checkarg_new (L, &argC);
   return compile_regex (L, &argC, NULL);
@@ -199,7 +199,7 @@ static void push_substrings (lua_State *L, TUserdata *ud, const char *text,
   }
 }
 
-static int gsub (lua_State *L) {
+static int algf_gsub (lua_State *L) {
   TUserdata *ud;
   TArgComp argC;
   TArgExec argE;
@@ -420,12 +420,12 @@ static int generic_find_func (lua_State *L, int method) {
 }
 
 
-static int find (lua_State *L) {
+static int algf_find (lua_State *L) {
   return generic_find_func (L, METHOD_FIND);
 }
 
 
-static int match (lua_State *L) {
+static int algf_match (lua_State *L) {
   return generic_find_func (L, METHOD_MATCH);
 }
 
@@ -539,7 +539,7 @@ nomatch:
 }
 
 
-static int gmatch (lua_State *L)
+static int algf_gmatch (lua_State *L)
 {
   TArgComp argC;
   TArgExec argE;
@@ -562,7 +562,7 @@ static int gmatch (lua_State *L)
   return 1;
 }
 
-static int split (lua_State *L)
+static int algf_split (lua_State *L)
 {
   TArgComp argC;
   TArgExec argE;
@@ -647,15 +647,15 @@ static int generic_find_method (lua_State *L, int method) {
 }
 
 
-static int ud_find (lua_State *L) {
+static int algm_find (lua_State *L) {
   return generic_find_method (L, METHOD_FIND);
 }
-static int ud_match (lua_State *L) {
+static int algm_match (lua_State *L) {
   return generic_find_method (L, METHOD_MATCH);
 }
-static int ud_tfind (lua_State *L) {
+static int algm_tfind (lua_State *L) {
   return generic_find_method (L, METHOD_TFIND);
 }
-static int ud_exec (lua_State *L) {
+static int algm_exec (lua_State *L) {
   return generic_find_method (L, METHOD_EXEC);
 }
