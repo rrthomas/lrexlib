@@ -7,7 +7,7 @@ REGEXINC = s:\progr\work\system\include\rxspencer
 
 PROJECT  = rex_spencer
 MYINCS   = -I$(REGEXINC) -I$(LUAINC) 
-MYLIBS   = -L$(DLLPATH) -lrxspencer -l$(LUADLL)
+MYLIBS   = -lrxspencer -l$(LUADLL)
 OBJ      = lposix.o common.o
 MYCFLAGS = -W -Wall -O2
 EXPORTED = luaopen_$(PROJECT)

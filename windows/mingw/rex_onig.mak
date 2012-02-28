@@ -7,7 +7,7 @@ REGEXINC = s:\progr\work\system\include
 
 PROJECT  = rex_onig
 MYINCS   = -I$(REGEXINC) -I$(LUAINC) 
-MYLIBS   = -L$(DLLPATH) -lonig -l$(LUADLL) -Wl,--enable-auto-import
+MYLIBS   = -lonig -l$(LUADLL) -Wl,--enable-auto-import
 OBJ      = lonig.o lonig_f.o common.o
 MYCFLAGS = -W -Wall -O2
 EXPORTED = luaopen_$(PROJECT)

@@ -7,7 +7,7 @@ REGEXINC = s:\progr\work\system\include
 
 PROJECT  = rex_pcre
 MYINCS   = -I$(REGEXINC) -I$(LUAINC) 
-MYLIBS   = -L$(DLLPATH) -lpcre -l$(LUADLL)
+MYLIBS   = -lpcre -l$(LUADLL)
 OBJ      = lpcre.o lpcre_f.o common.o
 MYCFLAGS = -W -Wall -O2
 EXPORTED = luaopen_$(PROJECT)

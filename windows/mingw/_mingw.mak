@@ -4,9 +4,6 @@
 # path of Lua include files
 LUAINC = s:\progr\work\system\include
 
-# path of Lua DLL and regexp library DLL
-DLLPATH = c:\exe32
-
 # name of Lua DLL to link to (.dll should be omitted)
 LUADLL = lua5.1
 
