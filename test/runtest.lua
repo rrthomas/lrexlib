@@ -41,7 +41,7 @@ local avail_tests = {
   posix     = { lib = "rex_posix",    "common_sets", "posix_sets", },
   spencer   = { lib = "rex_spencer",  "common_sets", "posix_sets", "spencer_sets" },
   posix1    = { lib = "rex_posix1",   "common_sets", "posix_sets", "spencer_sets" },
-  tre       = { lib = "rex_tre",      "common_sets", "posix_sets", "spencer_sets", "tre_sets" },
+  tre       = { lib = "rex_tre",      "common_sets", "posix_sets", "spencer_sets", --[["tre_sets"]] },
   lord      = { lib = "rex_lord",     "common_sets", "posix_sets"  },
   maddock   = { lib = "rex_maddock",  "common_sets", "posix_sets", },
   pcreposix = { lib = "rex_pcreposix","common_sets", "posix_sets", },

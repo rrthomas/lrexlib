@@ -109,7 +109,7 @@ static int compile_regex (lua_State *L, const TArgComp *argC, TPosix **pud) {
   if (argC->cflags & REG_NOSUB)
     ud->r.re_nsub = 0;
   ud->match = (regmatch_t *) Lmalloc (L, (ALG_NSUB(ud) + 1) * sizeof (regmatch_t));
-  lua_pushvalue (L, LUA_ENVIRONINDEX);
+  lua_pushvalue (L, ALG_ENVIRONINDEX);
   lua_setmetatable (L, -2);
 
   if (pud) *pud = ud;
@@ -277,17 +277,6 @@ static const luaL_Reg r_functions[] = {
 /* Open the library */
 REX_API int REX_OPENLIB (lua_State *L)
 {
-  /* create a new function environment to serve as a metatable for methods */
-  lua_newtable (L);
-  lua_pushvalue (L, -1);
-  lua_replace (L, LUA_ENVIRONINDEX);
-  lua_pushvalue(L, -1); /* mt.__index = mt */
-  lua_setfield(L, -2, "__index");
-  luaL_register (L, NULL, r_methods);
-
-  /* register functions */
-  luaL_register (L, REX_LIBNAME, r_functions);
-  lua_pushliteral (L, REX_VERSION" (for POSIX regexes)");
-  lua_setfield (L, -2, "_VERSION");
+  alg_register(L, r_methods, r_functions, "POSIX regexes");
   return 1;
 }

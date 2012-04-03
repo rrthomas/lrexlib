@@ -1,18 +1,28 @@
-# tested with GNU Make
+# Use with GNU Make.
 
 # User Settings ------------------------------------------------------------
-# path of Lua include files
-LUAINC = s:\progr\work\system\include
 
-# name of Lua DLL to link to (.dll should be omitted)
-LUADLL = lua5.1
+# Path of Lua include files.
+# Name of Lua DLL to link to (.dll should be omitted).
+# Name of Lua interpreter.
+# Path to install the built DLL.
 
-# path to install rex_onig.dll
-INSTALLPATH = s:\exe\lib\lua\5.1
+ifeq ($(LUAVERSION),51)
+  LUAINC = s:\progr\work\system\include\lua51
+  LUADLL = lua5.1
+  LUAEXE = lua.exe
+  INSTALLPATH = s:\exe\lib\lua\5.1
+else
+  LUAINC = s:\progr\work\system\include\lua52
+  LUADLL = lua52
+  LUAEXE = lua52.exe
+  INSTALLPATH = s:\exe\lib\lua\5.2
+endif
+
 # --------------------------------------------------------------------------
 
-LIBS       = $(MYLIBS) -s
-INCS       = $(MYINCS)
+LIBS       = -l$(LUADLL) $(MYLIBS) -s
+INCS       = -I$(LUAINC) $(MYINCS)
 BIN        = $(PROJECT).dll
 DEFFILE    = $(PROJECT).def
 BININSTALL = $(INSTALLPATH)\$(BIN)
@@ -33,7 +43,7 @@ clean:
 install: $(BININSTALL)
 
 test:
-	cd $(TESTPATH) && lua runtest.lua $(TESTNAME) -d$(CURDIR)
+	cd $(TESTPATH) && $(LUAEXE) runtest.lua $(TESTNAME) -d$(CURDIR)
 
 $(BIN): $(OBJ) $(DEFFILE)
 	$(CC) $(DEFFILE) $(OBJ) $(LIBS) -o $@ -shared

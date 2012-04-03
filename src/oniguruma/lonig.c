@@ -97,7 +97,7 @@ static int getcflags (lua_State *L, int pos) {
       return res;
     }
     default:
-      return luaL_typeerror (L, pos, "number or string");
+      return luaL_typerror (L, pos, "number or string");
   }
 }
 
@@ -217,7 +217,7 @@ static int compile_regex (lua_State *L, const TArgComp *argC, TOnig **pud) {
 
   ud = (TOnig*)lua_newuserdata (L, sizeof (TOnig));
   memset (ud, 0, sizeof (TOnig));           /* initialize all members to 0 */
-  lua_pushvalue (L, LUA_ENVIRONINDEX);
+  lua_pushvalue (L, ALG_ENVIRONINDEX);
   lua_setmetatable (L, -2);
 
   r = onig_new(&ud->reg, (CUC)argC->pattern, (CUC)argC->pattern + argC->patlen,
@@ -343,22 +343,8 @@ REX_API int REX_OPENLIB (lua_State *L) {
     return luaL_error (L, "%s requires at least version %d of Oniguruma library",
       REX_LIBNAME, (int)ONIGURUMA_VERSION_MAJOR);
   }
-
   onig_init();
   onig_set_default_syntax(ONIG_SYNTAX_RUBY);
-
-  /* create a new function environment to serve as a metatable for methods */
-  lua_newtable (L);
-  lua_pushvalue (L, -1);
-  lua_replace (L, LUA_ENVIRONINDEX);
-  lua_pushvalue(L, -1); /* mt.__index = mt */
-  lua_setfield(L, -2, "__index");
-  luaL_register (L, NULL, r_methods);
-
-  /* register functions */
-  luaL_register (L, REX_LIBNAME, r_functions);
-  lua_pushliteral (L, REX_VERSION" (for Oniguruma)");
-  lua_setfield (L, -2, "_VERSION");
-
+  alg_register(L, r_methods, r_functions, "Oniguruma");
   return 1;
 }

@@ -13,6 +13,12 @@ static int split_exec      (TUserdata *ud, TArgExec *argE, int offset);
 static int compile_regex   (lua_State *L, const TArgComp *argC, TUserdata **pud);
 static int generate_error  (lua_State *L, const TUserdata *ud, int errcode);
 
+#if LUA_VERSION_NUM == 501
+#  define ALG_ENVIRONINDEX LUA_ENVIRONINDEX
+#else
+#  define ALG_ENVIRONINDEX lua_upvalueindex(1)
+#endif
+
 #ifndef ALG_CHARSIZE
 #  define ALG_CHARSIZE 1
 #endif
@@ -71,7 +77,7 @@ static int OptLimit (lua_State *L, int pos) {
     int a = lua_tointeger (L, pos);
     return a < 0 ? 0 : a;
   }
-  return luaL_typeerror (L, pos, "number or function");
+  return luaL_typerror (L, pos, "number or function");
 }
 
 
@@ -92,7 +98,7 @@ static TUserdata* test_ud (lua_State *L, int pos)
 {
   TUserdata *ud;
   if (lua_getmetatable(L, pos) &&
-      lua_rawequal(L, -1, LUA_ENVIRONINDEX) &&
+      lua_rawequal(L, -1, ALG_ENVIRONINDEX) &&
       (ud = (TUserdata *)lua_touserdata(L, pos)) != NULL) {
     lua_pop(L, 1);
     return ud;
@@ -104,7 +110,7 @@ static TUserdata* test_ud (lua_State *L, int pos)
 static TUserdata* check_ud (lua_State *L)
 {
   TUserdata *ud = test_ud(L, 1);
-  if (ud == NULL) luaL_typeerror(L, 1, REX_TYPENAME);
+  if (ud == NULL) luaL_typerror(L, 1, REX_TYPENAME);
   return ud;
 }
 
@@ -116,7 +122,7 @@ static void check_pattern (lua_State *L, int pos, TArgComp *argC)
     argC->ud = NULL;
   }
   else if ((argC->ud = test_ud (L, pos)) == NULL)
-    luaL_typeerror(L, pos, "string or "REX_TYPENAME);
+    luaL_typerror(L, pos, "string or "REX_TYPENAME);
 }
 
 static void checkarg_new (lua_State *L, TArgComp *argC) {
@@ -134,7 +140,7 @@ static void checkarg_gsub (lua_State *L, TArgComp *argC, TArgExec *argE) {
   argE->reptype = lua_type (L, 3);
   if (argE->reptype != LUA_TSTRING && argE->reptype != LUA_TTABLE &&
       argE->reptype != LUA_TFUNCTION) {
-    luaL_typeerror (L, 3, "string, table or function");
+    luaL_typerror (L, 3, "string, table or function");
   }
   argE->funcpos = 3;
   argE->funcpos2 = 4;
@@ -658,4 +664,32 @@ static int algm_tfind (lua_State *L) {
 }
 static int algm_exec (lua_State *L) {
   return generic_find_method (L, METHOD_EXEC);
+}
+
+static void alg_register (lua_State *L, const luaL_Reg *r_methods,
+                          const luaL_Reg *r_functions, const char *name) {
+  /* create a new function environment to serve as a metatable for methods */
+#if LUA_VERSION_NUM == 501
+  lua_newtable (L);
+  lua_pushvalue (L, -1);
+  lua_replace (L, LUA_ENVIRONINDEX);
+  luaL_register (L, NULL, r_methods);
+#else
+  luaL_newmetatable(L, REX_TYPENAME);
+  lua_pushvalue(L, -1);
+  luaL_setfuncs (L, r_methods, 1);
+#endif
+  lua_pushvalue(L, -1); /* mt.__index = mt */
+  lua_setfield(L, -2, "__index");
+
+  /* register functions */
+#if LUA_VERSION_NUM == 501
+  luaL_register (L, REX_LIBNAME, r_functions);
+#else
+  lua_newtable(L);
+  lua_pushvalue(L, -2);
+  luaL_setfuncs (L, r_functions, 1);
+#endif
+  lua_pushfstring (L, REX_VERSION" (for %s)", name);
+  lua_setfield (L, -2, "_VERSION");
 }

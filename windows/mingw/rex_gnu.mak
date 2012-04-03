@@ -6,8 +6,8 @@ REGEXINC = s:\progr\work\system\include\gnuregex
 # --------------------------------------------------------------------------
 
 PROJECT  = rex_gnu
-MYINCS   = -I$(REGEXINC) -I$(LUAINC) 
-MYLIBS   = -lregex2 -l$(LUADLL)
+MYINCS   = -I$(REGEXINC)
+MYLIBS   = -lregex2
 OBJ      = lgnu.o common.o
 MYCFLAGS = -W -Wall -O2
 EXPORTED = luaopen_$(PROJECT)
