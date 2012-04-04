@@ -1,10 +1,10 @@
 # Makefile for lrexlib
 
 MKFILES = \
+  rex_gnu.mak     \
+  rex_onig.mak    \
   rex_pcre.mak    \
   rex_spencer.mak \
-  rex_onig.mak    \
-  rex_gnu.mak     \
   rex_tre.mak
 
 LOOP = @for %%d in ($(MKFILES)) do $(MAKE) -f %%d
@@ -21,6 +21,6 @@ install:
 	$(LOOP) install
 
 clean:
-	$(LOOP) clean
+	del *.o *.def *.dll
 
 .PHONY: all build test install clean

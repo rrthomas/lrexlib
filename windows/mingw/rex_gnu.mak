@@ -9,10 +9,7 @@ PROJECT  = rex_gnu
 MYINCS   = -I$(REGEXINC)
 MYLIBS   = -lregex2
 OBJ      = lgnu.o common.o
-MYCFLAGS = -W -Wall -O2
-EXPORTED = luaopen_$(PROJECT)
-SRCPATH  = ..\..\src;..\..\src\gnu
-TESTPATH = ..\..\test
+PROJDIR  = gnu
 TESTNAME = gnu
 
 include _mingw.mak

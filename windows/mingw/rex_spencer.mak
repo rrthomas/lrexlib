@@ -9,10 +9,7 @@ PROJECT  = rex_spencer
 MYINCS   = -I$(REGEXINC)
 MYLIBS   = -lrxspencer
 OBJ      = lposix.o common.o
-MYCFLAGS = -W -Wall -O2
-EXPORTED = luaopen_$(PROJECT)
-SRCPATH  = ..\..\src;..\..\src\posix
-TESTPATH = ..\..\test
+PROJDIR  = posix
 TESTNAME = spencer
 
 include _mingw.mak

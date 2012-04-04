@@ -9,10 +9,7 @@ PROJECT  = rex_onig
 MYINCS   = -I$(REGEXINC)
 MYLIBS   = -lonig -Wl,--enable-auto-import
 OBJ      = lonig.o lonig_f.o common.o
-MYCFLAGS = -W -Wall -O2
-EXPORTED = luaopen_$(PROJECT)
-SRCPATH  = ..\..\src;..\..\src\oniguruma
-TESTPATH = ..\..\test
+PROJDIR  = oniguruma
 TESTNAME = onig
 
 include _mingw.mak

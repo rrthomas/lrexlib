@@ -668,7 +668,7 @@ static int algm_exec (lua_State *L) {
 
 static void alg_register (lua_State *L, const luaL_Reg *r_methods,
                           const luaL_Reg *r_functions, const char *name) {
-  /* create a new function environment to serve as a metatable for methods */
+  /* Create a new function environment to serve as a metatable for methods. */
 #if LUA_VERSION_NUM == 501
   lua_newtable (L);
   lua_pushvalue (L, -1);
@@ -682,13 +682,17 @@ static void alg_register (lua_State *L, const luaL_Reg *r_methods,
   lua_pushvalue(L, -1); /* mt.__index = mt */
   lua_setfield(L, -2, "__index");
 
-  /* register functions */
+  /* Register functions. */
+  lua_createtable(L, 0, 8);
 #if LUA_VERSION_NUM == 501
-  luaL_register (L, REX_LIBNAME, r_functions);
+  luaL_register (L, NULL, r_functions);
 #else
-  lua_newtable(L);
   lua_pushvalue(L, -2);
   luaL_setfuncs (L, r_functions, 1);
+#endif
+#ifdef REX_CREATEGLOBALVAR
+  lua_pushvalue(L, -1);
+  lua_setglobal(L, REX_LIBNAME);
 #endif
   lua_pushfstring (L, REX_VERSION" (for %s)", name);
   lua_setfield (L, -2, "_VERSION");

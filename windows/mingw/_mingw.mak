@@ -2,38 +2,44 @@
 
 # User Settings ------------------------------------------------------------
 
-# Path of Lua include files.
+# Target Lua version (51 for Lua 5.1; 52 for Lua 5.2).
+LUAVERSION = 51
+
+# Path to install the built DLL.
 # Name of Lua DLL to link to (.dll should be omitted).
 # Name of Lua interpreter.
-# Path to install the built DLL.
+# Path of Lua include files.
 
 ifeq ($(LUAVERSION),51)
-  LUAINC = s:\progr\work\system\include\lua51
+  INSTALLPATH = s:\exe\lib32\lua51
   LUADLL = lua5.1
   LUAEXE = lua.exe
-  INSTALLPATH = s:\exe\lib\lua\5.1
+  LUAINC = s:\progr\work\system\include\lua51
 else
-  LUAINC = s:\progr\work\system\include\lua52
+  INSTALLPATH = s:\exe\lib32\lua52
   LUADLL = lua52
   LUAEXE = lua52.exe
-  INSTALLPATH = s:\exe\lib\lua\5.2
+  LUAINC = s:\progr\work\system\include\lua52
 endif
 
 # --------------------------------------------------------------------------
 
-LIBS       = -l$(LUADLL) $(MYLIBS) -s
-INCS       = -I$(LUAINC) $(MYINCS)
 BIN        = $(PROJECT).dll
-DEFFILE    = $(PROJECT).def
 BININSTALL = $(INSTALLPATH)\$(BIN)
-CC         = gcc.exe
-CFLAGS     = $(INCS) -DREX_OPENLIB=luaopen_$(PROJECT) \
-  -DREX_LIBNAME=\"$(PROJECT)\" $(MYCFLAGS)
+CC         = gcc
+CFLAGS     = -W -Wall -O2 $(INCS) -DREX_OPENLIB=luaopen_$(PROJECT) \
+             -DREX_LIBNAME=\"$(PROJECT)\" -DREX_CREATEGLOBALVAR $(MYCFLAGS)
+DEFFILE    = $(PROJECT).def
+EXPORTED   = luaopen_$(PROJECT)
+INCS       = -I$(LUAINC) $(MYINCS)
+LIBS       = -l$(LUADLL) $(MYLIBS) -s
+SRCPATH    = ..\..\src
+TESTPATH   = ..\..\test
 
 .PHONY: all install test clean
 
-vpath %.c $(SRCPATH)
-vpath %.h $(SRCPATH)
+vpath %.c $(SRCPATH);$(SRCPATH)\$(PROJDIR)
+vpath %.h $(SRCPATH);$(SRCPATH)\$(PROJDIR)
 
 all: $(BIN)
 
