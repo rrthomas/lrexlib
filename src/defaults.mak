@@ -3,6 +3,7 @@
 V = 2.5
 MINORV = 3
 
+LUA      = lua
 INC_LUA  =
 LIB_LUA  =
 
