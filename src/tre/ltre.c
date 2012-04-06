@@ -341,8 +341,9 @@ static const luaL_Reg r_functions[] = {
 REX_API int REX_OPENLIB (lua_State *L)
 {
   alg_register(L, r_methods, r_functions, "TRE regexes");
-  /* TODO:                */
-  /* add_wide_lib (L, 1); */
-  /* add_wide_lib (L, 0); */
+#ifdef REX_ADDWIDECHARFUNCS
+  add_wide_lib (L, 1);
+  add_wide_lib (L, 0);
+#endif
   return 1;
 }

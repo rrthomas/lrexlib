@@ -111,7 +111,7 @@ static int compile_regex (lua_State *L, const TArgComp *argC, TPosix **pud) {
   if (argC->cflags & REG_NOSUB)
     ud->r.re_nsub = 0;
   ud->match = (regmatch_t *) Lmalloc (L, (ALG_NSUB(ud) + 1) * sizeof (regmatch_t));
-  lua_pushvalue (L, LUA_ENVIRONINDEX);
+  lua_pushvalue (L, ALG_ENVIRONINDEX);
   lua_setmetatable (L, -2);
 
   if (pud) *pud = ud;
@@ -195,7 +195,7 @@ static int split_exec (TPosix *ud, TArgExec *argE, int offset) {
                    ALG_NSUB(ud) + 1, ud->match, argE->eflags);
 }
 
-static const luaL_Reg posixmeta[] = {
+static const luaL_Reg r_methods[] = {
   { "wexec",         algm_exec },
   { "wfind",         algm_find },
   { "wmatch",        algm_match },
@@ -205,7 +205,7 @@ static const luaL_Reg posixmeta[] = {
   { NULL, NULL}
 };
 
-static const luaL_Reg rexlib[] = {
+static const luaL_Reg r_functions[] = {
   { "wnew",          algf_new },
   { "wfind",         algf_find },
   { "wgmatch",       algf_gmatch },
@@ -218,7 +218,25 @@ static const luaL_Reg rexlib[] = {
 /* Add the library */
 void add_wide_lib (lua_State *L, int methods)
 {
-  luaL_register(L, NULL, methods ? posixmeta : rexlib);
+  (void)alg_register;
+#if LUA_VERSION_NUM == 501
+  if (methods) {
+    lua_pushvalue(L, -2);
+    luaL_register(L, NULL, r_methods);
+    lua_pop(L, 1);
+  }
+  else
+    luaL_register(L, NULL, r_functions);
+#else
+  lua_pushvalue(L, -2);
+  if (methods) {
+    lua_pushvalue(L, -1);
+    luaL_setfuncs(L, r_methods, 1);
+    lua_pop(L, 1);
+  }
+  else
+    luaL_setfuncs(L, r_functions, 1);
+#endif
 }
 
 /* 1. When called repeatedly on the same TBuffer, its existing data

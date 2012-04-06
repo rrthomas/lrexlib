@@ -15,6 +15,7 @@ ifeq ($(LUAVERSION),51)
   LUADLL = lua5.1
   LUAEXE = lua.exe
   LUAINC = s:\progr\work\system\include\lua51
+  MYCFLAGS += -DREX_CREATEGLOBALVAR
 else
   INSTALLPATH = s:\exe\lib32\lua52
   LUADLL = lua52
@@ -28,7 +29,7 @@ BIN        = $(PROJECT).dll
 BININSTALL = $(INSTALLPATH)\$(BIN)
 CC         = gcc
 CFLAGS     = -W -Wall -O2 $(INCS) -DREX_OPENLIB=luaopen_$(PROJECT) \
-             -DREX_LIBNAME=\"$(PROJECT)\" -DREX_CREATEGLOBALVAR $(MYCFLAGS)
+             -DREX_LIBNAME=\"$(PROJECT)\" $(MYCFLAGS)
 DEFFILE    = $(PROJECT).def
 EXPORTED   = luaopen_$(PROJECT)
 INCS       = -I$(LUAINC) $(MYINCS)
