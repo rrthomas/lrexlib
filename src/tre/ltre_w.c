@@ -216,26 +216,18 @@ static const luaL_Reg r_functions[] = {
 };
 
 /* Add the library */
-void add_wide_lib (lua_State *L, int methods)
+void add_wide_lib (lua_State *L)
 {
   (void)alg_register;
-#if LUA_VERSION_NUM == 501
-  if (methods) {
-    lua_pushvalue(L, -2);
-    luaL_register(L, NULL, r_methods);
-    lua_pop(L, 1);
-  }
-  else
-    luaL_register(L, NULL, r_functions);
-#else
   lua_pushvalue(L, -2);
-  if (methods) {
-    lua_pushvalue(L, -1);
-    luaL_setfuncs(L, r_methods, 1);
-    lua_pop(L, 1);
-  }
-  else
-    luaL_setfuncs(L, r_functions, 1);
+#if LUA_VERSION_NUM == 501
+  luaL_register(L, NULL, r_methods);
+  lua_pop(L, 1);
+  luaL_register(L, NULL, r_functions);
+#else
+  lua_pushvalue(L, -1);
+  luaL_setfuncs(L, r_methods, 1);
+  luaL_setfuncs(L, r_functions, 1);
 #endif
 }
 

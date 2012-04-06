@@ -7,7 +7,7 @@
 #include "lua.h"
 #include "lauxlib.h"
 #include "../common.h"
-extern void add_wide_lib (lua_State *L, int methods);
+extern void add_wide_lib (lua_State *L);
 
 #include <tre/tre.h>
 
@@ -342,8 +342,7 @@ REX_API int REX_OPENLIB (lua_State *L)
 {
   alg_register(L, r_methods, r_functions, "TRE regexes");
 #ifdef REX_ADDWIDECHARFUNCS
-  add_wide_lib (L, 1);
-  add_wide_lib (L, 0);
+  add_wide_lib (L);
 #endif
   return 1;
 }
