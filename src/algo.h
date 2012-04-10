@@ -4,7 +4,7 @@
 #include "common.h"
 
 /* FIXME: Get version from defaults.mak */
-#define REX_VERSION "Lrexlib 2.5.3"
+#define REX_VERSION "Lrexlib 2.6.0"
 
 /* Forward declarations */
 static void gmatch_pushsubject (lua_State *L, TArgExec *argE);

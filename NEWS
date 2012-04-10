@@ -1,3 +1,7 @@
+2012-04-??  Release 2.6.0
+
+  * Added support for Lua 5.2.
+
 2010-12-15  Release 2.5.3
 
   * Bug fix to rex.split.

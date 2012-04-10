@@ -5,10 +5,10 @@
 # Target Lua version (51 for Lua 5.1; 52 for Lua 5.2).
 LUAVERSION = 51
 
-# Path to install the built DLL.
-# Name of Lua DLL to link to (.dll should be omitted).
-# Name of Lua interpreter.
-# Path of Lua include files.
+# INSTALLPATH : Path to install the built DLL.
+# LUADLL      : Name of Lua DLL to link to (.dll should be omitted).
+# LUAEXE      : Name of Lua interpreter.
+# LUAINC      : Path of Lua include files.
 
 ifeq ($(LUAVERSION),51)
   INSTALLPATH = s:\exe\lib32\lua51
@@ -21,6 +21,7 @@ else
   LUADLL = lua52
   LUAEXE = lua52.exe
   LUAINC = s:\progr\work\system\include\lua52
+# MYCFLAGS += -DREX_CREATEGLOBALVAR
 endif
 
 # --------------------------------------------------------------------------

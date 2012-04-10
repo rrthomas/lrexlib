@@ -1,6 +1,6 @@
 .. role:: funcdef(literal)
 
-Lrexlib 2.5 Reference Manual
+Lrexlib 2.6 Reference Manual
 ============================
 
 .. contents:: Table of Contents
@@ -831,6 +831,13 @@ This function returns a string containing the version of the used TRE library.
 
 Incompatibilities with previous versions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Incompatibilities between versions 2.6 and 2.5:**
+
+  1. Removed function ``plainfind``.
+  #. Global variables (e.g. *rex_posix*, *rex_pcre*, etc.) are not created
+     by default. This can be changed at the stage of compilation by adding
+     ``-DREX_CREATEGLOBALVAR`` to ``CFLAGS``.
 
 **Incompatibilities between versions 2.2 and 2.1:**
 
