@@ -25,7 +25,7 @@ REGNAME = tre
 # ===========================================================================
 # === END OF USER SETTINGS ===
 
-OBJ    = ltre.o ltre_w.o ../common.o
+OBJ    = ltre.o ../common.o # ltre_w.o
 
 include ../common.mak
 
