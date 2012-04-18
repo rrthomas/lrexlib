@@ -37,6 +37,7 @@ local function test_library (libname, setfile, verbose)
 end
 
 local avail_tests = {
+  posix   = { lib = "rex_posix",   "common_sets", "posix_sets" },
   gnu     = { lib = "rex_gnu",     "common_sets", "emacs_sets", "gnu_sets" },
   onig    = { lib = "rex_onig",    "common_sets", "onig_sets", },
   pcre    = { lib = "rex_pcre",    "common_sets", "pcre_sets", "pcre_sets2", },
