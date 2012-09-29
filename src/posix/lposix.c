@@ -148,10 +148,8 @@ static void gmatch_pushsubject (lua_State *L, TArgExec *argE) {
   if (argE->eflags & REG_STARTEND)
     lua_pushlstring (L, argE->text, argE->textlen);
   else
-    lua_pushlstring (L, argE->text, strlen (argE->text));
-#else
-    lua_pushlstring (L, argE->text, strlen (argE->text));
 #endif
+    lua_pushstring (L, argE->text);
 }
 
 static int findmatch_exec (TPosix *ud, TArgExec *argE) {
