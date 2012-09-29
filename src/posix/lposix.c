@@ -117,18 +117,6 @@ static int compile_regex (lua_State *L, const TArgComp *argC, TPosix **pud) {
   return 1;
 }
 
-#ifdef REG_STARTEND
-static void CheckStartEnd (TArgExec *argE, TPosix *ud) {
-  if (argE->eflags & REG_STARTEND) {
-    ud->match[0].rm_so = argE->startoffset;
-    ud->match[0].rm_eo = argE->textlen;
-    argE->startoffset = 0;
-  }
-  else
-    argE->text += argE->startoffset;
-}
-#endif
-
 static int gmatch_exec (TUserdata *ud, TArgExec *argE) {
   if (argE->startoffset > 0)
     argE->eflags |= REG_NOTBOL;
@@ -155,10 +143,14 @@ static void gmatch_pushsubject (lua_State *L, TArgExec *argE) {
 
 static int findmatch_exec (TPosix *ud, TArgExec *argE) {
 #ifdef REG_STARTEND
-  CheckStartEnd (argE, ud);
-#else
-  argE->text += argE->startoffset;
+  if (argE->eflags & REG_STARTEND) {
+    ud->match[0].rm_so = argE->startoffset;
+    ud->match[0].rm_eo = argE->textlen;
+    argE->startoffset = 0;
+  }
+  else
 #endif
+    argE->text += argE->startoffset;
   return regexec (&ud->r, argE->text, ALG_NSUB(ud) + 1, ud->match, argE->eflags);
 }
 
