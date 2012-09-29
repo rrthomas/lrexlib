@@ -26,10 +26,11 @@
 
 #define REX_TYPENAME REX_LIBNAME"_regex"
 
-/* Test if regex.h corresponds to the extended POSIX library, i.e. H.Spencer's.
+/* Test if regex.h corresponds to the extended POSIX library, i.e. H. Spencer's.
    This test may not work as intended if regex.h introduced REG_BASIC, etc.
    via enum rather than #define.
    If that's the case, add -DREX_POSIX_EXT in the makefile/command line.
+   The same applies to REG_STARTEND.
 */
 #ifndef REX_POSIX_EXT
 #  if defined(REG_BASIC) && defined(REG_STARTEND)
