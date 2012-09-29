@@ -38,7 +38,7 @@
 #endif
 
 #define ALG_CFLAGS_DFLT REG_EXTENDED
-#ifdef REX_POSIX_EXT
+#ifdef REG_STARTEND
 #  define ALG_EFLAGS_DFLT REG_STARTEND
 #else
 #  define ALG_EFLAGS_DFLT 0
@@ -116,7 +116,7 @@ static int compile_regex (lua_State *L, const TArgComp *argC, TPosix **pud) {
   return 1;
 }
 
-#ifdef REX_POSIX_EXT
+#ifdef REG_STARTEND
 static void CheckStartEnd (TArgExec *argE, TPosix *ud) {
   if (argE->eflags & REG_STARTEND) {
     ud->match[0].rm_so = argE->startoffset;
@@ -132,7 +132,7 @@ static int gmatch_exec (TUserdata *ud, TArgExec *argE) {
   if (argE->startoffset > 0)
     argE->eflags |= REG_NOTBOL;
 
-#ifdef REX_POSIX_EXT
+#ifdef REG_STARTEND
   if (argE->eflags & REG_STARTEND) {
     ALG_SUBBEG(ud,0) = 0;
     ALG_SUBEND(ud,0) = argE->textlen - argE->startoffset;
@@ -144,7 +144,7 @@ static int gmatch_exec (TUserdata *ud, TArgExec *argE) {
 }
 
 static void gmatch_pushsubject (lua_State *L, TArgExec *argE) {
-#ifdef REX_POSIX_EXT
+#ifdef REG_STARTEND
   if (argE->eflags & REG_STARTEND)
     lua_pushlstring (L, argE->text, argE->textlen);
   else
@@ -155,7 +155,7 @@ static void gmatch_pushsubject (lua_State *L, TArgExec *argE) {
 }
 
 static int findmatch_exec (TPosix *ud, TArgExec *argE) {
-#ifdef REX_POSIX_EXT
+#ifdef REG_STARTEND
   CheckStartEnd (argE, ud);
 #else
   argE->text += argE->startoffset;
@@ -164,7 +164,7 @@ static int findmatch_exec (TPosix *ud, TArgExec *argE) {
 }
 
 static int gsub_exec (TPosix *ud, TArgExec *argE, int st) {
-#ifdef REX_POSIX_EXT
+#ifdef REG_STARTEND
   if(argE->eflags & REG_STARTEND) {
     ALG_SUBBEG(ud,0) = 0;
     ALG_SUBEND(ud,0) = argE->textlen - st;
@@ -176,7 +176,7 @@ static int gsub_exec (TPosix *ud, TArgExec *argE, int st) {
 }
 
 static int split_exec (TPosix *ud, TArgExec *argE, int offset) {
-#ifdef REX_POSIX_EXT
+#ifdef REG_STARTEND
   if (argE->eflags & REG_STARTEND) {
     ALG_SUBBEG(ud,0) = 0;
     ALG_SUBEND(ud,0) = argE->textlen - offset;
@@ -213,6 +213,8 @@ static flag_pair posix_flags[] =
   { "BASIC",    REG_BASIC },
   { "NOSPEC",   REG_NOSPEC },
   { "PEND",     REG_PEND },
+#endif
+#ifdef REG_STARTEND
   { "STARTEND", REG_STARTEND },
 #endif
   { "EXTENDED", REG_EXTENDED },
