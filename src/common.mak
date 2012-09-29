@@ -23,4 +23,4 @@ clean:
 	rm -f $(OBJ) $(TRG_AR) $(TRG_SO)*
 
 check: all
-	LUA_INIT= LUA_PATH=../../test/?.lua $(LUA) ../../test/runtest.lua -d. $(REGNAME)
+	LUA_PATH="../../test/?.lua;$(LUA_PATH)" $(LUA) ../../test/runtest.lua -d. $(REGNAME)
