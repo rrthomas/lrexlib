@@ -115,6 +115,36 @@ static TUserdata* check_ud (lua_State *L)
 }
 
 
+static void check_subject (lua_State *L, int pos, TArgExec *argE)
+{
+  int stype;
+  argE->text = lua_tolstring (L, pos, &argE->textlen);
+  stype = lua_type (L, pos);
+  if (stype != LUA_TSTRING && stype != LUA_TTABLE && stype != LUA_TUSERDATA) {
+    luaL_typerror (L, pos, "string, table or userdata");
+  } else if (argE->text == NULL) {
+    int type;
+    lua_getfield (L, pos, "topointer");
+    if (lua_type (L, -1) != LUA_TFUNCTION)
+      luaL_error (L, "subject has no topointer method");
+    lua_pushvalue (L, pos);
+    lua_call (L, 1, 1);
+    type = lua_type (L, -1);
+    if (type != LUA_TLIGHTUSERDATA)
+      luaL_error (L, "subject's topointer method returned %s (expected lightuserdata)",
+                  lua_typename (L, type));
+    argE->text = lua_touserdata (L, -1);
+    lua_pop (L, 1);
+    lua_len (L, pos);
+    type = lua_type (L, -1);
+    if (type != LUA_TNUMBER)
+      luaL_error (L, "subject's length is %s (expected number)",
+                  lua_typename (L, type));
+    argE->textlen = lua_tointeger (L, -1);
+    lua_pop (L, 1);
+  }
+}
+
 static void check_pattern (lua_State *L, int pos, TArgComp *argC)
 {
   if (lua_isstring (L, pos)) {
@@ -134,7 +164,7 @@ static void checkarg_new (lua_State *L, TArgComp *argC) {
 
 /* function gsub (s, patt, f, [n], [cf], [ef], [larg...]) */
 static void checkarg_gsub (lua_State *L, TArgComp *argC, TArgExec *argE) {
-  argE->text = luaL_checklstring (L, 1, &argE->textlen);
+  check_subject (L, 1, argE);
   check_pattern (L, 2, argC);
   lua_tostring (L, 3);    /* converts number (if any) to string */
   argE->reptype = lua_type (L, 3);
@@ -154,7 +184,7 @@ static void checkarg_gsub (lua_State *L, TArgComp *argC, TArgExec *argE) {
 /* function find  (s, patt, [st], [cf], [ef], [larg...]) */
 /* function match (s, patt, [st], [cf], [ef], [larg...]) */
 static void checkarg_find_func (lua_State *L, TArgComp *argC, TArgExec *argE) {
-  argE->text = luaL_checklstring (L, 1, &argE->textlen);
+  check_subject (L, 1, argE);
   check_pattern (L, 2, argC);
   argE->startoffset = get_startoffset (L, 3, argE->textlen);
   argC->cflags = ALG_GETCFLAGS (L, 4);
@@ -166,7 +196,7 @@ static void checkarg_find_func (lua_State *L, TArgComp *argC, TArgExec *argE) {
 /* function gmatch (s, patt, [cf], [ef], [larg...]) */
 /* function split  (s, patt, [cf], [ef], [larg...]) */
 static void checkarg_gmatch_split (lua_State *L, TArgComp *argC, TArgExec *argE) {
-  argE->text = luaL_checklstring (L, 1, &argE->textlen);
+  check_subject (L, 1, argE);
   check_pattern (L, 2, argC);
   argC->cflags = ALG_GETCFLAGS (L, 3);
   argE->eflags = luaL_optint (L, 4, ALG_EFLAGS_DFLT);
@@ -180,7 +210,7 @@ static void checkarg_gmatch_split (lua_State *L, TArgComp *argC, TArgExec *argE)
 /* method r:match (s, [st], [ef]) */
 static void checkarg_find_method (lua_State *L, TArgExec *argE, TUserdata **ud) {
   *ud = check_ud (L);
-  argE->text = luaL_checklstring (L, 2, &argE->textlen);
+  check_subject (L, 2, argE);
   argE->startoffset = get_startoffset (L, 3, argE->textlen);
   argE->eflags = luaL_optint (L, 4, ALG_EFLAGS_DFLT);
 }

@@ -73,6 +73,22 @@ local function test_function (test, func)
   if t[1] then
     table.remove (t, 1)
     res = t
+    if alien then
+      local subject = test[1][1]
+      local buf = alien.buffer (#subject)
+      if #subject > 0 then
+        alien.memmove (buf:topointer (), subject, #subject)
+      end
+      test[1][1] = buf
+      local t = packNT (pcall (func, unpackNT (test[1])))
+      if t[1] then
+        table.remove (t, 1)
+        res = t
+      else
+        print "alien test failed"
+        res = t[2] --> error_message
+      end
+    end
   else
     res = t[2] --> error_message
   end
@@ -87,6 +103,7 @@ end
 --  3) test results table or error_message
 local function test_method (test, constructor, name)
   local res1, res2
+  local subject = test[2][1]
   local ok, r = pcall (constructor, unpackNT (test[1]))
   if ok then
     local t = packNT (pcall (r[name], r, unpackNT (test[2])))

@@ -1,5 +1,12 @@
 -- See Copyright Notice in the file LICENSE
 
+-- See if we have alien, so we can do tests with buffer subjects
+local ok
+ok, alien = pcall (require, "alien")
+if not ok then
+  io.stderr:write ("Warning: alien not found, so cannot run tests with buffer subjects\n")
+end
+
 do
   local path = "./?.lua;"
   if package.path:sub(1, #path) ~= path then
@@ -16,6 +23,13 @@ local function test_library (libname, setfile, verbose)
   local lib = require (libname)
   local f = require (setfile)
   local sets = f (libname)
+
+  local realalien = alien
+  if libname == "rex_posix" and not lib.flags ().STARTEND and alien then
+    alien = nil
+    io.stderr:write ("Cannot run posix tests with alien without REG_STARTEND\n")
+  end
+
   local n = 0 -- number of failures
   for _, set in ipairs (sets) do
     if verbose then
@@ -33,6 +47,7 @@ local function test_library (libname, setfile, verbose)
   if verbose then
     print ""
   end
+  alien = realalien
   return n
 end
 
