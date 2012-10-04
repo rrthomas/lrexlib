@@ -9,6 +9,7 @@
   * Allow POSIX REG_STARTEND to be used on any system supporting it.
   * Add a test set for POSIX regex engine (thanks, Enrico Tassi).
   * Simplify some code.
+  * Always use Lua state memory allocator.
 
 2012-04-13  Release 2.6.0
 

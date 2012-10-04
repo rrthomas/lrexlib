@@ -28,7 +28,9 @@ void set_int_field (lua_State *L, const char* field, int val)
 }
 
 void *Lmalloc(lua_State *L, size_t size) {
-  void *p = malloc(size);
+  void *ud;
+  lua_Alloc lalloc = lua_getallocf(L, &ud);
+  void *p = lalloc(L, NULL, 0, size);
   if(p == NULL)
     luaL_error(L, "malloc failed");
   return p;
