@@ -123,9 +123,9 @@ GNU = {
   build = {
     type = "builtin",
     modules = {
-      rex_posix = {
+      rex_gnu = {
         defines = {"VERSION=\""..version.."\""},
-        source = {"src/common.c", "src/gnu/lgnu.c"}
+        sources = {"src/common.c", "src/gnu/lgnu.c"}
       }
     }
   }
