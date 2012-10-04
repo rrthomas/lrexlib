@@ -9,8 +9,9 @@ PROJECT_VERSIONED = $(PROJECT)-$(VERSION)
 DISTFILE = $(PROJECT_VERSIONED).zip
 
 check:
+	@if test -z "$(LUA)"; then echo "Set LUA to run tests"; exit 1; fi
 	@for i in $(REGNAMES); do \
-	  cd src/$$i && LUA_PATH="../../test/?.lua;$(LUA_PATH)" $(LUA) ../../test/runtest.lua -d. $$i && cd ../..; \
+	  LUA_PATH="test/?.lua;$(LUA_PATH)" $(LUA) test/runtest.lua -dsrc/$$i $$i; \
 	done
 
 docs:
