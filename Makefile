@@ -8,6 +8,11 @@ VERSION = 2.7.0
 PROJECT_VERSIONED = $(PROJECT)-$(VERSION)
 DISTFILE = $(PROJECT_VERSIONED).zip
 
+install:
+	@for i in *.rockspec; do \
+	  luarocks make $$i; \
+	done
+
 check:
 	@if test -z "$(LUA)"; then echo "Set LUA to run tests"; exit 1; fi
 	@for i in $(REGNAMES); do \
