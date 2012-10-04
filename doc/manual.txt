@@ -1,7 +1,7 @@
 .. role:: funcdef(literal)
 
-Lrexlib 2.6 Reference Manual
-============================
+Lrexlib Reference Manual
+========================
 
 .. contents:: Table of Contents
 

@@ -1,5 +1,5 @@
-Lrexlib 2.6
-===========
+Lrexlib
+=======
 
 |  by Reuben Thomas (rrt@sc3d.org)
 |  and Shmuel Zeigerman (shmuz@013net.net) [maintainer]

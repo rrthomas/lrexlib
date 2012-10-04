@@ -45,6 +45,7 @@ PCRE = {
     type = "builtin",
     modules = {
       rex_pcre = {
+        defines = {"VERSION=\""..version.."\""},
         sources = {"src/common.c", "src/pcre/lpcre.c", "src/pcre/lpcre_f.c"},
         libraries = {"pcre"},
         incdirs = {"$(PCRE_INCDIR)"},
@@ -63,7 +64,10 @@ POSIX = {
   build = {
     type = "builtin",
     modules = {
-      rex_posix = {"src/common.c", "src/posix/lposix.c"}
+      rex_posix = {
+        defines = {"VERSION=\""..version.."\""},
+        sources = {"src/common.c", "src/posix/lposix.c"}
+      }
     }
   }
 },
@@ -79,6 +83,7 @@ oniguruma = {
     type = "builtin",
     modules = {
       rex_onig = {
+        defines = {"VERSION=\""..version.."\""},
         sources = {"src/common.c", "src/oniguruma/lonig.c", "src/oniguruma/lonig_f.c"},
         libraries = {"onig"},
         incdirs = {"$(ONIG_INCDIR)"},
@@ -99,6 +104,7 @@ TRE = {
     type = "builtin",
     modules = {
       rex_tre = {
+        defines = {"VERSION=\""..version.."\""},
         sources = {"src/common.c", "src/tre/ltre.c" --[[, "src/tre/tre_w.c"]]},
         libraries = {"tre"},
         incdirs = {"$(TRE_INCDIR)"},
@@ -117,7 +123,10 @@ GNU = {
   build = {
     type = "builtin",
     modules = {
-      rex_posix = {"src/common.c", "src/gnu/lgnu.c"}
+      rex_posix = {
+        defines = {"VERSION=\""..version.."\""},
+        source = {"src/common.c", "src/gnu/lgnu.c"}
+      }
     }
   }
 },
