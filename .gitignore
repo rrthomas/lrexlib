@@ -5,3 +5,4 @@
 ChangeLog
 *.zip
 release-notes
+/*.rockspec

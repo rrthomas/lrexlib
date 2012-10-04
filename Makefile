@@ -1,33 +1,22 @@
 # Makefile for lrexlib
 
-# See src/*/Makefile and src/defaults.mak for user-definable settings
-
-include src/defaults.mak
+# See src/*/Makefile for user-definable settings
 
 REGNAMES = gnu pcre posix oniguruma tre
 PROJECT = lrexlib
-VERSION = $(V).$(MINORV)
+VERSION = 2.6.0
 PROJECT_VERSIONED = $(PROJECT)-$(VERSION)
 DISTFILE = $(PROJECT_VERSIONED).zip
 
-all:
+check:
 	@for i in $(REGNAMES); do \
-	  make -C src/$$i; \
+	  cd src/$$i && LUA_PATH="../../test/?.lua;$(LUA_PATH)" $(LUA) ../../test/runtest.lua -d. $$i && cd ../..; \
 	done
+
+doc:
 	@make -C doc
 
-check: all
-	@for i in $(REGNAMES); do \
-	  make -C src/$$i check; \
-	done
-
-clean:
-	@for i in $(REGNAMES); do \
-	  make -C src/$$i clean; \
-	done
-	@make -C doc clean
-
-dist: all
+dist: doc
 	git2cl > ChangeLog
 	cd .. && rm -f $(DISTFILE) && zip $(DISTFILE) -r $(PROJECT) -x "lrexlib/.git/*" "*.gitignore" "*.o" "*.a" "*.so" "*.so.*" "*.zip" "*SciTE.properties" "*scite.properties" && mv $(DISTFILE) $(PROJECT) && cd $(PROJECT) && unzip $(DISTFILE) && mv $(PROJECT) $(PROJECT_VERSIONED) && rm -f $(DISTFILE) && zip $(DISTFILE) -r $(PROJECT_VERSIONED) && rm -rf $(PROJECT_VERSIONED)
 

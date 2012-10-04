@@ -1,3 +1,15 @@
+2012-10-04  Release 2.7.0
+
+  * Added support for searching raw memory buffers (e.g. made with
+    alien).
+  * Fixed possible invalid code generation in C (thanks, Michael
+    Tautschnig).
+  * Generate LuaRock rockspecs for all modules.
+  * Greatly simplify UNIX build system, relying on LuaRocks.
+  * Allow POSIX REG_STARTEND to be used on any system supporting it.
+  * Add a test set for POSIX regex engine (thanks, Enrico Tassi).
+  * Simplify some code.
+
 2012-04-13  Release 2.6.0
 
   * Added support for Lua 5.2.
