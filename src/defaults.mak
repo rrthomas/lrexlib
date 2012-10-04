@@ -12,6 +12,6 @@ LIB_LUA  =
 #INC_LUA  = -I/usr/include/lua5.1
 #LIB_LUA  = -llua
 
-MYCFLAGS = -W -Wall -g $(INC_LUA) $(INC_PCRE)
+MYCFLAGS = -fPIC -W -Wall $(INC_LUA) $(INC_PCRE)
 AR = ar rcu
 CC = gcc
