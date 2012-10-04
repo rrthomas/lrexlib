@@ -97,7 +97,6 @@ void freelist_free (TFreeList *fl) {
  *  *************
  *  Auto-extensible array of characters for building long strings incrementally.
  *    * Differs from luaL_Buffer in that:
- *       *  it does not use Lua facilities (except luaL_error when malloc fails)
  *       *  its operations do not change Lua stack top position
  *       *  buffer_addvalue does not extract the value from Lua stack
  *       *  buffer_pushresult does not have to be the last operation
@@ -116,7 +115,9 @@ void freelist_free (TFreeList *fl) {
 enum { ID_NUMBER, ID_STRING };
 
 void buffer_init (TBuffer *buf, size_t sz, lua_State *L, TFreeList *fl) {
-  buf->arr = (char*) malloc (sz);
+  void *ud;
+  lua_Alloc lalloc = lua_getallocf(L, &ud);
+  buf->arr = (char*) lalloc (ud, NULL, 0, sz);
   if (!buf->arr) {
     freelist_free (fl);
     luaL_error (L, "malloc failed");
@@ -129,7 +130,9 @@ void buffer_init (TBuffer *buf, size_t sz, lua_State *L, TFreeList *fl) {
 }
 
 void buffer_free (TBuffer *buf) {
-  free (buf->arr);
+  void *ud;
+  lua_Alloc lalloc = lua_getallocf(buf->L, &ud);
+  lalloc (buf->L, buf->arr, buf->size, 0);
 }
 
 void buffer_clear (TBuffer *buf) {
@@ -147,7 +150,9 @@ void buffer_addbuffer (TBuffer *trg, TBuffer *src) {
 void buffer_addlstring (TBuffer *buf, const void *src, size_t sz) {
   size_t newtop = buf->top + sz;
   if (newtop > buf->size) {
-    char *p = (char*) realloc (buf->arr, 2 * newtop);   /* 2x expansion */
+    void *ud;
+    lua_Alloc lalloc = lua_getallocf(buf->L, &ud);
+    char *p = (char*) lalloc (buf->L, buf->arr, buf->size, 2 * newtop);   /* 2x expansion */
     if (!p) {
       freelist_free (buf->freelist);
       luaL_error (buf->L, "realloc failed");
