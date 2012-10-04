@@ -13,10 +13,10 @@ check:
 	  cd src/$$i && LUA_PATH="../../test/?.lua;$(LUA_PATH)" $(LUA) ../../test/runtest.lua -d. $$i && cd ../..; \
 	done
 
-doc:
+docs:
 	@make -C doc
 
-dist: doc
+dist: docs
 	git2cl > ChangeLog
 	cd .. && rm -f $(DISTFILE) && zip $(DISTFILE) -r $(PROJECT) -x "lrexlib/.git/*" "*.gitignore" "*.o" "*.a" "*.so" "*.so.*" "*.zip" "*SciTE.properties" "*scite.properties" && mv $(DISTFILE) $(PROJECT) && cd $(PROJECT) && unzip $(DISTFILE) && mv $(PROJECT) $(PROJECT_VERSIONED) && rm -f $(DISTFILE) && zip $(DISTFILE) -r $(PROJECT_VERSIONED) && rm -rf $(PROJECT_VERSIONED)
 
