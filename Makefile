@@ -4,7 +4,7 @@
 
 REGNAMES = gnu pcre posix oniguruma tre
 PROJECT = lrexlib
-VERSION = 2.6.0
+VERSION = 2.7.0
 PROJECT_VERSIONED = $(PROJECT)-$(VERSION)
 DISTFILE = $(PROJECT_VERSIONED).zip
 
