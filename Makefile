@@ -37,9 +37,8 @@ release: dist check
 	git tag -a -m "Release tag" rel-`echo $(VERSION) | sed -e 's/\./-/g'` && \
 	git push && git push --tags && \
 	woger github $(WOGER_ARGS) && \
-	for i in $(REGNAMES); do \
+	for i in *.rockspec; do \
 	  LUAROCKS_CONFIG=luarocks-config.lua luarocks --tree=luarocks build $$i; \
 	done && \
 	woger lua $(WOGER_ARGS)
-	@echo "Don't forget to upload release to github!"
 	rm -f release-notes
