@@ -37,7 +37,7 @@ release:
 	git tag -a -m "Release tag" rel-`echo $(VERSION) | sed -e 's/\./-/g'` && \
 	git push && git push --tags && \
 	woger github $(WOGER_ARGS) && \
-	for i in $(REGNAMES); do
+	for i in $(REGNAMES); do \
 	  LUAROCKS_CONFIG=luarocks-config.lua luarocks --tree=luarocks build $$i; \
 	done && \
 	woger lua $(WOGER_ARGS)
