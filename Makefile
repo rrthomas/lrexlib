@@ -31,7 +31,7 @@ dist: docs
 
 WOGER_ARGS = package=$(PROJECT) package_name=$(PROJECT) version=$(VERSION) description="Lua binding for regex libraries" notes=release-notes dist_type="zip" github_user=rrthomas
 
-release:
+release: dist check
 	agrep -d 'Release' $(VERSION) NEWS | tail -n +3 | head -n -2 > release-notes && \
 	git diff --exit-code && \
 	git tag -a -m "Release tag" rel-`echo $(VERSION) | sed -e 's/\./-/g'` && \
