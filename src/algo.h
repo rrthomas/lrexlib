@@ -134,7 +134,11 @@ static void check_subject (lua_State *L, int pos, TArgExec *argE)
                   lua_typename (L, type));
     argE->text = lua_touserdata (L, -1);
     lua_pop (L, 1);
+#if LUA_VERSION_NUM == 501
+    lua_objlen (L, pos);
+#else
     lua_len (L, pos);
+#endif
     type = lua_type (L, -1);
     if (type != LUA_TNUMBER)
       luaL_error (L, "subject's length is %s (expected number)",
