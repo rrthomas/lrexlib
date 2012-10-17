@@ -22,7 +22,7 @@ default = {
   description = {
     summary = "Regular expression library binding ("..flavour.." flavour).",
     detailed = [[
-      Lrexlib is a regular expression library for Lua 5.1, which
+      Lrexlib is a regular expression library for Lua 5.1 and 5.2, which
       provides bindings for several regular expression libraries.
       This rock provides the ]]..flavour..[[ bindings.
     ]],
