@@ -13,8 +13,8 @@ local flavours = {"PCRE", "POSIX", "oniguruma", "TRE", "GNU"}
 return {
 
 default = {
-  package="Lrexlib-"..flavour,
-  version=version.."-1",
+  package = "Lrexlib-"..flavour,
+  version = version.."-1",
   source = {
     url = "https://github.com/downloads/rrthomas/lrexlib/lrexlib-"..version..".zip",
     md5 = md5sum
