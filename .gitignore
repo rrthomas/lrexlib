@@ -6,3 +6,4 @@ ChangeLog
 *.zip
 release-notes
 /*.rockspec
+/luarocks
