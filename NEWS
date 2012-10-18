@@ -1,3 +1,9 @@
+2012-10-18  Release 2.7.1
+
+  * Fixed Lua 5.1 compatibility, broken in 2.7.0.
+  * Added ability to specify no replacement to gsub with a nil or
+    false replacement argument.
+
 2012-10-04  Release 2.7.0
 
   * Added support for searching raw memory buffers (e.g. made with
