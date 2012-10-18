@@ -8,7 +8,7 @@ VERSION = 2.7.1
 PROJECT_VERSIONED = $(PROJECT)-$(VERSION)
 DISTFILE = $(PROJECT_VERSIONED).zip
 
-install:
+install: dist
 	@for i in *.rockspec; do \
 	  luarocks make $$i; \
 	done
@@ -23,9 +23,10 @@ docs:
 	@make -C doc
 
 rockspecs:
+	rm -f *.rockspec
 	lua mkrockspecs.lua $(VERSION) `md5sum $(DISTFILE)`
 
-dist: docs
+dist: docs rockspecs
 	git2cl > ChangeLog
 	cd .. && rm -f $(DISTFILE) && zip $(DISTFILE) -r $(PROJECT) -x "lrexlib/.git/*" "*.gitignore" "*.o" "*.a" "*.so" "*.so.*" "*.zip" "*SciTE.properties" "*scite.properties" "lrexlib/luarocks/*" && mv $(DISTFILE) $(PROJECT) && cd $(PROJECT) && unzip $(DISTFILE) && mv $(PROJECT) $(PROJECT_VERSIONED) && rm -f $(DISTFILE) && zip $(DISTFILE) -r $(PROJECT_VERSIONED) && rm -rf $(PROJECT_VERSIONED)
 
