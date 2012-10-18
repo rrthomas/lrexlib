@@ -230,7 +230,8 @@ below).
   +---------+-----------------------------------+-------------------------+-------------+
   |  patt   |regular expression pattern         |string or userdata       |     n/a     |
   +---------+-----------------------------------+-------------------------+-------------+
-  |  repl   |substitution source                |string, function or table|     n/a     |
+  |  repl   |substitution source                |string, function, table, |     n/a     |
+  |         |                                   |``false`` or ``nil``     |             |
   +---------+-----------------------------------+-------------------------+-------------+
   |   [n]   |maximum number of matches to search| number or function      |   ``nil``   |
   |         |for, or control function, or nil   |                         |             |
@@ -248,9 +249,9 @@ below).
   3. Number of substitutions made.
 
 **Details:**
-  The parameter *repl* can be either a string, a function or a table.
-  On each match made, it is converted into a value *repl_out* that may be used
-  for the replacement.
+  The parameter *repl* can be either a string, a function, a table,
+  ``false`` or ``nil``. On each match made, it is converted into a
+  value *repl_out* that may be used for the replacement.
 
   *repl_out* is generated differently depending on the type of *repl*:
 
@@ -288,6 +289,11 @@ below).
      submatch (or the entire match if there are no submatches), following the
      same rules as for the return value of *repl* call, described in the above
      paragraph.
+
+  4. If *repl* is ``false`` or ``nil``, no replacement is done. Note
+     that, unusually for Lua, if ``repl`` is absent, it is not taken
+     to be ``nil``. This is to prevent programming errors caused by
+     inadvertently missing out *repl*.
 
   Note: Under some circumstances, the value of *repl_out* may be ignored; see
   below_.
