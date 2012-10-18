@@ -4,12 +4,12 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="Docutils 0.8: http://docutils.sourceforge.net/" />
-<title>Lrexlib 2.6 Reference Manual</title>
+<title>Lrexlib Reference Manual</title>
 <link rel="stylesheet" href="lrexlib.css" type="text/css" />
 </head>
 <body>
-<div class="document" id="lrexlib-2-6-reference-manual">
-<h1 class="title">Lrexlib 2.6 Reference Manual</h1>
+<div class="document" id="lrexlib-reference-manual">
+<h1 class="title">Lrexlib Reference Manual</h1>
 
 <div class="contents topic" id="table-of-contents">
 <p class="topic-title first">Table of Contents</p>
@@ -89,8 +89,18 @@ generate an error if that pattern is found invalid by the regex library.</p>
 too. In this case, the <a class="reference internal" href="#cf">cf</a> and <a class="reference internal" href="#larg">larg</a> arguments are ignored (should
 be either supplied as nils or omitted).</p>
 </li>
+<li><p class="first">All functions that take a string-type subject accept a table (in Lua &gt;= 5.2)
+or userdata that has a <tt class="docutils literal">topointer</tt> method and <tt class="docutils literal">__len</tt> metamethod, and
+take the subject to be a block of memory starting at the address returned by
+<tt class="docutils literal">subject:topointer()</tt> and of length <tt class="docutils literal">#subject</tt>. This works with buffers
+objects from the alien library (<a class="reference external" href="https://github.com/mascarenhas/alien">https://github.com/mascarenhas/alien</a>). Note
+that special attention is needed with POSIX regex libraries that do not
+support <tt class="docutils literal">REG_STARTEND</tt>, and hence need NUL-terminated subjects: the NUL is
+not included in the string length, so alien buffers must be wrapped to
+report a length that excludes the NUL.</p>
+</li>
 </ol>
-<ol class="arabic" id="cf" start="6">
+<ol class="arabic" id="cf" start="7">
 <li><p class="first">The default value for <em>compilation flags</em> (<em>cf</em>) that Lrexlib uses when
 the parameter is not supplied or <tt class="docutils literal">nil</tt> is:</p>
 <blockquote>
@@ -168,7 +178,7 @@ characters (case sensitive) are supported:</p>
 </blockquote>
 </li>
 </ol>
-<ol class="arabic" id="ef" start="7">
+<ol class="arabic" id="ef" start="8">
 <li><p class="first">The default value for <em>execution flags</em> (<em>ef</em>) that Lrexlib uses when
 the parameter is not supplied or <tt class="docutils literal">nil</tt>, is:</p>
 <blockquote>
@@ -181,7 +191,7 @@ e.g. Spencer's.</li>
 </blockquote>
 </li>
 </ol>
-<ol class="arabic simple" id="larg" start="8">
+<ol class="arabic simple" id="larg" start="9">
 <li>The notation <em>larg...</em> is used to indicate optional library-specific
 arguments, which are documented in the <tt class="docutils literal">new</tt> method of each library.</li>
 </ol>
@@ -444,7 +454,8 @@ below).</p>
 </tr>
 <tr><td>repl</td>
 <td>substitution source</td>
-<td>string, function or table</td>
+<td>string, function, table,
+<tt class="docutils literal">false</tt> or <tt class="docutils literal">nil</tt></td>
 <td>n/a</td>
 </tr>
 <tr><td>[n]</td>
@@ -480,9 +491,9 @@ for, or control function, or nil</td>
 </ol>
 </dd>
 <dt><strong>Details:</strong></dt>
-<dd><p class="first">The parameter <em>repl</em> can be either a string, a function or a table.
-On each match made, it is converted into a value <em>repl_out</em> that may be used
-for the replacement.</p>
+<dd><p class="first">The parameter <em>repl</em> can be either a string, a function, a table,
+<tt class="docutils literal">false</tt> or <tt class="docutils literal">nil</tt>. On each match made, it is converted into a
+value <em>repl_out</em> that may be used for the replacement.</p>
 <p><em>repl_out</em> is generated differently depending on the type of <em>repl</em>:</p>
 <ol class="arabic simple">
 <li>If <em>repl</em> is a <em>string</em> then it is treated as a template for substitution,
@@ -526,6 +537,10 @@ value is that string;</li>
 submatch (or the entire match if there are no submatches), following the
 same rules as for the return value of <em>repl</em> call, described in the above
 paragraph.</li>
+<li>If <em>repl</em> is <tt class="docutils literal">false</tt> or <tt class="docutils literal">nil</tt>, no replacement is done. Note
+that, unusually for Lua, if <tt class="docutils literal">repl</tt> is absent, it is not taken
+to be <tt class="docutils literal">nil</tt>. This is to prevent programming errors caused by
+inadvertently missing out <em>repl</em>.</li>
 </ol>
 <p>Note: Under some circumstances, the value of <em>repl_out</em> may be ignored; see
 <a class="reference internal" href="#below">below</a>.</p>
@@ -1330,7 +1345,7 @@ subpatterns</em></li>
 </div>
 <div class="footer">
 <hr class="footer" />
-Generated on: 2012-04-10 19:52 UTC.
+Generated on: 2012-10-18 18:16 UTC.
 
 </div>
 </body>
