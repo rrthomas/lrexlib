@@ -29,6 +29,18 @@ Gammon for adding support for PCRE named subpatterns.
 
 -----------------------------------------------------------
 
+Installation
+-----
+
+Lrexlib is installed with LuaRocks_, using the command::
+
+  luarocks install lrexlib-**FLAVOUR**
+
+where **FLAVOUR** is one of PCRE, POSIX, oniguruma, TRE, GNU
+
+.. _LuaRocks: http://www.luarocks.org
+
+
 Links
 -----
 
