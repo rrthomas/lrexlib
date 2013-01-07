@@ -2,7 +2,7 @@ Lrexlib
 =======
 
 |  by Reuben Thomas (rrt@sc3d.org)
-|  and Shmuel Zeigerman (shmuz@013net.net) [maintainer]
+|  and Shmuel Zeigerman (shmuz@013net.net)
 
 **Lrexlib** provides bindings of five regular expression library APIs
 (POSIX_, PCRE_, GNU_, TRE_ and Oniguruma_) to Lua_ 5.1 and Lua 5.2.
