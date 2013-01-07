@@ -30,7 +30,7 @@ void set_int_field (lua_State *L, const char* field, int val)
 void *Lmalloc(lua_State *L, size_t size) {
   void *ud;
   lua_Alloc lalloc = lua_getallocf(L, &ud);
-  void *p = lalloc(L, NULL, 0, size);
+  void *p = lalloc(ud, NULL, LUA_TUSERDATA, size);
   if(p == NULL)
     luaL_error(L, "malloc failed");
   return p;
@@ -134,7 +134,7 @@ void buffer_init (TBuffer *buf, size_t sz, lua_State *L, TFreeList *fl) {
 void buffer_free (TBuffer *buf) {
   void *ud;
   lua_Alloc lalloc = lua_getallocf(buf->L, &ud);
-  lalloc (buf->L, buf->arr, buf->size, 0);
+  lalloc (ud, buf->arr, buf->size, 0);
 }
 
 void buffer_clear (TBuffer *buf) {
@@ -154,7 +154,7 @@ void buffer_addlstring (TBuffer *buf, const void *src, size_t sz) {
   if (newtop > buf->size) {
     void *ud;
     lua_Alloc lalloc = lua_getallocf(buf->L, &ud);
-    char *p = (char*) lalloc (buf->L, buf->arr, buf->size, 2 * newtop);   /* 2x expansion */
+    char *p = (char*) lalloc (ud, buf->arr, buf->size, 2 * newtop);   /* 2x expansion */
     if (!p) {
       freelist_free (buf->freelist);
       luaL_error (buf->L, "realloc failed");
