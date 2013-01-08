@@ -50,5 +50,5 @@ release: check
 	git tag -a -m "Release tag" rel-`echo $(VERSION) | sed -e 's/\./-/g'` && \
 	git push && git push --tags && \
 	$(MAKE) build LUAROCKS_COMMAND=build && \
-	woger lua package=$(PROJECT) package_name=$(PROJECT) version=$(VERSION) description="Lua binding for regex libraries" notes=release-notes home="https://github.com/rrthomas/$PROJECT"
+	woger lua package=$(PROJECT) package_name=$(PROJECT) version=$(VERSION) description="Lua binding for regex libraries" notes=release-notes home="https://github.com/rrthomas/$(PROJECT)"
 	rm -f release-notes
