@@ -221,6 +221,8 @@ static int compile_regex (lua_State *L, const TArgComp *argC, TPcre **pud) {
   pcre_fullinfo (ud->pr, ud->extra, PCRE_INFO_CAPTURECOUNT, &ud->ncapt);
   /* need (2 ints per capture, plus one for substring match) * 3/2 */
   ud->match = (int *) Lmalloc (L, (ALG_NSUB(ud) + 1) * 3 * sizeof (int));
+  if (!ud->match)
+    luaL_error (L, "malloc failed");
 
   if (pud) *pud = ud;
   return 1;
@@ -258,9 +260,13 @@ static int Lpcre_dfa_exec (lua_State *L)
   TPcre *ud;
   int res;
   int *buf, *ovector, *wspace;
+  size_t bufsize;
 
   checkarg_dfa_exec (L, &argE, &ud);
-  buf = (int*) Lmalloc (L, (argE.ovecsize + argE.wscount) * sizeof(int));
+  bufsize = (argE.ovecsize + argE.wscount) * sizeof(int);
+  buf = (int*) Lmalloc (L, bufsize);
+  if (!buf)
+    luaL_error (L, "malloc failed");
   ovector = buf;
   wspace = buf + argE.ovecsize;
 
@@ -277,11 +283,11 @@ static int Lpcre_dfa_exec (lua_State *L)
       lua_rawseti (L, -2, i+1);
     }
     lua_pushinteger (L, res);                    /* 3-rd return value */
-    free (buf);
+    Lfree (L, buf, bufsize);
     return 3;
   }
   else {
-    free (buf);
+    Lfree (L, buf, bufsize);
     if (ALG_NOMATCH (res))
       return lua_pushnil (L), 1;
     else
@@ -337,7 +343,7 @@ static int Lpcre_gc (lua_State *L) {
     if (ud->pr)      pcre_free (ud->pr);
     if (ud->extra)   pcre_free (ud->extra);
     if (ud->tables)  pcre_free ((void *)ud->tables);
-    free (ud->match);
+    Lfree (L, ud->match, (ALG_NSUB(ud) + 1) * 3 * sizeof (int));
   }
   return 0;
 }
