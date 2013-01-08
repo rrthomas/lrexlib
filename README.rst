@@ -30,7 +30,7 @@ Gammon for adding support for PCRE named subpatterns.
 -----------------------------------------------------------
 
 Installation
------
+------------
 
 Lrexlib is installed with LuaRocks_, using the command::
 
