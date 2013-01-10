@@ -44,6 +44,7 @@ check: build
 clean:
 	$(RM) $(HTML) doc/index.txt *.rockspec
 
+# FIXME: Extract URL from rockspec
 release: check
 	agrep -d 'Release' $(VERSION) NEWS | tail -n +3 | head -n -2 > release-notes && \
 	git diff --exit-code && \
