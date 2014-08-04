@@ -136,15 +136,17 @@ local function set_m_tfind (lib, flg)
 end
 
 local function set_m_dfa_exec (lib, flg)
+  local ver = tonumber(lib.version():match("%d+%.%d+"))
+  local NAP = ver < 8.34 and "" or "(*NO_AUTO_POSSESS)"
   return {
   Name = "Method dfa_exec",
   Method = "dfa_exec",
 --{patt,cf,lo},           {subj,st,ef,os,ws}        { results }
-  { {".+"},               {"abcd"},                 {1,{4,3,2,1},4} }, -- [none]
-  { {".+"},               {"abcd",2},               {2,{4,3,2},  3} }, -- positive st
-  { {".+"},               {"abcd",-2},              {3,{4,3},    2} }, -- negative st
+  { {NAP..".+"},          {"abcd"},                 {1,{4,3,2,1},4} }, -- [none]
+  { {NAP..".+"},          {"abcd",2},               {2,{4,3,2},  3} }, -- positive st
+  { {NAP..".+"},          {"abcd",-2},              {3,{4,3},    2} }, -- negative st
   { {".+"},               {"abcd",5},               {N }            }, -- failing st
-  { {".*"},               {"abcd"},                 {1,{4,3,2,1,0},5}}, -- [none]
+  { {NAP..".*"},          {"abcd"},                 {1,{4,3,2,1,0},5}}, -- [none]
   { {".*?"},              {"abcd"},                 {1,{4,3,2,1,0},5}}, -- non-greedy
   { {"aBC",flg.CASELESS}, {"abc"},                  {1,{3},1}  }, -- cf
   { {"aBC","i"         }, {"abc"},                  {1,{3},1}  }, -- cf
@@ -154,7 +156,7 @@ local function set_m_dfa_exec (lib, flg)
   { { "(.)b.(d)"},        {"abcd"},                 {1,{4},1}  }, --[captures]
   { {"abc"},              {"ab"},                   {N }       },
   { {"abc"},              {"ab",N,flg.PARTIAL},     {1,{2},flg.ERROR_PARTIAL} },
-  { {".+"},     {string.rep("a",50),N,N,50,50},     {1, fill(50,26), 0}},-- small ovecsize
+  { {NAP..".+"}, {string.rep("a",50),N,N,50,50},    {1, fill(50,26), 0}},-- small ovecsize
 }
 end
 
