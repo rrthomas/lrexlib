@@ -38,7 +38,7 @@ doc/index.txt: README.rst
 
 check: build
 	for i in $(REGNAMES); do \
-	  LUA_PATH="test/?.lua;$(LUA_PATH)" $(LUA) test/runtest.lua -dsrc/$$i $$i; \
+	  LUA_PATH="test/?.lua;$(LUA_PATH);" $(LUA) test/runtest.lua -dsrc/$$i $$i; \
 	done
 
 clean:
