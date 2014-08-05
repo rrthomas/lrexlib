@@ -135,20 +135,14 @@ static void check_subject (lua_State *L, int pos, TArgExec *argE)
     argE->text = lua_touserdata (L, -1);
     lua_pop (L, 1);
 #if LUA_VERSION_NUM == 501
-    if (stype == LUA_TSTRING)
-      argE->textlen = lua_objlen (L, pos);
-    else {
-      if (!luaL_getmetafield (L, pos, "__len") || lua_type (L, -1) != LUA_TFUNCTION)
-        luaL_argerror (L, pos, "the subject has no valid __len metamethod");
-      lua_pushvalue (L, pos);
-      lua_call (L, 1, 1);
-      type = lua_type (L, -1);
-      if (type != LUA_TNUMBER)
-        luaL_error (L, "subject's length is %s (expected number)",
-                   lua_typename (L, type));
-      argE->textlen = lua_tointeger (L, -1);
-      lua_pop (L, 1);
-    }
+    if (!luaL_callmeta (L, pos, "__len"))
+      luaL_argerror (L, pos, "the subject has no valid __len metamethod");
+    type = lua_type (L, -1);
+    if (type != LUA_TNUMBER)
+      luaL_error (L, "subject's length is %s (expected number)",
+                 lua_typename (L, type));
+    argE->textlen = lua_tointeger (L, -1);
+    lua_pop (L, 1);
 #else
     argE->textlen = luaL_len (L, pos);
 #endif
