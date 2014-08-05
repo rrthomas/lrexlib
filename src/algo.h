@@ -135,11 +135,11 @@ static void check_subject (lua_State *L, int pos, TArgExec *argE)
     argE->text = lua_touserdata (L, -1);
     lua_pop (L, 1);
 #if LUA_VERSION_NUM == 501
-    if (stype == LUA_TSTRING || stype == LUA_TTABLE)
+    if (stype == LUA_TSTRING)
       argE->textlen = lua_objlen (L, pos);
     else {
       if (!luaL_getmetafield (L, pos, "__len") || lua_type (L, -1) != LUA_TFUNCTION)
-        luaL_argerror (L, pos, "the userdata has no valid __len metafield");
+        luaL_argerror (L, pos, "the subject has no valid __len metafield");
       lua_pushvalue (L, pos);
       lua_call (L, 1, 1);
       type = lua_type (L, -1);
