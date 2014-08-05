@@ -139,7 +139,7 @@ static void check_subject (lua_State *L, int pos, TArgExec *argE)
       argE->textlen = lua_objlen (L, pos);
     else {
       if (!luaL_getmetafield (L, pos, "__len") || lua_type (L, -1) != LUA_TFUNCTION)
-        luaL_argerror (L, pos, "the subject has no valid __len metafield");
+        luaL_argerror (L, pos, "the subject has no valid __len metamethod");
       lua_pushvalue (L, pos);
       lua_call (L, 1, 1);
       type = lua_type (L, -1);
