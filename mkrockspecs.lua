@@ -1,13 +1,14 @@
--- Generate the rockspecs
+-- Generate rockspecs from a prototype with variants
 
-require "std"
+local tree = require "std.tree"
 
-if select ("#", ...) < 1 then
-  io.stderr:write "Usage: mkrockspecs VERSION\n"
+if select ("#", ...) < 2 then
+  io.stderr:write "Usage: mkrockspecs PACKAGE VERSION\n"
   os.exit ()
 end
 
-version = select (1, ...)
+package_name = select (1, ...)
+version = select (2, ...)
 
 function format (x, indent)
   indent = indent or ""
@@ -21,7 +22,7 @@ function format (x, indent)
     for i, v in ipairs (x) do
       s = s..indent..format (v, indent.."  ")..",\n"
     end
-    return s..indent:sub(1, -3).."}"
+    return s..indent:sub (1, -3).."}"
   elseif type (x) == "string" then
     return string.format ("%q", x)
   else
@@ -31,12 +32,12 @@ end
 
 for f, spec in pairs (loadfile ("rockspecs.lua") ()) do
   if f ~= "default" then
-    local specfile = "lrexlib-"..f:lower ().."-"..version.."-1.rockspec"
+    local specfile = package_name.."-"..(f ~= "" and f:lower ().."-" or "")..version.."-1.rockspec"
     h = io.open (specfile, "w")
     assert (h)
     flavour = f -- a global, visible in loadfile
     local specs = loadfile ("rockspecs.lua") () -- reload to get current flavour interpolated
-    local spec = table.merge (specs.default, specs[f])
+    local spec = tree.merge (tree (specs.default), tree (specs[f]))
     local s = ""
     for i, v in pairs (spec) do
       s = s..i.." = "..format (v, "  ").."\n"

@@ -31,7 +31,7 @@ install: rockspecs
 
 rockspecs:
 	rm -f *.rockspec
-	$(LUA) mkrockspecs.lua $(VERSION)
+	$(LUA) mkrockspecs.lua $(PROJECT) $(VERSION)
 
 doc/index.txt: README.rst
 	$(CP) $< $@
