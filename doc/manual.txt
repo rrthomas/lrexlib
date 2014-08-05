@@ -38,15 +38,15 @@ Notes
    too. In this case, the cf_ and larg_ arguments are ignored (should
    be either supplied as nils or omitted).
 
-6. All functions that take a string-type subject accept a table (in Lua >= 5.2)
-   or userdata that has a ``topointer`` method and ``__len`` metamethod, and
-   take the subject to be a block of memory starting at the address returned by
+6. All functions that take a string-type subject accept a table or userdata that
+   has a ``topointer`` method and ``__len`` metamethod, and take the subject to
+   be a block of memory starting at the address returned by
    ``subject:topointer()`` and of length ``#subject``. This works with buffers
    objects from the alien library (https://github.com/mascarenhas/alien). Note
    that special attention is needed with POSIX regex libraries that do not
    support ``REG_STARTEND``, and hence need NUL-terminated subjects: the NUL is
-   not included in the string length, so alien buffers must be wrapped to
-   report a length that excludes the NUL.
+   not included in the string length, so alien buffers must be wrapped to report
+   a length that excludes the NUL.
 
 .. _cf:
 

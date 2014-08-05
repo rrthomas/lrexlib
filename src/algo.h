@@ -119,13 +119,8 @@ static void check_subject (lua_State *L, int pos, TArgExec *argE)
   int stype;
   argE->text = lua_tolstring (L, pos, &argE->textlen);
   stype = lua_type (L, pos);
-#if LUA_VERSION_NUM == 501
-  if (stype != LUA_TSTRING && stype != LUA_TUSERDATA) {
-    luaL_typerror (L, pos, "string or userdata");
-#else
   if (stype != LUA_TSTRING && stype != LUA_TTABLE && stype != LUA_TUSERDATA) {
     luaL_typerror (L, pos, "string, table or userdata");
-#endif
   } else if (argE->text == NULL) {
     int type;
     lua_getfield (L, pos, "topointer");
@@ -140,19 +135,23 @@ static void check_subject (lua_State *L, int pos, TArgExec *argE)
     argE->text = lua_touserdata (L, -1);
     lua_pop (L, 1);
 #if LUA_VERSION_NUM == 501
-    if (!luaL_getmetafield (L, pos, "__len") || lua_type (L, -1) != LUA_TFUNCTION)
-      luaL_argerror (L, pos, "the userdata has no valid __len metafield");
-    lua_pushvalue (L, pos);
-    lua_call (L, 1, 1);
+    if (stype == LUA_TSTRING || stype == LUA_TTABLE)
+      argE->textlen = lua_objlen (L, pos);
+    else {
+      if (!luaL_getmetafield (L, pos, "__len") || lua_type (L, -1) != LUA_TFUNCTION)
+        luaL_argerror (L, pos, "the userdata has no valid __len metafield");
+      lua_pushvalue (L, pos);
+      lua_call (L, 1, 1);
+      type = lua_type (L, -1);
+      if (type != LUA_TNUMBER)
+        luaL_error (L, "subject's length is %s (expected number)",
+                   lua_typename (L, type));
+      argE->textlen = lua_tointeger (L, -1);
+      lua_pop (L, 1);
+    }
 #else
-    lua_len (L, pos);
+    argE->textlen = luaL_len (L, pos);
 #endif
-    type = lua_type (L, -1);
-    if (type != LUA_TNUMBER)
-      luaL_error (L, "subject's length is %s (expected number)",
-                  lua_typename (L, type));
-    argE->textlen = lua_tointeger (L, -1);
-    lua_pop (L, 1);
   }
 }
 
