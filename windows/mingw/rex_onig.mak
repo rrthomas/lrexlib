@@ -2,7 +2,7 @@
 
 # User Settings ------------------------------------------------------------
 # path of Oniguruma include files
-REGEXINC = s:\progr\work\system\include
+REGEXINC = s:\progr\work\system\include\oniguruma
 # --------------------------------------------------------------------------
 
 PROJECT  = rex_onig

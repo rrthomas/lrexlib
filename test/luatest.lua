@@ -67,25 +67,20 @@ end
 -- returns:
 --  1) true, if success; false, if failure
 --  2) test results table or error_message
-local function test_function (test, func)
+local function test_function (test, func, newmembuffer)
   local res
   local t = packNT (pcall (func, unpackNT (test[1])))
   if t[1] then
     table.remove (t, 1)
     res = t
-    if alien then
-      local subject = test[1][1]
-      local buf = alien.buffer (#subject)
-      if #subject > 0 then
-        alien.memmove (buf:topointer (), subject, #subject)
-      end
-      test[1][1] = buf
+    if newmembuffer then
+      test[1][1] = newmembuffer (test[1][1])
       local t = packNT (pcall (func, unpackNT (test[1])))
       if t[1] then
         table.remove (t, 1)
         res = t
       else
-        print "alien test failed"
+        print "buffer subjects test failed"
         res = t[2] --> error_message
       end
     end
@@ -120,13 +115,13 @@ local function test_method (test, constructor, name)
 end
 
 -- returns: a list of failed tests
-local function test_set (set, lib)
+local function test_set (set, lib, newmembuffer)
   local list = {}
 
   if type (set.Func) == "function" then
     local func = set.Func
     for i,test in ipairs (set) do
-      local ok, res = test_function (test, func)
+      local ok, res = test_function (test, func, newmembuffer)
       if not ok then
         table.insert (list, {i=i, res})
       end

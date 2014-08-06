@@ -264,3 +264,32 @@ int luaL_typerror (lua_State *L, int narg, const char *tname) {
   return luaL_argerror(L, narg, msg);
 }
 #endif
+
+#ifndef REX_NOEMBEDDEDTEST
+static int ud_topointer (lua_State *L) {
+  lua_pushlightuserdata (L, lua_touserdata (L, 1));
+  return 1;
+}
+
+static int ud_len (lua_State *L) {
+  lua_pushinteger (L, lua_objlen (L, 1));
+  return 1;
+}
+
+/* for testing purposes only */
+int newmembuffer (lua_State *L) {
+  size_t len;
+  const char* s = luaL_checklstring (L, 1, &len);
+  void *ud = lua_newuserdata (L, len);
+  memcpy (ud, s, len);
+  lua_newtable (L); /* metatable */
+  lua_pushvalue (L, -1);
+  lua_setfield (L, -2, "__index"); /* metatable.__index = metatable */
+  lua_pushcfunction (L, ud_topointer);
+  lua_setfield (L, -2, "topointer");
+  lua_pushcfunction (L, ud_len);
+  lua_setfield (L, -2, "__len");
+  lua_setmetatable (L, -2);
+  return 1;
+}
+#endif /* #ifndef REX_NOEMBEDDEDTEST */

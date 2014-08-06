@@ -1,5 +1,7 @@
 # Use with GNU Make.
 
+VERSION = 2.7.2
+
 # User Settings ------------------------------------------------------------
 
 # Target Lua version (51 for Lua 5.1; 52 for Lua 5.2).
@@ -9,18 +11,21 @@ LUAVERSION = 51
 # LUADLL      : Name of Lua DLL to link to (.dll should be omitted).
 # LUAEXE      : Name of Lua interpreter.
 # LUAINC      : Path of Lua include files.
+# LIBPATH     : Path of lua5.1.dll, lua52.dll, pcre.dll, etc.
+
+LIBPATH = c:\exe32
 
 ifeq ($(LUAVERSION),51)
-  INSTALLPATH = s:\exe\lib32\lua51
+  INSTALLPATH = s:\exe\lib32\lua\5.1
   LUADLL = lua5.1
   LUAEXE = lua.exe
-  LUAINC = s:\progr\work\system\include\lua51
+  LUAINC = s:\progr\work\system\include\lua\5.1
   MYCFLAGS += -DREX_CREATEGLOBALVAR
 else
-  INSTALLPATH = s:\exe\lib32\lua52
+  INSTALLPATH = s:\exe\lib32\lua\5.2
   LUADLL = lua52
   LUAEXE = lua52.exe
-  LUAINC = s:\progr\work\system\include\lua52
+  LUAINC = s:\progr\work\system\include\lua\5.2
 # MYCFLAGS += -DREX_CREATEGLOBALVAR
 endif
 
@@ -28,9 +33,9 @@ endif
 
 BIN        = $(PROJECT).dll
 BININSTALL = $(INSTALLPATH)\$(BIN)
-CC         = gcc
+CC         = mingw32-gcc
 CFLAGS     = -W -Wall -O2 $(INCS) -DREX_OPENLIB=luaopen_$(PROJECT) \
-             -DREX_LIBNAME=\"$(PROJECT)\" $(MYCFLAGS)
+             -DREX_LIBNAME=\"$(PROJECT)\" -DVERSION=\"$(VERSION)\" $(MYCFLAGS)
 DEFFILE    = $(PROJECT).def
 EXPORTED   = luaopen_$(PROJECT)
 INCS       = -I$(LUAINC) $(MYINCS)
@@ -54,7 +59,7 @@ test:
 	cd $(TESTPATH) && $(LUAEXE) runtest.lua $(TESTNAME) -d$(CURDIR)
 
 $(BIN): $(OBJ) $(DEFFILE)
-	$(CC) $(DEFFILE) $(OBJ) $(LIBS) -o $@ -shared
+	$(CC) $(DEFFILE) $(OBJ) -L$(LIBPATH) $(LIBS) -o $@ -shared
 
 $(DEFFILE):
 	echo EXPORTS > $@

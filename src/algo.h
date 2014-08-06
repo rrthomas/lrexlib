@@ -736,4 +736,8 @@ static void alg_register (lua_State *L, const luaL_Reg *r_methods,
 #endif
   lua_pushfstring (L, REX_VERSION" (for %s)", name);
   lua_setfield (L, -2, "_VERSION");
+#ifndef REX_NOEMBEDDEDTEST
+  lua_pushcfunction (L, newmembuffer);
+  lua_setfield (L, -2, "_newmembuffer");
+#endif
 }

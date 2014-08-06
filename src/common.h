@@ -7,6 +7,7 @@
 #include "lua.h"
 
 #if LUA_VERSION_NUM > 501
+# define lua_objlen lua_rawlen
   int luaL_typerror (lua_State *L, int narg, const char *tname);
 #endif
 
@@ -94,5 +95,9 @@ const char *get_flag_key (const flag_pair *fp, int val);
 void *Lmalloc (lua_State *L, size_t size);
 void *Lrealloc (lua_State *L, void *p, size_t osize, size_t nsize);
 void Lfree (lua_State *L, void *p, size_t size);
+
+#ifndef REX_NOEMBEDDEDTEST
+int newmembuffer (lua_State *L);
+#endif
 
 #endif

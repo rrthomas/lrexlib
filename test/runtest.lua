@@ -1,13 +1,5 @@
 -- See Copyright Notice in the file LICENSE
 
--- See if we have alien, so we can do tests with buffer subjects
-local ok
-ok, alien = pcall (require, "alien")
-if not ok then
-  io.stderr:write ("Warning: alien not found, so cannot run tests with buffer subjects\n")
-  alien = nil
-end
-
 do
   local path = "./?.lua;"
   if package.path:sub(1, #path) ~= path then
@@ -16,8 +8,17 @@ do
 end
 local luatest = require "luatest"
 
+local function newalienbuffer (str)
+  local alien = require "alien"
+  local buf = alien.buffer (#str)
+  if #str > 0 then
+    alien.memmove (buf:topointer (), str, #str)
+  end
+  return buf
+end
+
 -- returns: number of failures
-local function test_library (libname, setfile, verbose)
+local function test_library (libname, setfile, verbose, use_alien)
   if verbose then
     print (("[lib: %s; file: %s]"):format (libname, setfile))
   end
@@ -25,10 +26,14 @@ local function test_library (libname, setfile, verbose)
   local f = require (setfile)
   local sets = f (libname)
 
-  local realalien = alien
-  if libname == "rex_posix" and not lib.flags ().STARTEND and alien then
-    alien = nil
-    io.stderr:write ("Cannot run posix tests with alien without REG_STARTEND\n")
+  local newmembuffer = use_alien and newalienbuffer or lib._newmembuffer
+  if newmembuffer then
+    if libname == "rex_posix" and not lib.flags ().STARTEND then
+      newmembuffer = nil
+      io.stderr:write ("Cannot run posix tests with buffer subjects without REG_STARTEND\n")
+    end
+  else
+    io.stderr:write ("Warning: cannot run tests with buffer subjects\n")
   end
 
   local n = 0 -- number of failures
@@ -36,7 +41,7 @@ local function test_library (libname, setfile, verbose)
     if verbose then
       print (set.Name or "Unnamed set")
     end
-    local err = luatest.test_set (set, lib)
+    local err = luatest.test_set (set, lib, newmembuffer)
     if verbose then
       for _,v in ipairs (err) do
         print ("  Test " .. v.i)
@@ -48,7 +53,6 @@ local function test_library (libname, setfile, verbose)
   if verbose then
     print ""
   end
-  alien = realalien
   return n
 end
 
@@ -64,14 +68,19 @@ local avail_tests = {
 do
   local verbose, tests, nerr = false, {}, 0
   local dir
+  local use_alien
   -- check arguments
   for i = 1, select ("#", ...) do
     local arg = select (i, ...)
     if arg:sub(1,1) == "-" then
       if arg == "-v" then
         verbose = true
+      elseif arg == "-a" then
+        use_alien = true
       elseif arg:sub(1,2) == "-d" then
         dir = arg:sub(3)
+      else
+        error ("invalid argument: [" .. arg .. "]")
       end
     else
       if avail_tests[arg] then
@@ -99,7 +108,7 @@ do
   for _, test in ipairs (tests) do
     package.loaded[test.lib] = nil -- to force-reload the tested library
     for _, setfile in ipairs (test) do
-      nerr = nerr + test_library (test.lib, setfile, verbose)
+      nerr = nerr + test_library (test.lib, setfile, verbose, use_alien)
     end
   end
   print ("Total number of failures: " .. nerr)

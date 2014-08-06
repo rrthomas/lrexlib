@@ -1,5 +1,7 @@
 To test Lrexlib, execute the following command line:
 
-  lua ./runtest.lua [-v] LIBRARY...
+  lua ./runtest.lua [-a] [-v] LIBRARY...
 
+-a use the external "Alien" library for "buffer subject" tests,
+   rather than the internal function
 -v gives verbose output
