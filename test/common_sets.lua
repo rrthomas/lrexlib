@@ -37,6 +37,18 @@ local function set_f_gmatch (lib, flg)
   }
 end
 
+local function set_f_count (lib, flg)
+  return {
+    Name = "Function count",
+    Func = lib.count,
+  --{  subj             patt         results }
+    { {"ab",            lib.new"."}, { 2 } },
+    { {("abcd"):rep(3), "(.)b.(d)"}, { 3 } },
+    { {"abcd",          ".*" },      { 2 } },
+    { {"abc",           "^." },      { 1 } },
+  }
+end
+
 local function set_f_split (lib, flg)
   -- split (s, p, [cf], [ef])
   local function test_split (subj, patt)
@@ -308,6 +320,7 @@ return function (libname)
     set_m_tfind     (lib),
     set_m_find      (lib),
     set_m_match     (lib),
+    set_f_count     (lib),
     set_f_gsub1     (lib),
     set_f_gsub2     (lib),
     set_f_gsub3     (lib),

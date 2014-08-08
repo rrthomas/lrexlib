@@ -173,10 +173,8 @@ static void checkarg_gsub (lua_State *L, TArgComp *argC, TArgExec *argE) {
   lua_tostring (L, 3);    /* converts number (if any) to string */
   argE->reptype = lua_type (L, 3);
   if (argE->reptype != LUA_TSTRING && argE->reptype != LUA_TTABLE &&
-      argE->reptype != LUA_TFUNCTION && argE->reptype != LUA_TNIL &&
-      (argE->reptype != LUA_TBOOLEAN ||
-       (argE->reptype == LUA_TBOOLEAN && lua_toboolean (L, 3)))) {
-    luaL_typerror (L, 3, "string, table, function, false or nil");
+      argE->reptype != LUA_TFUNCTION) {
+    luaL_typerror (L, 3, "string, table or function");
   }
   argE->funcpos = 3;
   argE->funcpos2 = 4;
@@ -184,6 +182,16 @@ static void checkarg_gsub (lua_State *L, TArgComp *argC, TArgExec *argE) {
   argC->cflags = ALG_GETCFLAGS (L, 5);
   argE->eflags = luaL_optint (L, 6, ALG_EFLAGS_DFLT);
   ALG_GETCARGS (L, 7, argC);
+}
+
+
+/* function count (s, patt, [cf], [ef], [larg...]) */
+static void checkarg_count (lua_State *L, TArgComp *argC, TArgExec *argE) {
+  check_subject (L, 1, argE);
+  check_pattern (L, 2, argC);
+  argC->cflags = ALG_GETCFLAGS (L, 3);
+  argE->eflags = luaL_optint (L, 4, ALG_EFLAGS_DFLT);
+  ALG_GETCARGS (L, 5, argC);
 }
 
 
@@ -337,10 +345,6 @@ static int algf_gsub (lua_State *L) {
       }
     }
     /*----------------------------------------------------------------*/
-    else if (argE.reptype == LUA_TNIL || argE.reptype == LUA_TBOOLEAN) {
-      buffer_addlstring (pBuf, argE.text + from, to - from);
-    }
-    /*----------------------------------------------------------------*/
     if (argE.reptype == LUA_TTABLE || argE.reptype == LUA_TFUNCTION) {
       if (lua_tostring (L, -1)) {
         buffer_addvalue (pBuf, -1);
@@ -422,6 +426,68 @@ static int algf_gsub (lua_State *L) {
   lua_pushinteger (L, n_subst);
   freelist_free (&freelist);
   return 3;
+}
+
+
+static int algf_count (lua_State *L) {
+  TUserdata *ud;
+  TArgComp argC;
+  TArgExec argE;
+  int n_match = 0, st = 0, retry;
+  /*------------------------------------------------------------------*/
+  checkarg_count (L, &argC, &argE);
+  if (argC.ud) {
+    ud = (TUserdata*) argC.ud;
+    lua_pushvalue (L, 2);
+  }
+  else compile_regex (L, &argC, &ud);
+  /*------------------------------------------------------------------*/
+  SET_RETRY (retry, 0);
+  while (st <= (int)argE.textlen) {
+    int to, res;
+    res = GSUB_EXEC (ud, &argE, st, retry);
+    if (ALG_NOMATCH (res)) {
+#ifdef ALG_USERETRY
+      if (retry) {
+        if (st < (int)argE.textlen) {  /* advance by 1 char (not replaced) */
+          st += ALG_CHARSIZE;
+          retry = 0;
+          continue;
+        }
+      }
+#endif
+      break;
+    }
+    else if (!ALG_ISMATCH (res)) {
+      return generate_error (L, ud, res);
+    }
+    ++n_match;
+    to = ALG_BASE(st) + ALG_SUBEND(ud,0);
+#ifdef ALG_PULL
+    {
+      int from = ALG_BASE(st) + ALG_SUBBEG(ud,0);
+      if (st < from)
+        st = from;
+    }
+#endif
+    /*----------------------------------------------------------------*/
+    if (st < to) {
+      st = to;
+      SET_RETRY (retry, 0);
+    }
+    else if (st < (int)argE.textlen) {
+#ifdef ALG_USERETRY
+      retry = 1;
+#else
+      /* advance by 1 char (not replaced) */
+      st += ALG_CHARSIZE;
+#endif
+    }
+    else break;
+  }
+  /*------------------------------------------------------------------*/
+  lua_pushinteger (L, n_match);
+  return 1;
 }
 
 

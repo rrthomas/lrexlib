@@ -10,7 +10,7 @@ MYINCS   = -I$(REGEXINC)
 MYLIBS   = -lonig -Wl,--enable-auto-import
 OBJ      = lonig.o lonig_f.o common.o
 PROJDIR  = oniguruma
-TESTNAME = onig
+TESTNAME = oniguruma
 
 include _mingw.mak
 

@@ -223,25 +223,24 @@ This function searches for all matches of the pattern *patt* in the string
 *subj* and replaces them according to the parameters *repl* and *n* (see details
 below).
 
-  +---------+-----------------------------------+-------------------------+-------------+
-  |Parameter|       Description                 |          Type           |Default Value|
-  +=========+===================================+=========================+=============+
-  |  subj   |subject                            |         string          |     n/a     |
-  +---------+-----------------------------------+-------------------------+-------------+
-  |  patt   |regular expression pattern         |string or userdata       |     n/a     |
-  +---------+-----------------------------------+-------------------------+-------------+
-  |  repl   |substitution source                |string, function, table, |     n/a     |
-  |         |                                   |``false`` or ``nil``     |             |
-  +---------+-----------------------------------+-------------------------+-------------+
-  |   [n]   |maximum number of matches to search| number or function      |   ``nil``   |
-  |         |for, or control function, or nil   |                         |             |
-  +---------+-----------------------------------+-------------------------+-------------+
-  |  [cf]   |compilation flags (bitwise OR)     |         number          |     cf_     |
-  +---------+-----------------------------------+-------------------------+-------------+
-  |  [ef]   |execution flags (bitwise OR)       |         number          |     ef_     |
-  +---------+-----------------------------------+-------------------------+-------------+
-  |[larg...]|library-specific arguments         |                         |             |
-  +---------+-----------------------------------+-------------------------+-------------+
+  +---------+-----------------------------------+--------------------------+-------------+
+  |Parameter|       Description                 |          Type            |Default Value|
+  +=========+===================================+==========================+=============+
+  |  subj   |subject                            |         string           |     n/a     |
+  +---------+-----------------------------------+--------------------------+-------------+
+  |  patt   |regular expression pattern         |string or userdata        |     n/a     |
+  +---------+-----------------------------------+--------------------------+-------------+
+  |  repl   |substitution source                |string, function or table |     n/a     |
+  +---------+-----------------------------------+--------------------------+-------------+
+  |   [n]   |maximum number of matches to search| number or function       |   ``nil``   |
+  |         |for, or control function, or nil   |                          |             |
+  +---------+-----------------------------------+--------------------------+-------------+
+  |  [cf]   |compilation flags (bitwise OR)     |         number           |     cf_     |
+  +---------+-----------------------------------+--------------------------+-------------+
+  |  [ef]   |execution flags (bitwise OR)       |         number           |     ef_     |
+  +---------+-----------------------------------+--------------------------+-------------+
+  |[larg...]|library-specific arguments         |                          |             |
+  +---------+-----------------------------------+--------------------------+-------------+
 
 **Returns:**
   1. The subject string with the substitutions made.
@@ -249,9 +248,9 @@ below).
   3. Number of substitutions made.
 
 **Details:**
-  The parameter *repl* can be either a string, a function, a table,
-  ``false`` or ``nil``. On each match made, it is converted into a
-  value *repl_out* that may be used for the replacement.
+  The parameter *repl* can be either a string, a function or a table.
+  On each match made, it is converted into a value *repl_out* that may be used
+  for the replacement.
 
   *repl_out* is generated differently depending on the type of *repl*:
 
@@ -289,11 +288,6 @@ below).
      submatch (or the entire match if there are no submatches), following the
      same rules as for the return value of *repl* call, described in the above
      paragraph.
-
-  4. If *repl* is ``false`` or ``nil``, no replacement is done. Note
-     that, unusually for Lua, if ``repl`` is absent, it is not taken
-     to be ``nil``. This is to prevent programming errors caused by
-     inadvertently missing out *repl*.
 
   Note: Under some circumstances, the value of *repl_out* may be ignored; see
   below_.
@@ -375,6 +369,32 @@ the string *subj*, subject to flags *cf* and *ef*.
 The iteration will continue till the end of the subject. Unlike gmatch_, there
 will always be at least one iteration pass, even if there are no matches in the
 subject.
+
+------------------------------------------------------------
+
+count
+-----
+
+:funcdef:`rex.count (subj, patt, [cf], [ef], [larg...])`
+
+This function counts matches of the pattern *patt* in the string *subj*.
+
+  +---------+-----------------------------------+--------------------------+-------------+
+  |Parameter|       Description                 |          Type            |Default Value|
+  +=========+===================================+==========================+=============+
+  |  subj   |subject                            |         string           |     n/a     |
+  +---------+-----------------------------------+--------------------------+-------------+
+  |  patt   |regular expression pattern         |string or userdata        |     n/a     |
+  +---------+-----------------------------------+--------------------------+-------------+
+  |  [cf]   |compilation flags (bitwise OR)     |         number           |     cf_     |
+  +---------+-----------------------------------+--------------------------+-------------+
+  |  [ef]   |execution flags (bitwise OR)       |         number           |     ef_     |
+  +---------+-----------------------------------+--------------------------+-------------+
+  |[larg...]|library-specific arguments         |                          |             |
+  +---------+-----------------------------------+--------------------------+-------------+
+
+**Returns:**
+  1. Number of matches found.
 
 ------------------------------------------------------------
 

@@ -392,6 +392,7 @@ static const luaL_Reg r_functions[] = {
   { "find",        algf_find },
   { "gmatch",      algf_gmatch },
   { "gsub",        algf_gsub },
+  { "count",       algf_count },
   { "split",       algf_split },
   { "new",         algf_new },
   { "flags",       Lpcre_get_flags },
