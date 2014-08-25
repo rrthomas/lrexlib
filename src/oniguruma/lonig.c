@@ -55,7 +55,6 @@ static void checkarg_compile (lua_State *L, int pos, TArgComp *argC);
 
 #define ALG_BASE(st)  0
 #define ALG_PULL
-/* #define ALG_USERETRY */
 
 typedef struct {
   regex_t *reg;

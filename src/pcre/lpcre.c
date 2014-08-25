@@ -57,7 +57,6 @@ static void checkarg_compile (lua_State *L, int pos, TArgComp *argC);
 
 #define ALG_BASE(st)  0
 #define ALG_PULL
-#define ALG_USERETRY
 
 typedef struct {
   pcre       * pr;
@@ -296,18 +295,10 @@ static int Lpcre_dfa_exec (lua_State *L)
 }
 #endif /* #if PCRE_MAJOR >= 6 */
 
-#ifdef ALG_USERETRY
-  static int gmatch_exec (TUserdata *ud, TArgExec *argE, int retry) {
-    int eflags = retry ? (argE->eflags|PCRE_NOTEMPTY|PCRE_ANCHORED) : argE->eflags;
-    return pcre_exec (ud->pr, ud->extra, argE->text, argE->textlen,
-      argE->startoffset, eflags, ud->match, (ALG_NSUB(ud) + 1) * 3);
-  }
-#else
-  static int gmatch_exec (TUserdata *ud, TArgExec *argE) {
-    return pcre_exec (ud->pr, ud->extra, argE->text, argE->textlen,
-      argE->startoffset, argE->eflags, ud->match, (ALG_NSUB(ud) + 1) * 3);
-  }
-#endif
+static int gmatch_exec (TUserdata *ud, TArgExec *argE) {
+  return pcre_exec (ud->pr, ud->extra, argE->text, argE->textlen,
+    argE->startoffset, argE->eflags, ud->match, (ALG_NSUB(ud) + 1) * 3);
+}
 
 static void gmatch_pushsubject (lua_State *L, TArgExec *argE) {
   lua_pushlstring (L, argE->text, argE->textlen);
@@ -318,18 +309,10 @@ static int findmatch_exec (TPcre *ud, TArgExec *argE) {
     argE->startoffset, argE->eflags, ud->match, (ALG_NSUB(ud) + 1) * 3);
 }
 
-#ifdef ALG_USERETRY
-  static int gsub_exec (TPcre *ud, TArgExec *argE, int st, int retry) {
-    int eflags = retry ? (argE->eflags|PCRE_NOTEMPTY|PCRE_ANCHORED) : argE->eflags;
-    return pcre_exec (ud->pr, ud->extra, argE->text, argE->textlen,
-      st, eflags, ud->match, (ALG_NSUB(ud) + 1) * 3);
-  }
-#else
-  static int gsub_exec (TPcre *ud, TArgExec *argE, int st) {
-    return pcre_exec (ud->pr, ud->extra, argE->text, argE->textlen,
-      st, argE->eflags, ud->match, (ALG_NSUB(ud) + 1) * 3);
-  }
-#endif
+static int gsub_exec (TPcre *ud, TArgExec *argE, int st) {
+  return pcre_exec (ud->pr, ud->extra, argE->text, argE->textlen,
+    st, argE->eflags, ud->match, (ALG_NSUB(ud) + 1) * 3);
+}
 
 static int split_exec (TPcre *ud, TArgExec *argE, int offset) {
   return pcre_exec (ud->pr, ud->extra, argE->text, argE->textlen, offset,
