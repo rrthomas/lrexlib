@@ -160,6 +160,12 @@ local function set_m_dfa_exec (lib, flg)
 }
 end
 
+local function set_m_fullinfo (lib, flg)
+  local r = lib.new("(foo)(bar)")
+  local info = r:fullinfo()
+  assert(info.CAPTURECOUNT == 2)
+end
+
 return function (libname)
   local lib = require (libname)
   local flags = lib.flags ()
@@ -170,6 +176,7 @@ return function (libname)
     set_f_split  (lib, flags),
     set_m_exec   (lib, flags),
     set_m_tfind  (lib, flags),
+    set_m_fullinfo (lib, flags),
   }
   if flags.MAJOR >= 4 then
     table.insert (sets, set_named_subpatterns (lib, flags))

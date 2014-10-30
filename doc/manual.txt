@@ -565,6 +565,21 @@ userdata obtained from a call to maketables_. The default value, used when the
 parameter is not supplied or ``nil``, is the built-in PCRE set of character
 tables.
 
+------------------------------------------------------------
+
+fullinfo
+--------
+
+[See *pcre_fullinfo* in the PCRE docs.]
+
+:funcdef:`r:fullinfo ()`
+
+This function returns a table containing information about the compiled pattern.
+The keys are strings formed in the following way:
+``PCRE_INFO_CAPTURECOUNT`` -> ``"CAPTURECOUNT"``. The values are numbers.
+
+------------------------------------------------------------
+
 dfa_exec
 --------
 

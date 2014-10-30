@@ -5,6 +5,7 @@
 #include <string.h>
 #include <locale.h>
 #include <ctype.h>
+#include <stdint.h>
 #include <pcre.h>
 
 #include "lua.h"
@@ -351,6 +352,42 @@ static int Lpcre_version (lua_State *L) {
   return 1;
 }
 
+#define SET_INFO_FIELD(L,ud,what,name,valtype) { \
+  valtype val; \
+  if (0 == pcre_fullinfo (ud->pr, ud->extra, what, &val)) { \
+    lua_pushnumber (L, val); \
+    lua_setfield (L, -2, name); \
+  } \
+}
+
+static int Lpcre_fullinfo (lua_State *L) {
+  TPcre *ud = check_ud (L);
+  lua_newtable(L);
+
+  SET_INFO_FIELD (L, ud, PCRE_INFO_BACKREFMAX,          "BACKREFMAX",          int)
+  SET_INFO_FIELD (L, ud, PCRE_INFO_CAPTURECOUNT,        "CAPTURECOUNT",        int)
+  SET_INFO_FIELD (L, ud, PCRE_INFO_FIRSTBYTE,           "FIRSTBYTE",           int)
+  SET_INFO_FIELD (L, ud, PCRE_INFO_HASCRORLF,           "HASCRORLF",           int)
+  SET_INFO_FIELD (L, ud, PCRE_INFO_JCHANGED,            "JCHANGED",            int)
+  SET_INFO_FIELD (L, ud, PCRE_INFO_JIT,                 "JIT",                 int)
+  SET_INFO_FIELD (L, ud, PCRE_INFO_JITSIZE,             "JITSIZE",             size_t);
+  SET_INFO_FIELD (L, ud, PCRE_INFO_MATCH_EMPTY,         "MATCH_EMPTY",         int)
+  SET_INFO_FIELD (L, ud, PCRE_INFO_MATCHLIMIT,          "MATCHLIMIT",          uint32_t)
+  SET_INFO_FIELD (L, ud, PCRE_INFO_MAXLOOKBEHIND,       "MAXLOOKBEHIND",       int) /* int ? */
+  SET_INFO_FIELD (L, ud, PCRE_INFO_MINLENGTH,           "MINLENGTH",           int)
+  SET_INFO_FIELD (L, ud, PCRE_INFO_OKPARTIAL,           "OKPARTIAL",           int)
+  SET_INFO_FIELD (L, ud, PCRE_INFO_OPTIONS,             "OPTIONS",             unsigned long)
+  SET_INFO_FIELD (L, ud, PCRE_INFO_RECURSIONLIMIT,      "RECURSIONLIMIT",      uint32_t)
+  SET_INFO_FIELD (L, ud, PCRE_INFO_SIZE,                "SIZE",                size_t)
+  SET_INFO_FIELD (L, ud, PCRE_INFO_STUDYSIZE,           "STUDYSIZE",           size_t)
+  SET_INFO_FIELD (L, ud, PCRE_INFO_FIRSTCHARACTERFLAGS, "FIRSTCHARACTERFLAGS", int)
+  SET_INFO_FIELD (L, ud, PCRE_INFO_FIRSTCHARACTER,      "FIRSTCHARACTER",      uint32_t)
+  SET_INFO_FIELD (L, ud, PCRE_INFO_REQUIREDCHARFLAGS,   "REQUIREDCHARFLAGS",   int)
+  SET_INFO_FIELD (L, ud, PCRE_INFO_REQUIREDCHAR,        "REQUIREDCHAR",        uint32_t)
+
+  return 1;
+}
+
 static const luaL_Reg chartables_meta[] = {
   { "__gc",        chartables_gc },
   { "__tostring",  chartables_tostring },
@@ -365,6 +402,7 @@ static const luaL_Reg r_methods[] = {
 #if PCRE_MAJOR >= 6
   { "dfa_exec",    Lpcre_dfa_exec },
 #endif
+  { "fullinfo",    Lpcre_fullinfo },
   { "__gc",        Lpcre_gc },
   { "__tostring",  Lpcre_tostring },
   { NULL, NULL }
