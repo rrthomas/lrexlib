@@ -1,6 +1,7 @@
 -- See Copyright Notice in the file LICENSE
 
 local pat2pcre = require "pat2pcre"
+local unpack = unpack or table.unpack
 
 local function get_gsub (lib)
   return lib.gsub or

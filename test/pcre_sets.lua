@@ -2,6 +2,7 @@
 
 local luatest = require "luatest"
 local N = luatest.NT
+local unpack = unpack or table.unpack
 
 local function norm(a) return a==nil and N or a end
 

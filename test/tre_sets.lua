@@ -5,6 +5,7 @@
 
 local luatest = require "luatest"
 local N = luatest.NT
+local unpack = unpack or table.unpack
 
 local L = function(s) return (string.gsub(s, ".", "%0\0")) end
 
