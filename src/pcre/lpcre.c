@@ -371,19 +371,33 @@ static int Lpcre_fullinfo (lua_State *L) {
   SET_INFO_FIELD (L, ud, PCRE_INFO_JCHANGED,            "JCHANGED",            int)
   SET_INFO_FIELD (L, ud, PCRE_INFO_JIT,                 "JIT",                 int)
   SET_INFO_FIELD (L, ud, PCRE_INFO_JITSIZE,             "JITSIZE",             size_t);
+#ifdef PCRE_INFO_MATCH_EMPTY
   SET_INFO_FIELD (L, ud, PCRE_INFO_MATCH_EMPTY,         "MATCH_EMPTY",         int)
+#endif
+#ifdef PCRE_INFO_MATCHLIMIT
   SET_INFO_FIELD (L, ud, PCRE_INFO_MATCHLIMIT,          "MATCHLIMIT",          uint32_t)
+#endif
   SET_INFO_FIELD (L, ud, PCRE_INFO_MAXLOOKBEHIND,       "MAXLOOKBEHIND",       int) /* int ? */
   SET_INFO_FIELD (L, ud, PCRE_INFO_MINLENGTH,           "MINLENGTH",           int)
   SET_INFO_FIELD (L, ud, PCRE_INFO_OKPARTIAL,           "OKPARTIAL",           int)
   SET_INFO_FIELD (L, ud, PCRE_INFO_OPTIONS,             "OPTIONS",             unsigned long)
+#ifdef PCRE_INFO_RECURSIONLIMIT
   SET_INFO_FIELD (L, ud, PCRE_INFO_RECURSIONLIMIT,      "RECURSIONLIMIT",      uint32_t)
+#endif
   SET_INFO_FIELD (L, ud, PCRE_INFO_SIZE,                "SIZE",                size_t)
   SET_INFO_FIELD (L, ud, PCRE_INFO_STUDYSIZE,           "STUDYSIZE",           size_t)
+#ifdef PCRE_INFO_FIRSTCHARACTERFLAGS
   SET_INFO_FIELD (L, ud, PCRE_INFO_FIRSTCHARACTERFLAGS, "FIRSTCHARACTERFLAGS", int)
+#endif
+#ifdef PCRE_INFO_FIRSTCHARACTER
   SET_INFO_FIELD (L, ud, PCRE_INFO_FIRSTCHARACTER,      "FIRSTCHARACTER",      uint32_t)
+#endif
+#ifdef PCRE_INFO_REQUIREDCHARFLAGS
   SET_INFO_FIELD (L, ud, PCRE_INFO_REQUIREDCHARFLAGS,   "REQUIREDCHARFLAGS",   int)
+#endif
+#ifdef PCRE_INFO_REQUIREDCHAR
   SET_INFO_FIELD (L, ud, PCRE_INFO_REQUIREDCHAR,        "REQUIREDCHAR",        uint32_t)
+#endif
 
   return 1;
 }
