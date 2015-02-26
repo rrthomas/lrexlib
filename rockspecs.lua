@@ -7,6 +7,7 @@
 
 local flavours = {"PCRE", "POSIX", "oniguruma", "TRE", "GNU"}
 local version_dashed = version:gsub ("%.", "-")
+local defines = {"VERSION=\""..version.."\"", "LUA_COMPAT_5_2"}
 
 -- FIXME: When Lua 5.1 support is dropped, use an env argument with
 -- loadfile instead of wrapping in a table
@@ -44,7 +45,7 @@ PCRE = {
     type = "builtin",
     modules = {
       rex_pcre = {
-        defines = {"VERSION=\""..version.."\""},
+        defines = defines,
         sources = {"src/common.c", "src/pcre/lpcre.c", "src/pcre/lpcre_f.c"},
         libraries = {"pcre"},
         incdirs = {"$(PCRE_INCDIR)"},
@@ -64,7 +65,7 @@ POSIX = {
     type = "builtin",
     modules = {
       rex_posix = {
-        defines = {"VERSION=\""..version.."\""},
+        defines = defines,
         sources = {"src/common.c", "src/posix/lposix.c"}
       }
     }
@@ -82,7 +83,7 @@ oniguruma = {
     type = "builtin",
     modules = {
       rex_onig = {
-        defines = {"VERSION=\""..version.."\""},
+        defines = defines,
         sources = {"src/common.c", "src/oniguruma/lonig.c", "src/oniguruma/lonig_f.c"},
         libraries = {"onig"},
         incdirs = {"$(ONIG_INCDIR)"},
@@ -103,7 +104,7 @@ TRE = {
     type = "builtin",
     modules = {
       rex_tre = {
-        defines = {"VERSION=\""..version.."\""},
+        defines = defines,
         sources = {"src/common.c", "src/tre/ltre.c" --[[, "src/tre/tre_w.c"]]},
         libraries = {"tre"},
         incdirs = {"$(TRE_INCDIR)"},
@@ -123,7 +124,7 @@ GNU = {
     type = "builtin",
     modules = {
       rex_gnu = {
-        defines = {"VERSION=\""..version.."\""},
+        defines = defines,
         sources = {"src/common.c", "src/gnu/lgnu.c"}
       }
     }
