@@ -58,7 +58,7 @@ end
 
 local function set_f_gmatch (lib, flg)
   -- gmatch (s, p, [cf], [ef])
-  local pCSV = "(^[^,]*)|,([^,]*)"
+  local pCSV = "[^,]*"
   local F = false
   local function test_gmatch (subj, patt)
     local out, guard = {}, 10
@@ -72,13 +72,15 @@ local function set_f_gmatch (lib, flg)
   return {
     Name = "Function gmatch",
     Func = test_gmatch,
-  --{  subj             patt   results }
-    { {"a\0c",          "." }, {{"a",N},{"\0",N},{"c",N}} },--nuls in subj
-    { {"",              pCSV}, {{"",F}} },
-    { {"12",            pCSV}, {{"12",F}} },
-    ----{ {",",             pCSV}, {{"", F},{F,""}} },
-    { {"12,,45",        pCSV}, {{"12",F},{F,""},{F,"45"}} },
-    ----{ {",,12,45,,ab,",  pCSV}, {{"",F},{F,""},{F,"12"},{F,"45"},{F,""},{F,"ab"},{F,""}} },
+  --{  subj             patt    results }
+    { {"a\0c",          "." },  {{"a",N},{"\0",N},{"c",N}} },--nuls in subj
+    { {"",              pCSV},  {{"",N}} },
+    { {"12",            pCSV},  {{"12",N}} },
+    { {",",             pCSV},  {{"", N},{"", N}} },
+    { {"12,,45",        pCSV},  {{"12",N},{"",N},{"45",N}} },
+    { {",,12,45,,ab,",  pCSV},  {{"",N},{"",N},{"12",N},{"45",N},{"",N},{"ab",N},{"",N}} },
+    { {"12345",     "(.)(.)"},  {{"1","2"},{"3","4"}} },
+    { {"12345",     "(.)(.?)"}, {{"1","2"},{"3","4"},{"5",""}} },
   }
 end
 
@@ -98,10 +100,13 @@ local function set_f_split (lib, flg)
     Func = test_split,
   --{  subj             patt      results }
     { {"a,\0,c",       ","},     {{"a",",",N},{"\0",",",N},{"c",N,N},   } },--nuls in subj
-    { {"ab",           "$"},     {{"ab","",N}, {"",N,N},               } },
-    { {"ab",         "^|$"},     {{"", "", N}, {"ab","",N},  {"",N,N}, } },
-    { {"ab45ab","(?<=ab).*?"},   {{"ab","",N}, {"45ab","",N},{"",N,N}, } },
-    { {"ab",         "\\b"},     {{"", "", N}, {"ab","",N},  {"",N,N}, } },
+    { {"ab",           "$"},     {{"ab","",N}, {"",N,N}                } },
+    { {"ab",         "^|$"},     {{"", "", N}, {"ab","",N}, {"",N,N}   } },
+    { {"ab45ab","(?<=ab).*?"},   {{"ab","",N}, {"45ab","",N}, {"",N,N} } },
+    { {"ab",         "\\b"},     {{"", "", N}, {"ab","",N}, {"",N,N}   } },
+    { {"ab",         ".*" },     {{"","ab",N}, {"",N,N}                } },
+    { {"ab",         ".*?" },    {{"","",N}, {"a","",N}, {"b","",N}, {"",N,N} } },
+    { {"ab;de",      ";*" },     {{"","",N},{"a","",N},{"b",";",N},{"d","",N},{"e","",N},{"",N,N} }},
   }
 end
 

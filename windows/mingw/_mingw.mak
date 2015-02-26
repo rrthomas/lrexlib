@@ -6,27 +6,24 @@ VERSION = 2.7.2
 
 # Target Lua version (51 for Lua 5.1; 52 for Lua 5.2).
 LUAVERSION = 51
+LUADOTVERSION = $(subst 5,5.,$(LUAVERSION))
 
 # INSTALLPATH : Path to install the built DLL.
 # LUADLL      : Name of Lua DLL to link to (.dll should be omitted).
 # LUAEXE      : Name of Lua interpreter.
 # LUAINC      : Path of Lua include files.
-# LIBPATH     : Path of lua5.1.dll, lua52.dll, pcre.dll, etc.
+# LIBPATH     : Path of lua51.dll, lua52.dll, pcre.dll, etc.
 
-LIBPATH = c:\exe32
+INSTALLPATH = s:\exe\lib32\lua\$(LUADOTVERSION)
+LUADLL      = lua$(LUAVERSION)
+LUAINC      = s:\progr\work\system\include\lua\$(LUADOTVERSION)
+LIBPATH     = c:\exe32
 
 ifeq ($(LUAVERSION),51)
-  INSTALLPATH = s:\exe\lib32\lua\5.1
-  LUADLL = lua5.1
   LUAEXE = lua.exe
-  LUAINC = s:\progr\work\system\include\lua\5.1
-  MYCFLAGS += -DREX_CREATEGLOBALVAR
+  CREATEGLOBAL = -DREX_CREATEGLOBALVAR
 else
-  INSTALLPATH = s:\exe\lib32\lua\5.2
-  LUADLL = lua52
-  LUAEXE = lua52.exe
-  LUAINC = s:\progr\work\system\include\lua\5.2
-# MYCFLAGS += -DREX_CREATEGLOBALVAR
+  LUAEXE = lua$(LUAVERSION).exe
 endif
 
 # --------------------------------------------------------------------------
@@ -34,8 +31,11 @@ endif
 BIN        = $(PROJECT).dll
 BININSTALL = $(INSTALLPATH)\$(BIN)
 CC         = mingw32-gcc
+AR         = ar rcu
+RANLIB     = ranlib
 CFLAGS     = -W -Wall -O2 $(INCS) -DREX_OPENLIB=luaopen_$(PROJECT) \
-             -DREX_LIBNAME=\"$(PROJECT)\" -DVERSION=\"$(VERSION)\" $(MYCFLAGS)
+             -DREX_LIBNAME=\"$(PROJECT)\" -DVERSION=\"$(VERSION)\" \
+             $(CREATEGLOBAL) $(MYCFLAGS)
 DEFFILE    = $(PROJECT).def
 EXPORTED   = luaopen_$(PROJECT)
 INCS       = -I$(LUAINC) $(MYINCS)
@@ -60,6 +60,10 @@ test:
 
 $(BIN): $(OBJ) $(DEFFILE)
 	$(CC) $(DEFFILE) $(OBJ) -L$(LIBPATH) $(LIBS) -o $@ -shared
+
+lib$(PROJECT)$(LUAVERSION).a: $(OBJ)
+	$(AR) $@ $?
+	$(RANLIB) $@
 
 $(DEFFILE):
 	echo EXPORTS > $@

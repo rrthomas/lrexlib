@@ -88,6 +88,10 @@ Notes
 9. The notation *larg...* is used to indicate optional library-specific
    arguments, which are documented in the ``new`` method of each library.
 
+10. In the functions searching for multiple matches (``gmatch``, ``gsub``,
+    ``split``, ``count``) every empty match adjacent to the previous match
+    is discarded, e.g. ``rex.count("abc",".*")`` will return 1.
+
 ------------------------------------------------------------
 
 Functions and methods common to all bindings
