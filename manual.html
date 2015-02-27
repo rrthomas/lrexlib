@@ -196,6 +196,9 @@ e.g. Spencer's.</li>
 <ol class="arabic simple" id="larg" start="9">
 <li>The notation <em>larg...</em> is used to indicate optional library-specific
 arguments, which are documented in the <tt class="docutils literal">new</tt> method of each library.</li>
+<li>In the functions searching for multiple matches (<tt class="docutils literal">gmatch</tt>, <tt class="docutils literal">gsub</tt>,
+<tt class="docutils literal">split</tt>, <tt class="docutils literal">count</tt>) every empty match adjacent to the previous match
+is discarded, e.g. <tt class="docutils literal"><span class="pre">rex.count(&quot;abc&quot;,&quot;.*&quot;)</span></tt> will return 1.</li>
 </ol>
 </div>
 <hr class="docutils" />
@@ -1364,6 +1367,13 @@ is used as the output table, else a new table is created.</p>
 <hr class="docutils" />
 <div class="section" id="incompatibilities-with-previous-versions">
 <h2><a class="toc-backref" href="#id41">Incompatibilities with previous versions</a></h2>
+<p><strong>Incompatibilities between versions 2.8 and 2.7:</strong></p>
+<blockquote>
+<ol class="arabic simple">
+<li>In the functions searching for multiple matches every empty match adjacent
+to the previous match is discarded.</li>
+</ol>
+</blockquote>
 <p><strong>Incompatibilities between versions 2.6 and 2.5:</strong></p>
 <blockquote>
 <ol class="arabic simple">
@@ -1409,7 +1419,7 @@ subpatterns</em></li>
 </div>
 <div class="footer">
 <hr class="footer" />
-Generated on: 2014-10-30 16:55 UTC.
+Generated on: 2015-02-27 11:34 UTC.
 
 </div>
 </body>
