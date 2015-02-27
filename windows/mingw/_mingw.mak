@@ -1,6 +1,6 @@
 # Use with GNU Make.
 
-VERSION = 2.7.2
+VERSION = 2.8.0
 
 # User Settings ------------------------------------------------------------
 
@@ -26,6 +26,9 @@ else
   LUAEXE = lua$(LUAVERSION).exe
 endif
 
+ifeq ($(LUAVERSION),53)
+  LUA_COMPAT = -DLUA_COMPAT_5_2
+endif
 # --------------------------------------------------------------------------
 
 BIN        = $(PROJECT).dll
@@ -35,7 +38,7 @@ AR         = ar rcu
 RANLIB     = ranlib
 CFLAGS     = -W -Wall -O2 $(INCS) -DREX_OPENLIB=luaopen_$(PROJECT) \
              -DREX_LIBNAME=\"$(PROJECT)\" -DVERSION=\"$(VERSION)\" \
-             $(CREATEGLOBAL) $(MYCFLAGS)
+             $(CREATEGLOBAL) $(LUA_COMPAT) $(MYCFLAGS)
 DEFFILE    = $(PROJECT).def
 EXPORTED   = luaopen_$(PROJECT)
 INCS       = -I$(LUAINC) $(MYINCS)
