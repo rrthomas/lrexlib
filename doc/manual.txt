@@ -887,6 +887,11 @@ This function returns a string containing the version of the used TRE library.
 Incompatibilities with previous versions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+**Incompatibilities between versions 2.8 and 2.7:**
+
+  1. In the functions searching for multiple matches every empty match adjacent
+     to the previous match is discarded.
+
 **Incompatibilities between versions 2.6 and 2.5:**
 
   1. Removed function ``plainfind``.
