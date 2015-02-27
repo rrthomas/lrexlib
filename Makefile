@@ -44,12 +44,11 @@ check: build
 clean:
 	$(RM) $(HTML) doc/index.txt *.rockspec
 
-# FIXME: Extract URL from rockspec
 release: check
 	agrep -d 'Release' $(VERSION) NEWS | tail -n +3 | head -n -2 > release-notes && \
 	git diff --exit-code && \
 	git tag -a -m "Release tag" rel-`echo $(VERSION) | sed -e 's/\./-/g'` && \
 	git push && git push --tags && \
 	$(MAKE) build LUAROCKS_COMMAND=build && \
-	woger lua package=$(PROJECT) package_name=$(PROJECT) version=$(VERSION) description="Lua binding for regex libraries" notes=release-notes home="https://github.com/rrthomas/$(PROJECT)"
+	woger lua package=$(PROJECT) package_name=$(PROJECT) version=$(VERSION) description="Lua binding for regex libraries" notes=release-notes home="`$(LUA) -e'version="'$(VERSION)'"; flavour="none"; t = require "rockspecs"; print(t.default.description.homepage)'`"
 	rm -f release-notes
