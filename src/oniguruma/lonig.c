@@ -286,6 +286,12 @@ static int split_exec (TOnig *ud, TArgExec *argE, int st) {
   return gsub_exec(ud, argE, st);
 }
 
+static int LOnig_capturecount (lua_State *L) {
+  TOnig *ud = check_ud(L);
+  lua_pushinteger(L, onig_number_of_captures(ud->reg));
+  return 1;
+}
+
 static int LOnig_gc (lua_State *L) {
   TOnig *ud = check_ud (L);
   if (ud->reg) {           /* precaution against "manual" __gc calling */
@@ -318,6 +324,7 @@ static const luaL_Reg r_methods[] = {
   { "tfind",       algm_tfind },    /* old name: match */
   { "find",        algm_find },
   { "match",       algm_match },
+  { "capturecount", LOnig_capturecount },
   { "__gc",        LOnig_gc },
   { "__tostring",  LOnig_tostring },
   { NULL, NULL }

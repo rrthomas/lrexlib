@@ -8,16 +8,19 @@ VERSION = 2.8.0
 LUAVERSION = 51
 LUADOTVERSION = $(subst 5,5.,$(LUAVERSION))
 
+# Target bitness: 32 or 64
+DIRBIT = 32
+
 # INSTALLPATH : Path to install the built DLL.
 # LUADLL      : Name of Lua DLL to link to (.dll should be omitted).
 # LUAEXE      : Name of Lua interpreter.
 # LUAINC      : Path of Lua include files.
 # LIBPATH     : Path of lua51.dll, lua52.dll, pcre.dll, etc.
 
-INSTALLPATH = s:\exe\lib32\lua\$(LUADOTVERSION)
+INSTALLPATH = s:\exe\lib$(DIRBIT)\lua\$(LUADOTVERSION)
 LUADLL      = lua$(LUAVERSION)
 LUAINC      = s:\progr\work\system\include\lua\$(LUADOTVERSION)
-LIBPATH     = c:\exe32
+LIBPATH     = c:\exe$(DIRBIT)
 
 ifeq ($(LUAVERSION),51)
   LUAEXE = lua.exe
@@ -33,16 +36,16 @@ endif
 
 BIN        = $(PROJECT).dll
 BININSTALL = $(INSTALLPATH)\$(BIN)
-CC         = mingw32-gcc
+CC         = gcc
 AR         = ar rcu
 RANLIB     = ranlib
 CFLAGS     = -W -Wall -O2 $(INCS) -DREX_OPENLIB=luaopen_$(PROJECT) \
              -DREX_LIBNAME=\"$(PROJECT)\" -DVERSION=\"$(VERSION)\" \
-             $(CREATEGLOBAL) $(LUA_COMPAT) $(MYCFLAGS)
+             -m$(DIRBIT) $(CREATEGLOBAL) $(LUA_COMPAT) $(MYCFLAGS)
 DEFFILE    = $(PROJECT).def
 EXPORTED   = luaopen_$(PROJECT)
 INCS       = -I$(LUAINC) $(MYINCS)
-LIBS       = -l$(LUADLL) $(MYLIBS) -s
+LIBS       = -l$(LUADLL) -m$(DIRBIT) -s $(MYLIBS)
 SRCPATH    = ..\..\src
 TESTPATH   = ..\..\test
 

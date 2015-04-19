@@ -134,6 +134,19 @@ local function set_m_tfind (lib, flg)
 }
 end
 
+local function set_m_capturecount (lib, flg)
+  return {
+  Name = "Method capturecount",
+  Method = "capturecount",
+--{patt,cf,lo},           {subj,st,ef}              { results }
+  { {"a"},                {},                       { 0 }  },
+  { {"(a)"},              {},                       { 1 }  },
+  { {"(a)(a)"},           {},                       { 2 }  },
+  { {"((a)a)"},           {},                       { 2 }  },
+  { {"((?i)a)(?:a)"},     {},                       { 1 }  },
+}
+end
+
 return function (libname)
   local lib = require (libname)
   local flags = lib.flags ()
@@ -144,6 +157,7 @@ return function (libname)
     set_f_split  (lib, flags),
     set_m_exec   (lib, flags),
     set_m_tfind  (lib, flags),
+    set_m_capturecount (lib, flags),
   }
   local MAJOR = tonumber(lib.version():match("%d+"))
   if MAJOR >= 0 then

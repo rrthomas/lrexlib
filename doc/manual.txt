@@ -744,6 +744,17 @@ library.
 
 ------------------------------------------------------------
 
+capturecount
+------------
+
+[See *onig_number_of_captures* in the Oniguruma docs.]
+
+:funcdef:`r:capturecount ()`
+
+Returns the number of captures in the pattern.
+
+------------------------------------------------------------
+
 TRE-only functions and methods
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
