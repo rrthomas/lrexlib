@@ -45,19 +45,20 @@
 <li><a class="reference internal" href="#id4" id="id30">new</a></li>
 <li><a class="reference internal" href="#setdefaultsyntax" id="id31">setdefaultsyntax</a></li>
 <li><a class="reference internal" href="#id5" id="id32">version</a></li>
+<li><a class="reference internal" href="#capturecount" id="id33">capturecount</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#tre-only-functions-and-methods" id="id33">TRE-only functions and methods</a><ul>
-<li><a class="reference internal" href="#id6" id="id34">new</a></li>
-<li><a class="reference internal" href="#atfind" id="id35">atfind</a></li>
-<li><a class="reference internal" href="#aexec" id="id36">aexec</a></li>
-<li><a class="reference internal" href="#have-approx" id="id37">have_approx</a></li>
-<li><a class="reference internal" href="#have-backrefs" id="id38">have_backrefs</a></li>
-<li><a class="reference internal" href="#id7" id="id39">config</a></li>
-<li><a class="reference internal" href="#rex-tre-version" id="id40">rex_tre.version</a></li>
+<li><a class="reference internal" href="#tre-only-functions-and-methods" id="id34">TRE-only functions and methods</a><ul>
+<li><a class="reference internal" href="#id6" id="id35">new</a></li>
+<li><a class="reference internal" href="#atfind" id="id36">atfind</a></li>
+<li><a class="reference internal" href="#aexec" id="id37">aexec</a></li>
+<li><a class="reference internal" href="#have-approx" id="id38">have_approx</a></li>
+<li><a class="reference internal" href="#have-backrefs" id="id39">have_backrefs</a></li>
+<li><a class="reference internal" href="#id7" id="id40">config</a></li>
+<li><a class="reference internal" href="#rex-tre-version" id="id41">rex_tre.version</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#incompatibilities-with-previous-versions" id="id41">Incompatibilities with previous versions</a></li>
+<li><a class="reference internal" href="#incompatibilities-with-previous-versions" id="id42">Incompatibilities with previous versions</a></li>
 </ul>
 </div>
 <hr class="docutils" />
@@ -1162,16 +1163,23 @@ argument is passed to those functions explicitly.</p>
 <p>This function returns a string containing the version of the used Oniguruma
 library.</p>
 </div>
+<hr class="docutils" />
+<div class="section" id="capturecount">
+<h3><a class="toc-backref" href="#id33">capturecount</a></h3>
+<p>[See <em>onig_number_of_captures</em> in the Oniguruma docs.]</p>
+<p><tt class="funcdef docutils literal">r:capturecount ()</tt></p>
+<p>Returns the number of captures in the pattern.</p>
+</div>
 </div>
 <hr class="docutils" />
 <div class="section" id="tre-only-functions-and-methods">
-<h2><a class="toc-backref" href="#id33">TRE-only functions and methods</a></h2>
+<h2><a class="toc-backref" href="#id34">TRE-only functions and methods</a></h2>
 <div class="section" id="id6">
-<h3><a class="toc-backref" href="#id34">new</a></h3>
+<h3><a class="toc-backref" href="#id35">new</a></h3>
 <p><tt class="funcdef docutils literal">rex.new (patt, [cf])</tt></p>
 </div>
 <div class="section" id="atfind">
-<h3><a class="toc-backref" href="#id35">atfind</a></h3>
+<h3><a class="toc-backref" href="#id36">atfind</a></h3>
 <p><tt class="funcdef docutils literal">r:atfind (subj, params, [init], [ef])</tt></p>
 <p>The method searches for the first match of the compiled regexp <em>r</em> in the
 string <em>subj</em>, starting from offset <em>init</em>, subject to execution flags <em>ef</em>.</p>
@@ -1252,7 +1260,7 @@ in the following fields: <tt class="docutils literal">cost</tt>, <tt class="docu
 </div>
 <hr class="docutils" />
 <div class="section" id="aexec">
-<h3><a class="toc-backref" href="#id36">aexec</a></h3>
+<h3><a class="toc-backref" href="#id37">aexec</a></h3>
 <p><tt class="funcdef docutils literal">r:aexec (subj, params, [init], [ef])</tt></p>
 <p>The method searches for the first match of the compiled regexp <em>r</em> in the
 string <em>subj</em>, starting from offset <em>init</em>, subject to execution flags <em>ef</em>.</p>
@@ -1334,21 +1342,21 @@ the match, in the following fields: <tt class="docutils literal">cost</tt>, <tt 
 </div>
 <hr class="docutils" />
 <div class="section" id="have-approx">
-<h3><a class="toc-backref" href="#id37">have_approx</a></h3>
+<h3><a class="toc-backref" href="#id38">have_approx</a></h3>
 <p><tt class="funcdef docutils literal">r:have_approx ()</tt></p>
 <p>The method returns <tt class="docutils literal">true</tt> if the compiled pattern uses approximate matching,
 and <tt class="docutils literal">false</tt> if not.</p>
 </div>
 <hr class="docutils" />
 <div class="section" id="have-backrefs">
-<h3><a class="toc-backref" href="#id38">have_backrefs</a></h3>
+<h3><a class="toc-backref" href="#id39">have_backrefs</a></h3>
 <p><tt class="funcdef docutils literal">r:have_backrefs ()</tt></p>
 <p>The method returns <tt class="docutils literal">true</tt> if the compiled pattern has back references,
 and <tt class="docutils literal">false</tt> if not.</p>
 </div>
 <hr class="docutils" />
 <div class="section" id="id7">
-<h3><a class="toc-backref" href="#id39">config</a></h3>
+<h3><a class="toc-backref" href="#id40">config</a></h3>
 <p>[See <em>tre_config</em> in the TRE docs.]</p>
 <p><tt class="funcdef docutils literal">rex_tre.config ([tb])</tt></p>
 <p>This function returns a table containing the values of the configuration
@@ -1358,7 +1366,7 @@ is used as the output table, else a new table is created.</p>
 </div>
 <hr class="docutils" />
 <div class="section" id="rex-tre-version">
-<h3><a class="toc-backref" href="#id40">rex_tre.version</a></h3>
+<h3><a class="toc-backref" href="#id41">rex_tre.version</a></h3>
 <p>[See <em>tre_version</em> in the TRE docs.]</p>
 <p><tt class="funcdef docutils literal">rex_tre.version ()</tt></p>
 <p>This function returns a string containing the version of the used TRE library.</p>
@@ -1366,7 +1374,7 @@ is used as the output table, else a new table is created.</p>
 </div>
 <hr class="docutils" />
 <div class="section" id="incompatibilities-with-previous-versions">
-<h2><a class="toc-backref" href="#id41">Incompatibilities with previous versions</a></h2>
+<h2><a class="toc-backref" href="#id42">Incompatibilities with previous versions</a></h2>
 <p><strong>Incompatibilities between versions 2.8 and 2.7:</strong></p>
 <blockquote>
 <ol class="arabic simple">
@@ -1419,7 +1427,7 @@ subpatterns</em></li>
 </div>
 <div class="footer">
 <hr class="footer" />
-Generated on: 2015-02-27 11:34 UTC.
+Generated on: 2015-04-19 14:07 UTC.
 
 </div>
 </body>
