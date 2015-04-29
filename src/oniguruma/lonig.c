@@ -102,7 +102,7 @@ static int getcflags (lua_State *L, int pos) {
 
 static int generate_error (lua_State *L, const TOnig *ud, int errcode) {
   char buf [ONIG_MAX_ERROR_MESSAGE_LEN];
-  onig_error_code_to_str(buf, errcode, ud->einfo);
+  onig_error_code_to_str(buf, errcode, &ud->einfo);
   return luaL_error(L, buf);
 }
 
