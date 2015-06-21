@@ -131,7 +131,7 @@ static void check_pattern (lua_State *L, int pos, TArgComp *argC)
     argC->ud = NULL;
   }
   else if ((argC->ud = test_ud (L, pos)) == NULL)
-    luaL_typerror(L, pos, "string or "REX_TYPENAME);
+    luaL_typerror(L, pos, "string or " REX_TYPENAME);
 }
 
 static void checkarg_new (lua_State *L, TArgComp *argC) {
