@@ -102,7 +102,7 @@ static int getcflags (lua_State *L, int pos) {
 
 static int generate_error (lua_State *L, const TOnig *ud, int errcode) {
   char buf [ONIG_MAX_ERROR_MESSAGE_LEN];
-  onig_error_code_to_str(buf, errcode, &ud->einfo);
+  onig_error_code_to_str((unsigned char*) buf, errcode, &ud->einfo);
   return luaL_error(L, buf);
 }
 
@@ -206,7 +206,7 @@ static void checkarg_compile (lua_State *L, int pos, TArgComp *argC) {
 */
 static int LOnig_setdefaultsyntax (lua_State *L) {
   (void)luaL_checkstring(L, 1);
-  onig_set_default_syntax(getsyntax(L, 1));
+  onig_set_default_syntax((OnigSyntaxType*) getsyntax(L, 1));
   return 0;
 }
 

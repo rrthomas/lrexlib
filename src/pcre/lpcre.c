@@ -177,7 +177,7 @@ static void checkarg_compile (lua_State *L, int pos, TArgComp *argC) {
       argC->locale = lua_tostring (L, pos);
     else {
       argC->tablespos = pos;
-      argC->tables = *check_chartables (L, pos);
+      argC->tables = (const unsigned char*) *check_chartables (L, pos);
     }
   }
 }
