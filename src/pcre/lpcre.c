@@ -369,15 +369,21 @@ static int Lpcre_fullinfo (lua_State *L) {
   SET_INFO_FIELD (L, ud, PCRE_INFO_FIRSTBYTE,           "FIRSTBYTE",           int)
   SET_INFO_FIELD (L, ud, PCRE_INFO_HASCRORLF,           "HASCRORLF",           int)
   SET_INFO_FIELD (L, ud, PCRE_INFO_JCHANGED,            "JCHANGED",            int)
+#ifdef PCRE_INFO_JIT
   SET_INFO_FIELD (L, ud, PCRE_INFO_JIT,                 "JIT",                 int)
+#endif  
+#ifdef PCRE_INFO_JITSIZE
   SET_INFO_FIELD (L, ud, PCRE_INFO_JITSIZE,             "JITSIZE",             size_t);
+#endif
 #ifdef PCRE_INFO_MATCH_EMPTY
   SET_INFO_FIELD (L, ud, PCRE_INFO_MATCH_EMPTY,         "MATCH_EMPTY",         int)
 #endif
 #ifdef PCRE_INFO_MATCHLIMIT
   SET_INFO_FIELD (L, ud, PCRE_INFO_MATCHLIMIT,          "MATCHLIMIT",          uint32_t)
 #endif
+#ifdef PCRE_INFO_MAXLOOKBEHIND
   SET_INFO_FIELD (L, ud, PCRE_INFO_MAXLOOKBEHIND,       "MAXLOOKBEHIND",       int) /* int ? */
+#endif  
   SET_INFO_FIELD (L, ud, PCRE_INFO_MINLENGTH,           "MINLENGTH",           int)
   SET_INFO_FIELD (L, ud, PCRE_INFO_OKPARTIAL,           "OKPARTIAL",           int)
   SET_INFO_FIELD (L, ud, PCRE_INFO_OPTIONS,             "OPTIONS",             unsigned long)
