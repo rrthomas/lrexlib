@@ -16,7 +16,7 @@ is no warranty.
 .. _POSIX: http://www.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap09.html
 .. _PCRE: http://www.pcre.org/pcre.txt
 .. _GNU: ftp://ftp.gnu.org/old-gnu/regex/
-.. _Oniguruma: http://www.geocities.jp/kosako3/oniguruma/doc/RE.txt
+.. _Oniguruma: https://github.com/kkos/oniguruma
 .. _TRE: http://laurikari.net/tre/documentation/
 .. _Lua: http://www.lua.org
 .. _MIT: http://www.opensource.org/licenses/mit-license.php
