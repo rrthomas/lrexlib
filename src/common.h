@@ -9,6 +9,10 @@
 #if LUA_VERSION_NUM > 501
 # define lua_objlen lua_rawlen
   int luaL_typerror (lua_State *L, int narg, const char *tname);
+# undef luaL_checkint
+# define luaL_checkint(L,i) ((int)luaL_checkinteger((L),(i)))
+# undef luaL_optint
+# define luaL_optint(L,i,d) ((int)luaL_optinteger((L),(i),(d)))
 #endif
 
 /* REX_API can be overridden from the command line or Makefile */
