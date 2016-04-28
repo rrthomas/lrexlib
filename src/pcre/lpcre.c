@@ -371,7 +371,7 @@ static int Lpcre_fullinfo (lua_State *L) {
   SET_INFO_FIELD (L, ud, PCRE_INFO_JCHANGED,            "JCHANGED",            int)
 #ifdef PCRE_INFO_JIT
   SET_INFO_FIELD (L, ud, PCRE_INFO_JIT,                 "JIT",                 int)
-#endif  
+#endif
 #ifdef PCRE_INFO_JITSIZE
   SET_INFO_FIELD (L, ud, PCRE_INFO_JITSIZE,             "JITSIZE",             size_t);
 #endif
@@ -383,8 +383,10 @@ static int Lpcre_fullinfo (lua_State *L) {
 #endif
 #ifdef PCRE_INFO_MAXLOOKBEHIND
   SET_INFO_FIELD (L, ud, PCRE_INFO_MAXLOOKBEHIND,       "MAXLOOKBEHIND",       int) /* int ? */
-#endif  
+#endif
+#ifdef PCRE_INFO_MINLENGTH
   SET_INFO_FIELD (L, ud, PCRE_INFO_MINLENGTH,           "MINLENGTH",           int)
+#endif
   SET_INFO_FIELD (L, ud, PCRE_INFO_OKPARTIAL,           "OKPARTIAL",           int)
   SET_INFO_FIELD (L, ud, PCRE_INFO_OPTIONS,             "OPTIONS",             unsigned long)
 #ifdef PCRE_INFO_RECURSIONLIMIT
