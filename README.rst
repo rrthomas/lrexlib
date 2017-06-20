@@ -36,7 +36,7 @@ Lrexlib is installed with LuaRocks_, using the command::
 
   luarocks install lrexlib-FLAVOUR
 
-where **FLAVOUR** is one of PCRE, POSIX, oniguruma, TRE, GNU
+where **FLAVOUR** is one of PCRE, PCRE2, POSIX, oniguruma, TRE, GNU
 
 .. _LuaRocks: http://www.luarocks.org
 

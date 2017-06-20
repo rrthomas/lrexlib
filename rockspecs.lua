@@ -5,9 +5,11 @@
 -- flavour: regex library
 -- version
 
-local flavours = {"PCRE", "POSIX", "oniguruma", "TRE", "GNU"}
+local flavours = {"PCRE", "PCRE2", "POSIX", "oniguruma", "TRE", "GNU"}
 local version_dashed = version:gsub ("%.", "-")
-local defines = {"VERSION=\""..version.."\"", "LUA_COMPAT_5_2"}
+-- FIXME: PCRE2 define should be only in PCRE2 rockspec
+local defines = {"VERSION=\""..version.."\"", "LUA_COMPAT_5_2",
+                 "PCRE2_CODE_UNIT_WIDTH=8"}
 
 -- FIXME: When Lua 5.1 support is dropped, use an env argument with
 -- loadfile instead of wrapping in a table
@@ -23,7 +25,7 @@ default = {
   description = {
     summary = "Regular expression library binding ("..flavour.." flavour).",
     detailed = [[
-Lrexlib is a regular expression library for Lua 5.1 and 5.2, which
+Lrexlib is a regular expression library for Lua 5.1-5.3, which
 provides bindings for several regular expression libraries.
 This rock provides the ]]..flavour..[[ bindings.]],
     homepage = "http://github.com/rrthomas/lrexlib",
@@ -50,6 +52,27 @@ PCRE = {
         libraries = {"pcre"},
         incdirs = {"$(PCRE_INCDIR)"},
         libdirs = {"$(PCRE_LIBDIR)"}
+      }
+    }
+  }
+},
+
+PCRE2 = {
+  external_dependencies = {
+    PCRE2 = {
+      header = "pcre2.h",
+      library = "pcre2-8"
+    }
+  },
+  build = {
+    type = "builtin",
+    modules = {
+      rex_pcre2 = {
+        defines = defines,
+        sources = {"src/common.c", "src/pcre2/lpcre2.c", "src/pcre2/lpcre2_f.c"},
+        libraries = {"pcre2-8"},
+        incdirs = {"$(PCRE2_INCDIR)"},
+        libdirs = {"$(PCRE2_LIBDIR)"}
       }
     }
   }
