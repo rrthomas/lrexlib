@@ -61,6 +61,7 @@ local avail_tests = {
   gnu       = { lib = "rex_gnu",     "common_sets", "emacs_sets", "gnu_sets" },
   oniguruma = { lib = "rex_onig",    "common_sets", "oniguruma_sets", },
   pcre      = { lib = "rex_pcre",    "common_sets", "pcre_sets", "pcre_sets2", },
+  pcre2     = { lib = "rex_pcre2",   "common_sets", "pcre_sets", "pcre_sets2", },
   spencer   = { lib = "rex_spencer", "common_sets", "posix_sets", "spencer_sets" },
   tre       = { lib = "rex_tre",     "common_sets", "posix_sets", "spencer_sets", --[["tre_sets"]] },
 }

@@ -144,6 +144,7 @@ end
 local function set_m_dfa_exec (lib, flg)
   local ver = tonumber(lib.version():match("%d+%.%d+"))
   local NAP = ver < 8.34 and "" or "(*NO_AUTO_POSSESS)"
+  local flag_partial = ver < 10.0 and flg.PARTIAL or flg.PARTIAL_SOFT
   return {
   Name = "Method dfa_exec",
   Method = "dfa_exec",
@@ -161,7 +162,7 @@ local function set_m_dfa_exec (lib, flg)
   { {"bc"},               {"abc",N, flg.ANCHORED},  {N }       }, -- ef
   { { "(.)b.(d)"},        {"abcd"},                 {1,{4},1}  }, --[captures]
   { {"abc"},              {"ab"},                   {N }       },
-  { {"abc"},              {"ab",N,flg.PARTIAL},     {1,{2},flg.ERROR_PARTIAL} },
+  { {"abc"},              {"ab",N,flag_partial},    {1,{2},flg.ERROR_PARTIAL} },
   { {NAP..".+"}, {string.rep("a",50),N,N,50,50},    {1, fill(50,26), 0}},-- small ovecsize
 }
 end
