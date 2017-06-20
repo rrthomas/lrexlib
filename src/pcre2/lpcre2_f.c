@@ -54,7 +54,9 @@ static flag_pair pcre2_flags[] = {
   { "SUBSTITUTE_UNSET_EMPTY",        PCRE2_SUBSTITUTE_UNSET_EMPTY },
   { "SUBSTITUTE_UNKNOWN_UNSET",      PCRE2_SUBSTITUTE_UNKNOWN_UNSET },
   { "SUBSTITUTE_OVERFLOW_LENGTH",    PCRE2_SUBSTITUTE_OVERFLOW_LENGTH },
+#ifdef PCRE2_NO_JIT
   { "NO_JIT",                        PCRE2_NO_JIT },
+#endif
   { "NEWLINE_CR",                    PCRE2_NEWLINE_CR },
   { "NEWLINE_LF",                    PCRE2_NEWLINE_LF },
   { "NEWLINE_CRLF",                  PCRE2_NEWLINE_CRLF },
@@ -153,7 +155,9 @@ flag_pair pcre2_error_flags[] = {
   { "ERROR_BADSUBSTITUTION",         PCRE2_ERROR_BADSUBSTITUTION },
   { "ERROR_BADSUBSPATTERN",          PCRE2_ERROR_BADSUBSPATTERN },
   { "ERROR_TOOMANYREPLACE",          PCRE2_ERROR_TOOMANYREPLACE },
+#ifdef PCRE2_ERROR_BADSERIALIZEDDATA
   { "ERROR_BADSERIALIZEDDATA",       PCRE2_ERROR_BADSERIALIZEDDATA },
+#endif
 /*---------------------------------------------------------------------------*/
   { NULL, 0 }
 };
