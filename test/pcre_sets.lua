@@ -28,7 +28,7 @@ end
 
 local function set_f_find (lib, flg)
   local cp1251 =
-    "ÀÁÂÃÄÅ¨ÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÜÛÚÝÞ‗אבגדהו¸זחטיךכלםמןנסעףפץצקרשüûת‎‏ÿ"
+    "ÀÁÂÃÄÅ¨ÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞ‗אבגדהו¸זחטיךכלםמןנסעףפץצקרשתûü‎‏ÿ"
   local loc = "Russian_Russia.1251"
   return {
   Name = "Function find",

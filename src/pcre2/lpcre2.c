@@ -65,6 +65,7 @@ typedef struct {
   PCRE2_SIZE * ovector;
   int ncapt;
   const unsigned char * tables;
+  pcre2_compile_context *ccontext;
   int freed;
 } TPcre2;
 
@@ -94,11 +95,6 @@ static int push_error_message (lua_State *L, int errorcode) //### is this functi
     return 1;
   }
   return 0;
-}
-
-static void push_chartables_meta (lua_State *L) {
-  lua_pushinteger (L, INDEX_CHARTABLES_META);
-  lua_rawget (L, ALG_ENVIRONINDEX);
 }
 
 static int getcflags (lua_State *L, int pos) {
@@ -145,6 +141,11 @@ static void checkarg_dfa_exec (lua_State *L, TArgExec *argE, TPcre2 **ud) {
   argE->wscount = luaL_optint (L, 6, 50);
 }
 
+static void push_chartables_meta (lua_State *L) {
+  lua_pushinteger (L, INDEX_CHARTABLES_META);
+  lua_rawget (L, ALG_ENVIRONINDEX);
+}
+
 static int Lpcre2_maketables (lua_State *L) {
   *(const void**)lua_newuserdata (L, sizeof(void*)) = pcre2_maketables(NULL); //### argument NULL
   push_chartables_meta (L);
@@ -176,6 +177,12 @@ static int chartables_gc (lua_State *L) {
   return 0;
 }
 
+static int chartables_tostring (lua_State *L) {
+  void **ud = check_chartables (L, 1);
+  lua_pushfstring (L, "%s (%p)", chartables_typename, ud);
+  return 1;
+}
+
 static void checkarg_compile (lua_State *L, int pos, TArgComp *argC) {
   argC->locale = NULL;
   argC->tables = NULL;
@@ -193,23 +200,26 @@ static int compile_regex (lua_State *L, const TArgComp *argC, TPcre2 **pud) {
   int errcode;
   PCRE2_SIZE erroffset;
   TPcre2 *ud;
-  const unsigned char *tables = NULL;
 
   ud = (TPcre2*)lua_newuserdata (L, sizeof (TPcre2));
-  memset (ud, 0, sizeof (TPcre2));           /* initialize all members to 0 */
   lua_pushvalue (L, ALG_ENVIRONINDEX);
   lua_setmetatable (L, -2);
+  memset (ud, 0, sizeof (TPcre2));           /* initialize all members to 0 */
+  ud->ccontext = pcre2_compile_context_create(NULL);
+  if (ud->ccontext == NULL)
+    return luaL_error (L, "malloc failed");
 
   if (argC->locale) {
     char old_locale[256];
     strcpy (old_locale, setlocale (LC_CTYPE, NULL));  /* store the locale */
     if (NULL == setlocale (LC_CTYPE, argC->locale))   /* set new locale */
       return luaL_error (L, "cannot set locale");
-    ud->tables = tables = pcre2_maketables (NULL); /* make tables with new locale */ //### argument NULL
+    ud->tables = pcre2_maketables (NULL); /* make tables with new locale */ //### argument NULL
+    pcre2_set_character_tables(ud->ccontext, ud->tables);
     setlocale (LC_CTYPE, old_locale);          /* restore the old locale */
   }
   else if (argC->tables) {
-    tables = argC->tables;
+    pcre2_set_character_tables(ud->ccontext, argC->tables);
     lua_pushinteger (L, INDEX_CHARTABLES_LINK);
     lua_rawget (L, ALG_ENVIRONINDEX);
     lua_pushvalue (L, -2);
@@ -219,7 +229,7 @@ static int compile_regex (lua_State *L, const TArgComp *argC, TPcre2 **pud) {
   }
 
   ud->pr = pcre2_compile ((PCRE2_SPTR)argC->pattern, argC->patlen, argC->cflags, &errcode,
-                          &erroffset, /*tables*/NULL); //### DOUBLE-CHECK ALL ARGUMENTS
+                          &erroffset, ud->ccontext); //### DOUBLE-CHECK ALL ARGUMENTS
   if (!ud->pr) {
     if (push_error_message(L, errcode))
       return luaL_error (L, "%s (pattern offset: %d)", lua_tostring(L,-1), erroffset + 1);
@@ -338,9 +348,10 @@ static int Lpcre2_gc (lua_State *L) {
   TPcre2 *ud = check_ud (L);
   if (ud->freed == 0) {           /* precaution against "manual" __gc calling */
     ud->freed = 1;
-    if (ud->pr)      pcre2_code_free (ud->pr);
+    if (ud->pr) pcre2_code_free (ud->pr);
     //if (ud->tables)  pcre_free ((void *)ud->tables); //###
-    pcre2_match_data_free (ud->match_data);
+    if (ud->ccontext) pcre2_compile_context_free (ud->ccontext);
+    if (ud->match_data) pcre2_match_data_free (ud->match_data);
   }
   return 0;
 }
@@ -351,12 +362,6 @@ static int Lpcre2_tostring (lua_State *L) {
     lua_pushfstring (L, "%s (%p)", REX_TYPENAME, (void*)ud);
   else
     lua_pushfstring (L, "%s (deleted)", REX_TYPENAME);
-  return 1;
-}
-
-static int chartables_tostring (lua_State *L) {
-  void **ud = check_chartables (L, 1);
-  lua_pushfstring (L, "%s (%p)", chartables_typename, ud);
   return 1;
 }
 

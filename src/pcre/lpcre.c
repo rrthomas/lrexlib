@@ -87,11 +87,6 @@ const char chartables_typename[] = "chartables";
  ******************************************************************************
  */
 
-static void push_chartables_meta (lua_State *L) {
-  lua_pushinteger (L, INDEX_CHARTABLES_META);
-  lua_rawget (L, ALG_ENVIRONINDEX);
-}
-
 static int getcflags (lua_State *L, int pos) {
   switch (lua_type (L, pos)) {
     case LUA_TNONE:
@@ -138,6 +133,11 @@ static void checkarg_dfa_exec (lua_State *L, TArgExec *argE, TPcre **ud) {
 }
 #endif
 
+static void push_chartables_meta (lua_State *L) {
+  lua_pushinteger (L, INDEX_CHARTABLES_META);
+  lua_rawget (L, ALG_ENVIRONINDEX);
+}
+
 static int Lpcre_maketables (lua_State *L) {
   *(const void**)lua_newuserdata (L, sizeof(void*)) = pcre_maketables();
   push_chartables_meta (L);
@@ -167,6 +167,12 @@ static int chartables_gc (lua_State *L) {
     *ud = NULL;
   }
   return 0;
+}
+
+static int chartables_tostring (lua_State *L) {
+  void **ud = check_chartables (L, 1);
+  lua_pushfstring (L, "%s (%p)", chartables_typename, ud);
+  return 1;
 }
 
 static void checkarg_compile (lua_State *L, int pos, TArgComp *argC) {
@@ -338,12 +344,6 @@ static int Lpcre_tostring (lua_State *L) {
     lua_pushfstring (L, "%s (%p)", REX_TYPENAME, (void*)ud);
   else
     lua_pushfstring (L, "%s (deleted)", REX_TYPENAME);
-  return 1;
-}
-
-static int chartables_tostring (lua_State *L) {
-  void **ud = check_chartables (L, 1);
-  lua_pushfstring (L, "%s (%p)", chartables_typename, ud);
   return 1;
 }
 
