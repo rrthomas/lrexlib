@@ -180,16 +180,27 @@ static flag_pair pcre2_config_flags[] = {
 };
 
 int Lpcre2_config (lua_State *L) {
-  int val;
   flag_pair *fp;
   if (lua_istable (L, 1))
     lua_settop (L, 1);
   else
     lua_newtable (L);
   for (fp = pcre2_config_flags; fp->key; ++fp) {
-    if (0 == pcre2_config (fp->val, &val)) {
-      lua_pushinteger (L, val);
-      lua_setfield (L, -2, fp->key);
+    if (fp->val == PCRE2_CONFIG_JITTARGET) {
+#if PCRE2_CODE_UNIT_WIDTH == 8
+      char buf[64];
+      if (PCRE2_ERROR_BADOPTION != pcre2_config (fp->val, buf)) {
+        lua_pushstring (L, buf);
+        lua_setfield (L, -2, fp->key);
+      }
+#endif
+    }
+    else {
+      int val;
+      if (0 == pcre2_config (fp->val, &val)) {
+        lua_pushinteger (L, val);
+        lua_setfield (L, -2, fp->key);
+      }
     }
   }
   return 1;

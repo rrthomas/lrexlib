@@ -60,12 +60,12 @@ static void checkarg_compile (lua_State *L, int pos, TArgComp *argC);
 #define ALG_PULL
 
 typedef struct {
-  pcre2_code * pr;
-  pcre2_match_data * match_data;
-  PCRE2_SIZE * ovector;
-  int ncapt;
-  const unsigned char * tables;
+  pcre2_code *pr;
   pcre2_compile_context *ccontext;
+  pcre2_match_data *match_data;
+  PCRE2_SIZE *ovector;
+  int ncapt;
+  const unsigned char *tables;
   int freed;
 } TPcre2;
 
@@ -372,6 +372,20 @@ static int Lpcre2_version (lua_State *L) {
   return 1;
 }
 
+//### TODO: document this method.
+//### TODO: write tests for this method.
+static int Lpcre2_jit_compile (lua_State *L) {
+  TPcre2 *ud = check_ud (L);
+  uint32_t options = (uint32_t) luaL_optint (L, 2, PCRE2_JIT_COMPLETE);
+  int errcode = pcre2_jit_compile (ud->pr, options);
+  if (errcode == 0) {
+    lua_pushboolean(L, 1);
+    return 1;
+  }
+  lua_pushboolean(L, 0);
+  return 1 + push_error_message(L, errcode);
+}
+
 #define SET_INFO_FIELD(L,ud,what,name,valtype) { \
   valtype val; \
   if (0 == pcre2_pattern_info (ud->pr, what, &val)) { \
@@ -426,6 +440,7 @@ static const luaL_Reg r_methods[] = {
   { "dfa_exec",    Lpcre2_dfa_exec },
   { "patterninfo", Lpcre2_pattern_info }, //### document name change: fullinfo -> patterninfo
   { "fullinfo",    Lpcre2_pattern_info }, //### compatibility name
+  { "jit_compile", Lpcre2_jit_compile },
   { "__gc",        Lpcre2_gc },
   { "__tostring",  Lpcre2_tostring },
   { NULL, NULL }
