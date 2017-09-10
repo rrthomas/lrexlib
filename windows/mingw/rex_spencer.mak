@@ -2,7 +2,7 @@
 
 # User Settings ------------------------------------------------------------
 # path of Spencer's include files
-REGEXINC = s:\progr\work\system\include\rxspencer
+REGEXINC = $(PATH_WORK)\system\include\rxspencer
 # --------------------------------------------------------------------------
 
 PROJECT  = rex_spencer

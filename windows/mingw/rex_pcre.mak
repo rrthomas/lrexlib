@@ -2,7 +2,7 @@
 
 # User Settings ------------------------------------------------------------
 # path of PCRE include files
-REGEXINC = s:\progr\work\system\include\pcre
+REGEXINC = $(PATH_WORK)\system\include\pcre
 # --------------------------------------------------------------------------
 
 PROJECT  = rex_pcre

@@ -2,7 +2,7 @@
 
 # User Settings ------------------------------------------------------------
 # path of GNU include files
-REGEXINC = s:\progr\work\system\include\gnuregex
+REGEXINC = $(PATH_WORK)\system\include\gnuregex
 # --------------------------------------------------------------------------
 
 PROJECT  = rex_gnu

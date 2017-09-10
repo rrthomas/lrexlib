@@ -2,7 +2,7 @@
 
 # User Settings ------------------------------------------------------------
 # path of TRE include files
-REGEXINC = s:\progr\work\system\include
+REGEXINC = $(PATH_WORK)\system\include
 # --------------------------------------------------------------------------
 
 PROJECT  = rex_tre
