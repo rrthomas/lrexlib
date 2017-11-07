@@ -1,3 +1,7 @@
+2017-11-07  Release 2.9.0
+
+  * Add PCRE2 support.
+
 2015-02-26  Release 2.8.0
 
   * Add Lua 5.3 support
