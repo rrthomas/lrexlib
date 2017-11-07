@@ -6,8 +6,8 @@
 #include <locale.h>
 #include <ctype.h>
 #include <stdint.h>
-
 #include <pcre2.h>
+
 #include "lua.h"
 #include "lauxlib.h"
 #include "../common.h"
@@ -202,9 +202,10 @@ static int compile_regex (lua_State *L, const TArgComp *argC, TPcre2 **pud) {
   TPcre2 *ud;
 
   ud = (TPcre2*)lua_newuserdata (L, sizeof (TPcre2));
+  memset (ud, 0, sizeof (TPcre2));           /* initialize all members to 0 */
   lua_pushvalue (L, ALG_ENVIRONINDEX);
   lua_setmetatable (L, -2);
-  memset (ud, 0, sizeof (TPcre2));           /* initialize all members to 0 */
+
   ud->ccontext = pcre2_compile_context_create(NULL);
   if (ud->ccontext == NULL)
     return luaL_error (L, "malloc failed");
