@@ -1,4 +1,7 @@
+#!/usr/bin/env tarantool
 -- See Copyright Notice in the file LICENSE
+package.path = package.path .. ";/usr/share/tarantool/lrexlib/test/?.lua;"
+package.cpath = package.cpath .. ";/usr/share/tarantool/lrexlib//tree/lib64/lua/5.1/?.so"
 
 do
   local path = "./?.lua;"

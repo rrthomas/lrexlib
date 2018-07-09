@@ -5,7 +5,7 @@ PROJECT = lrexlib
 PROJECT_VERSIONED = $(PROJECT)-$(VERSION)
 
 # Commands
-LUA = lua
+LUA = tarantool
 LUAROCKS = luarocks
 CP = cp -a
 RM = rm -f
