@@ -110,6 +110,15 @@ local function set_f_split (lib, flg)
   }
 end
 
+local function set_f_internal_test (lib, flg)
+  return {
+    Name = "Function internal_test",
+    Func = lib.internal_test,
+  --{ params      results }
+    { {""},       {true} },
+  }
+end
+
 local function set_m_exec (lib, flg)
   return {
   Name = "Method exec",
@@ -151,6 +160,7 @@ return function (libname)
   local lib = require (libname)
   local flags = lib.flags ()
   local sets = {
+    set_f_internal_test (lib, flags),
     set_f_match  (lib, flags),
     set_f_find   (lib, flags),
     set_f_gmatch (lib, flags),

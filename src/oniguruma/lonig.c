@@ -319,6 +319,26 @@ static int LOnig_version (lua_State *L) {
   return 1;
 }
 
+static int LOnig_internal_test (lua_State *L) {
+  unsigned int i;
+  for (i=1; i<sizeof(Encodings)/sizeof(Encodings[0]); i++) {
+    if (fcmp(&Encodings[i-1], &Encodings[i]) >= 0) {
+      lua_pushboolean(L, 0);
+      lua_pushstring(L, "Array 'Encodings' is not properly sorted.");
+      return 2;
+    }
+  }
+  for (i=1; i<sizeof(Syntaxes)/sizeof(Syntaxes[0]); i++) {
+    if (fcmp(&Syntaxes[i-1], &Syntaxes[i]) >= 0) {
+      lua_pushboolean(L, 0);
+      lua_pushstring(L, "Array 'Syntaxes' is not properly sorted.");
+      return 2;
+    }
+  }
+  lua_pushboolean(L, 1);
+  return 1;
+}
+
 static const luaL_Reg r_methods[] = {
   { "exec",        algm_exec },
   { "tfind",       algm_tfind },    /* old name: match */
@@ -341,6 +361,7 @@ static const luaL_Reg r_functions[] = {
   { "flags",            LOnig_get_flags },
   { "version",          LOnig_version },
   { "setdefaultsyntax", LOnig_setdefaultsyntax },
+  { "internal_test",    LOnig_internal_test },
   { NULL, NULL }
 };
 
