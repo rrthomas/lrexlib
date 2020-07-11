@@ -136,9 +136,9 @@ static void checkarg_dfa_exec (lua_State *L, TArgExec *argE, TPcre2 **ud) {
   *ud = check_ud (L);
   argE->text = luaL_checklstring (L, 2, &argE->textlen);
   argE->startoffset = get_startoffset (L, 3, argE->textlen);
-  argE->eflags = luaL_optint (L, 4, ALG_EFLAGS_DFLT);
-  argE->ovecsize = luaL_optint (L, 5, 100);
-  argE->wscount = luaL_optint (L, 6, 50);
+  argE->eflags = (int)luaL_optinteger (L, 4, ALG_EFLAGS_DFLT);
+  argE->ovecsize = (size_t)luaL_optinteger (L, 5, 100);
+  argE->wscount = (size_t)luaL_optinteger (L, 6, 50);
 }
 
 static void push_chartables_meta (lua_State *L) {
@@ -377,7 +377,7 @@ static int Lpcre2_version (lua_State *L) {
 //### TODO: write tests for this method.
 static int Lpcre2_jit_compile (lua_State *L) {
   TPcre2 *ud = check_ud (L);
-  uint32_t options = (uint32_t) luaL_optint (L, 2, PCRE2_JIT_COMPLETE);
+  uint32_t options = (uint32_t) luaL_optinteger (L, 2, PCRE2_JIT_COMPLETE);
   int errcode = pcre2_jit_compile (ud->pr, options);
   if (errcode == 0) {
     lua_pushboolean(L, 1);

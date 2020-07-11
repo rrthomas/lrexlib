@@ -20,7 +20,7 @@ PATH = $(GCC$(DIRBIT))
 # LUAINC      : Path of Lua include files.
 # LIBPATH     : Path of lua51.dll, lua52.dll, pcre.dll, etc.
 
-INSTALLPATH = s:\exe\lib$(DIRBIT)\lua\$(LUADOTVERSION)
+INSTALLPATH = S:\Progr\Exe\lib$(DIRBIT)\lua\$(LUADOTVERSION)
 LUADLL      = lua$(LUAVERSION)
 LUAINC      = $(PATH_SYSTEM)\include\lua\$(LUADOTVERSION)
 LIBPATH     = $(CROOT)\Programs\EXE$(DIRBIT)
@@ -31,10 +31,6 @@ ifeq ($(LUAVERSION),51)
 else
   LUAEXE = $(LIBPATH)\lua$(LUAVERSION).exe
 endif
-
-ifeq ($(LUAVERSION),53)
-  LUA_COMPAT = -DLUA_COMPAT_5_2
-endif
 # --------------------------------------------------------------------------
 
 BIN        = $(PROJECT).dll
@@ -44,7 +40,7 @@ AR         = ar rcu
 RANLIB     = ranlib
 CFLAGS     = -W -Wall -O2 $(INCS) -DREX_OPENLIB=luaopen_$(PROJECT) \
              -DREX_LIBNAME=\"$(PROJECT)\" -DVERSION=\"$(VERSION)\" \
-             -m$(DIRBIT) $(CREATEGLOBAL) $(LUA_COMPAT) $(MYCFLAGS)
+             -m$(DIRBIT) $(CREATEGLOBAL) $(MYCFLAGS)
 DEFFILE    = $(PROJECT).def
 EXPORTED   = luaopen_$(PROJECT)
 INCS       = -I$(LUAINC) $(MYINCS)
