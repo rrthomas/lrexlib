@@ -50,7 +50,7 @@ Links
 - `LuaForge Project Page`_
 - Download_
 
-.. _License: http://rrthomas.github.com/lrexlib/license.html
-.. _Reference Manual: http://rrthomas.github.com/lrexlib/manual.html
+.. _License: http://rrthomas.github.io/lrexlib/license.html
+.. _Reference Manual: http://rrthomas.github.io/lrexlib/manual.html
 .. _LuaForge Project Page: http://luaforge.net/projects/lrexlib/
 .. _Download: https://github.com/rrthomas/lrexlib/downloads
