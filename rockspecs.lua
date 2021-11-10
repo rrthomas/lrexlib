@@ -19,7 +19,7 @@ default = {
   package = "Lrexlib-"..flavour,
   version = version.."-1",
   source = {
-    url = "git://github.com/rrthomas/lrexlib.git",
+    url = "git+https://github.com/rrthomas/lrexlib.git",
     tag = "rel-"..version_dashed,
   },
   description = {
