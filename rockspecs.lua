@@ -28,7 +28,7 @@ default = {
 Lrexlib is a regular expression library for Lua 5.1-5.4, which
 provides bindings for several regular expression libraries.
 This rock provides the ]]..flavour..[[ bindings.]],
-    homepage = "http://github.com/rrthomas/lrexlib",
+    homepage = "https://github.com/rrthomas/lrexlib",
     license = "MIT/X11"
   },
   dependencies = {
