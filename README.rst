@@ -5,7 +5,7 @@ Lrexlib
 |  and Shmuel Zeigerman (shmuz@013net.net)
 
 **Lrexlib** provides bindings of five regular expression library APIs
-(POSIX_, PCRE_, PCRE2_, GNU_, TRE_ and Oniguruma_) to Lua_ >= 5.1.
+(POSIX_, PCRE_, GNU_, TRE_ and Oniguruma_) to Lua_ >= 5.1.
 The bindings for TRE and Oniguruma are not currently complete.
 
 **Lrexlib** is copyright Reuben Thomas 2000-2020 and copyright Shmuel
@@ -14,8 +14,7 @@ the MIT_ license (otherwise known as the revised BSD license). There
 is no warranty.
 
 .. _POSIX: https://www.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap09.html
-.. _PCRE: https://www.pcre.org/pcre.txt
-.. _PCRE2: https://www.pcre.org/current/doc/html/
+.. _PCRE: https://www.pcre.org/current/doc/html/
 .. _GNU: https://ftp.gnu.org/old-gnu/regex/
 .. _Oniguruma: https://github.com/kkos/oniguruma
 .. _TRE: https://laurikari.net/tre/documentation/
@@ -38,7 +37,9 @@ Lrexlib is installed with LuaRocks_, using the command::
 
   luarocks install lrexlib-FLAVOUR
 
-where **FLAVOUR** is one of PCRE, PCRE2, POSIX, oniguruma, TRE, GNU
+where **FLAVOUR** is one of PCRE2, POSIX, oniguruma, TRE, GNU
+
+Note that the obsolete PCRE version 1 is also supported, as flavour PCRE.
 
 .. _LuaRocks: https://luarocks.org
 
