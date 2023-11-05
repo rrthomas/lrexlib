@@ -1,7 +1,7 @@
 # Use with GNU Make.
 
 # Lrexlib version
-VERSION = 2.9.1
+VERSION = 2.9.2
 
 # User Settings ------------------------------------------------------------
 

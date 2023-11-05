@@ -1,6 +1,6 @@
 # Makefile for lrexlib
 
-VERSION = 2.9.1
+VERSION = 2.9.2
 PROJECT = lrexlib
 PROJECT_VERSIONED = $(PROJECT)-$(VERSION)
 
