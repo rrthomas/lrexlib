@@ -45,10 +45,11 @@ clean:
 	$(RM) $(HTML) doc/index.txt *.rockspec
 
 release: check
+	test -n "$(LUAROCKS_API_KEY)" || ( echo "LUAROCKS_API_KEY must be set"; exit 1 ) && \
 	awk 'BEGIN { RS = "Release" } /'$(VERSION)'/' NEWS | tail -n +3 | head -n -2 > release-notes && \
 	git diff --exit-code && \
 	git tag -a -m "Release tag" rel-`echo $(VERSION) | sed -e 's/\./-/g'` && \
 	git push && git push --tags && \
 	$(MAKE) build LUAROCKS_COMMAND=build && \
-	woger lua package=$(PROJECT) package_name=$(PROJECT) version=$(VERSION) description="Lua binding for regex libraries" notes=release-notes home="`$(LUA) -e'version="'$(VERSION)'"; flavour="none"; t = require "rockspecs"; print(t.default.description.homepage)'`"
+	woger lua package=$(PROJECT) api_key=$(LUAROCKS_API_KEY) package_name=$(PROJECT) version=$(VERSION) description="Lua binding for regex libraries" notes=release-notes home="`$(LUA) -e'version="'$(VERSION)'"; flavour="none"; t = require "rockspecs"; print(t.default.description.homepage)'`"
 	rm -f release-notes
