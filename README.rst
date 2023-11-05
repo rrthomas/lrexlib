@@ -22,8 +22,7 @@ is no warranty.
 .. _Lua: http://www.lua.org
 .. _MIT: http://www.opensource.org/licenses/mit-license.php
 
-Please report bugs and make suggestions to the maintainer, or use the
-LuaForge trackers and mailing lists.
+Please report bugs and make suggestions to the maintainer, or mailing lists.
 
 Thanks to Thatcher Ulrich for bug and warning fixes, and to Nick
 Gammon for adding support for PCRE named subpatterns.
@@ -47,10 +46,8 @@ Links
 
 - License_
 - `Reference Manual`_
-- `LuaForge Project Page`_
 - Download_
 
 .. _License: http://rrthomas.github.io/lrexlib/license.html
 .. _Reference Manual: http://rrthomas.github.io/lrexlib/manual.html
-.. _LuaForge Project Page: http://luaforge.net/projects/lrexlib/
 .. _Download: https://github.com/rrthomas/lrexlib/downloads
