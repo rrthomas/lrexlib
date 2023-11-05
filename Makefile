@@ -45,7 +45,7 @@ clean:
 	$(RM) $(HTML) doc/index.txt *.rockspec
 
 release: check
-	agrep -d 'Release' $(VERSION) NEWS | tail -n +3 | head -n -2 > release-notes && \
+	awk 'BEGIN { RS = "Release" } /'$(VERSION)'/' NEWS | tail -n +3 | head -n -2 > release-notes && \
 	git diff --exit-code && \
 	git tag -a -m "Release tag" rel-`echo $(VERSION) | sed -e 's/\./-/g'` && \
 	git push && git push --tags && \
