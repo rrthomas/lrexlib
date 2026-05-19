@@ -3,7 +3,6 @@
 *.so.*
 *.so
 *.src.rock
-ChangeLog
 *.zip
 release-notes
 /*.rockspec
