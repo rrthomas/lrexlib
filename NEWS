@@ -1,3 +1,7 @@
+2026-05-19  Release 2.9.3
+
+  * Mark an internal variable in the PCRE and PCRE2 backend as static.
+
 2023-11-05  Release 2.9.2
 
   * Add LuaJIT support to the build system.
