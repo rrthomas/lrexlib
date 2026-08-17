@@ -8,8 +8,8 @@ Lrexlib
 (POSIX_, PCRE_, GNU_, TRE_ and Oniguruma_) to Lua_ >= 5.1.
 The bindings for TRE and Oniguruma are not currently complete.
 
-**Lrexlib** is copyright Reuben Thomas 2000-2020 and copyright Shmuel
-Zeigerman 2004-2020, and is released under the same license as Lua,
+**Lrexlib** is copyright Reuben Thomas 2000-2026 and copyright Shmuel
+Zeigerman 2004-2024, and is released under the same license as Lua,
 the MIT_ license (otherwise known as the revised BSD license). There
 is no warranty.
 
