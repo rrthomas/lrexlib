@@ -1,4 +1,4 @@
-/* ltre.c - Lua binding of TRE regular expressions library */
+/* ltre_w.c - Lua binding of TRE regular expressions library */
 /* See Copyright Notice in the file LICENSE */
 
 #include <stdlib.h>
