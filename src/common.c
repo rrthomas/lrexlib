@@ -8,7 +8,7 @@
 #include "lauxlib.h"
 #include "common.h"
 
-#define N_ALIGN sizeof(int)
+#define N_ALIGN sizeof(size_t)
 
 /* the table must be on Lua stack top */
 int get_int_field (lua_State *L, const char* field)
