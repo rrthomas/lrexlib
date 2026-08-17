@@ -37,6 +37,23 @@ where **FLAVOUR** is one of PCRE2, POSIX, oniguruma, TRE, GNU
 Note that the obsolete PCRE version 1 is also supported, as flavour
 PCRE.
 
+## Quickstart
+
+You can use Lrexlib as follows:
+
+```lua
+local rex = require "rex_pcre"
+local subj = "We go to school"
+local patt = "(\\w+)\\s+(\\w+)"
+local repl = "%2 %1"
+
+local from, to, cap1, cap2 = rex.find(subj, patt)
+print(from, to, cap1, cap2)
+
+local result = rex.gsub(subj, patt, repl)
+print(result)
+```
+
 ## Links
 
 - [GitHub project page](https://github.com/rrthomas/lrexlib)
