@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.14: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
 <title>Lrexlib Reference Manual</title>
 <link rel="stylesheet" href="lrexlib.css" type="text/css" />
 </head>
@@ -12,63 +12,63 @@
 <h1 class="title">Lrexlib Reference Manual</h1>
 
 <div class="contents topic" id="table-of-contents">
-<p class="topic-title first">Table of Contents</p>
+<p class="topic-title"><a class="reference internal" href="#top">Table of Contents</a></p>
 <ul class="simple">
-<li><a class="reference internal" href="#notes" id="id16">Notes</a></li>
-<li><a class="reference internal" href="#functions-and-methods-common-to-all-bindings" id="id17">Functions and methods common to all bindings</a><ul>
-<li><a class="reference internal" href="#match" id="id18">match</a></li>
-<li><a class="reference internal" href="#find" id="id19">find</a></li>
-<li><a class="reference internal" href="#gmatch" id="id20">gmatch</a></li>
-<li><a class="reference internal" href="#gsub" id="id21">gsub</a></li>
-<li><a class="reference internal" href="#split" id="id22">split</a></li>
-<li><a class="reference internal" href="#count" id="id23">count</a></li>
-<li><a class="reference internal" href="#flags" id="id24">flags</a></li>
-<li><a class="reference internal" href="#new" id="id25">new</a></li>
-<li><a class="reference internal" href="#tfind" id="id26">tfind</a></li>
-<li><a class="reference internal" href="#exec" id="id27">exec</a></li>
+<li><a class="reference internal" href="#notes" id="toc-entry-1">Notes</a></li>
+<li><a class="reference internal" href="#functions-and-methods-common-to-all-bindings" id="toc-entry-2">Functions and methods common to all bindings</a><ul>
+<li><a class="reference internal" href="#match" id="toc-entry-3">match</a></li>
+<li><a class="reference internal" href="#find" id="toc-entry-4">find</a></li>
+<li><a class="reference internal" href="#gmatch" id="toc-entry-5">gmatch</a></li>
+<li><a class="reference internal" href="#gsub" id="toc-entry-6">gsub</a></li>
+<li><a class="reference internal" href="#split" id="toc-entry-7">split</a></li>
+<li><a class="reference internal" href="#count" id="toc-entry-8">count</a></li>
+<li><a class="reference internal" href="#flags" id="toc-entry-9">flags</a></li>
+<li><a class="reference internal" href="#new" id="toc-entry-10">new</a></li>
+<li><a class="reference internal" href="#tfind" id="toc-entry-11">tfind</a></li>
+<li><a class="reference internal" href="#exec" id="toc-entry-12">exec</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#pcre-only-functions-and-methods" id="id28">PCRE-only functions and methods</a><ul>
-<li><a class="reference internal" href="#id1" id="id29">new</a></li>
-<li><a class="reference internal" href="#fullinfo" id="id30">fullinfo</a></li>
-<li><a class="reference internal" href="#dfa-exec" id="id31">dfa_exec</a></li>
-<li><a class="reference internal" href="#maketables" id="id32">maketables</a></li>
-<li><a class="reference internal" href="#config" id="id33">config</a></li>
-<li><a class="reference internal" href="#id3" id="id34">version</a></li>
+<li><a class="reference internal" href="#pcre-only-functions-and-methods" id="toc-entry-13">PCRE-only functions and methods</a><ul>
+<li><a class="reference internal" href="#new-1" id="toc-entry-14">new</a></li>
+<li><a class="reference internal" href="#fullinfo" id="toc-entry-15">fullinfo</a></li>
+<li><a class="reference internal" href="#dfa-exec" id="toc-entry-16">dfa_exec</a></li>
+<li><a class="reference internal" href="#maketables" id="toc-entry-17">maketables</a></li>
+<li><a class="reference internal" href="#config" id="toc-entry-18">config</a></li>
+<li><a class="reference internal" href="#version-1" id="toc-entry-19">version</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#pcre2-only-functions-and-methods" id="id35">PCRE2-only functions and methods</a><ul>
-<li><a class="reference internal" href="#id4" id="id36">new</a></li>
-<li><a class="reference internal" href="#patterninfo" id="id37">patterninfo</a></li>
-<li><a class="reference internal" href="#id6" id="id38">dfa_exec</a></li>
-<li><a class="reference internal" href="#jit-compile" id="id39">jit_compile</a></li>
-<li><a class="reference internal" href="#id7" id="id40">maketables</a></li>
-<li><a class="reference internal" href="#id8" id="id41">config</a></li>
-<li><a class="reference internal" href="#id9" id="id42">version</a></li>
+<li><a class="reference internal" href="#pcre2-only-functions-and-methods" id="toc-entry-20">PCRE2-only functions and methods</a><ul>
+<li><a class="reference internal" href="#new-2" id="toc-entry-21">new</a></li>
+<li><a class="reference internal" href="#patterninfo" id="toc-entry-22">patterninfo</a></li>
+<li><a class="reference internal" href="#dfa-exec-1" id="toc-entry-23">dfa_exec</a></li>
+<li><a class="reference internal" href="#jit-compile" id="toc-entry-24">jit_compile</a></li>
+<li><a class="reference internal" href="#maketables-1" id="toc-entry-25">maketables</a></li>
+<li><a class="reference internal" href="#config-1" id="toc-entry-26">config</a></li>
+<li><a class="reference internal" href="#version-2" id="toc-entry-27">version</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#gnu-only-functions-and-methods" id="id43">GNU-only functions and methods</a><ul>
-<li><a class="reference internal" href="#id10" id="id44">new</a></li>
+<li><a class="reference internal" href="#gnu-only-functions-and-methods" id="toc-entry-28">GNU-only functions and methods</a><ul>
+<li><a class="reference internal" href="#new-3" id="toc-entry-29">new</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#oniguruma-only-functions-and-methods" id="id45">Oniguruma-only functions and methods</a><ul>
-<li><a class="reference internal" href="#id11" id="id46">new</a></li>
-<li><a class="reference internal" href="#setdefaultsyntax" id="id47">setdefaultsyntax</a></li>
-<li><a class="reference internal" href="#id12" id="id48">version</a></li>
-<li><a class="reference internal" href="#capturecount" id="id49">capturecount</a></li>
+<li><a class="reference internal" href="#oniguruma-only-functions-and-methods" id="toc-entry-30">Oniguruma-only functions and methods</a><ul>
+<li><a class="reference internal" href="#new-4" id="toc-entry-31">new</a></li>
+<li><a class="reference internal" href="#setdefaultsyntax" id="toc-entry-32">setdefaultsyntax</a></li>
+<li><a class="reference internal" href="#version-3" id="toc-entry-33">version</a></li>
+<li><a class="reference internal" href="#capturecount" id="toc-entry-34">capturecount</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#tre-only-functions-and-methods" id="id50">TRE-only functions and methods</a><ul>
-<li><a class="reference internal" href="#id13" id="id51">new</a></li>
-<li><a class="reference internal" href="#atfind" id="id52">atfind</a></li>
-<li><a class="reference internal" href="#aexec" id="id53">aexec</a></li>
-<li><a class="reference internal" href="#have-approx" id="id54">have_approx</a></li>
-<li><a class="reference internal" href="#have-backrefs" id="id55">have_backrefs</a></li>
-<li><a class="reference internal" href="#id14" id="id56">config</a></li>
-<li><a class="reference internal" href="#rex-tre-version" id="id57">rex_tre.version</a></li>
+<li><a class="reference internal" href="#tre-only-functions-and-methods" id="toc-entry-35">TRE-only functions and methods</a><ul>
+<li><a class="reference internal" href="#new-5" id="toc-entry-36">new</a></li>
+<li><a class="reference internal" href="#atfind" id="toc-entry-37">atfind</a></li>
+<li><a class="reference internal" href="#aexec" id="toc-entry-38">aexec</a></li>
+<li><a class="reference internal" href="#have-approx" id="toc-entry-39">have_approx</a></li>
+<li><a class="reference internal" href="#have-backrefs" id="toc-entry-40">have_backrefs</a></li>
+<li><a class="reference internal" href="#config-2" id="toc-entry-41">config</a></li>
+<li><a class="reference internal" href="#rex-tre-version" id="toc-entry-42">rex_tre.version</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#incompatibilities-with-previous-versions" id="id58">Incompatibilities with previous versions</a></li>
+<li><a class="reference internal" href="#incompatibilities-with-previous-versions" id="toc-entry-43">Incompatibilities with previous versions</a></li>
 </ul>
 </div>
 <hr class="docutils" />
@@ -77,7 +77,7 @@
 which can be used with <em>require</em>.</p>
 <hr class="docutils" />
 <div class="section" id="notes">
-<h2><a class="toc-backref" href="#id16">Notes</a></h2>
+<h2><a class="toc-backref" href="#toc-entry-1">Notes</a></h2>
 <ol class="arabic">
 <li><p class="first">Most functions and methods in Lrexlib have mandatory and optional arguments.
 There are no dependencies between arguments in Lrexlib's functions and
@@ -201,9 +201,9 @@ is discarded, e.g. <tt class="docutils literal"><span class="pre">rex.count(&quo
 </div>
 <hr class="docutils" />
 <div class="section" id="functions-and-methods-common-to-all-bindings">
-<h2><a class="toc-backref" href="#id17">Functions and methods common to all bindings</a></h2>
+<h2><a class="toc-backref" href="#toc-entry-2">Functions and methods common to all bindings</a></h2>
 <div class="section" id="match">
-<h3><a class="toc-backref" href="#id18">match</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-3">match</a></h3>
 <p><tt class="funcdef docutils literal">rex.match (subj, patt, [init], [cf], [ef], <span class="pre">[larg...])</span></tt></p>
 <p>or</p>
 <p><tt class="funcdef docutils literal">r:match (subj, [init], [ef])</tt></p>
@@ -284,7 +284,7 @@ substring is returned.</li>
 </div>
 <hr class="docutils" />
 <div class="section" id="find">
-<h3><a class="toc-backref" href="#id19">find</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-4">find</a></h3>
 <p><tt class="funcdef docutils literal">rex.find (subj, patt, [init], [cf], [ef], <span class="pre">[larg...])</span></tt></p>
 <p>or</p>
 <p><tt class="funcdef docutils literal">r:find (subj, [init], [ef])</tt></p>
@@ -366,7 +366,7 @@ the match.</li>
 </div>
 <hr class="docutils" />
 <div class="section" id="gmatch">
-<h3><a class="toc-backref" href="#id20">gmatch</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-5">gmatch</a></h3>
 <p><tt class="funcdef docutils literal">rex.gmatch (subj, patt, [cf], [ef], <span class="pre">[larg...])</span></tt></p>
 <p>The function is intended for use in the <em>generic for</em> Lua construct.
 It returns an iterator for repeated matching of the pattern <em>patt</em> in
@@ -424,7 +424,7 @@ till the subject fails to match.</p>
 </div>
 <hr class="docutils" />
 <div class="section" id="gsub">
-<h3><a class="toc-backref" href="#id21">gsub</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-6">gsub</a></h3>
 <p><tt class="funcdef docutils literal">rex.gsub (subj, patt, repl, [n], [cf], [ef], <span class="pre">[larg...])</span></tt></p>
 <p>This function searches for all matches of the pattern <em>patt</em> in the string
 <em>subj</em> and replaces them according to the parameters <em>repl</em> and <em>n</em> (see details
@@ -590,7 +590,7 @@ next match; <em>n</em> will not be called again;</li>
 </div>
 <hr class="docutils" />
 <div class="section" id="split">
-<h3><a class="toc-backref" href="#id22">split</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-7">split</a></h3>
 <p><tt class="funcdef docutils literal">rex.split (subj, sep, [cf], [ef], <span class="pre">[larg...])</span></tt></p>
 <p>The function is intended for use in the <em>generic for</em> Lua construct.
 It is used for splitting a subject string <em>subj</em> into parts (<em>sections</em>).
@@ -661,7 +661,7 @@ subject.</p>
 </div>
 <hr class="docutils" />
 <div class="section" id="count">
-<h3><a class="toc-backref" href="#id23">count</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-8">count</a></h3>
 <p><tt class="funcdef docutils literal">rex.count (subj, patt, [cf], [ef], <span class="pre">[larg...])</span></tt></p>
 <p>This function counts matches of the pattern <em>patt</em> in the string <em>subj</em>.</p>
 <blockquote>
@@ -718,7 +718,7 @@ subject.</p>
 </div>
 <hr class="docutils" />
 <div class="section" id="flags">
-<h3><a class="toc-backref" href="#id24">flags</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-9">flags</a></h3>
 <p><tt class="funcdef docutils literal">rex.flags ([tb])</tt></p>
 <p>This function returns a table containing the numeric values of the constants
 defined by the used regex library, with the keys being the (string) names of the
@@ -783,7 +783,7 @@ RE_SYNTAX_GREP becomes <tt class="docutils literal">SYNTAX_GREP</tt> in Lua.</li
 </div>
 <hr class="docutils" />
 <div class="section" id="new">
-<h3><a class="toc-backref" href="#id25">new</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-10">new</a></h3>
 <p><tt class="funcdef docutils literal">rex.new (patt, [cf], <span class="pre">[larg...])</span></tt></p>
 <p>The function compiles regular expression <em>patt</em> into a regular expression object
 whose internal representation is corresponding to the library used. The returned
@@ -835,7 +835,7 @@ any.</p>
 </div>
 <hr class="docutils" />
 <div class="section" id="tfind">
-<h3><a class="toc-backref" href="#id26">tfind</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-11">tfind</a></h3>
 <p><tt class="funcdef docutils literal">r:tfind (subj, [init], [ef])</tt></p>
 <p>The method searches for the first match of the compiled regexp <em>r</em> in the
 string <em>subj</em>, starting from offset <em>init</em>, subject to execution flags <em>ef</em>.</p>
@@ -903,7 +903,7 @@ subpattern names (strings).</li>
 </div>
 <hr class="docutils" />
 <div class="section" id="exec">
-<h3><a class="toc-backref" href="#id27">exec</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-12">exec</a></h3>
 <p><tt class="funcdef docutils literal">r:exec (subj, [init], [ef])</tt></p>
 <p>The method searches for the first match of the compiled regexp <em>r</em> in the
 string <em>subj</em>, starting from offset <em>init</em>, subject to execution flags <em>ef</em>.</p>
@@ -977,9 +977,9 @@ subpattern names (strings).</li>
 </div>
 <hr class="docutils" />
 <div class="section" id="pcre-only-functions-and-methods">
-<h2><a class="toc-backref" href="#id28">PCRE-only functions and methods</a></h2>
-<div class="section" id="id1">
-<h3><a class="toc-backref" href="#id29">new</a></h3>
+<h2><a class="toc-backref" href="#toc-entry-13">PCRE-only functions and methods</a></h2>
+<div class="section" id="new-1">
+<h3><a class="toc-backref" href="#toc-entry-14">new</a></h3>
 <p><tt class="funcdef docutils literal">rex.new (patt, [cf], [lo])</tt></p>
 <p>The locale (<em>lo</em>) can be either a string (e.g., &quot;French_France.1252&quot;), or a
 userdata obtained from a call to <a class="reference internal" href="#maketables-pcre">maketables</a>. The default value, used when
@@ -988,7 +988,7 @@ tables.</p>
 </div>
 <hr class="docutils" />
 <div class="section" id="fullinfo">
-<h3><a class="toc-backref" href="#id30">fullinfo</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-15">fullinfo</a></h3>
 <p>[See <em>pcre_fullinfo</em> in the PCRE docs.]</p>
 <p><tt class="funcdef docutils literal">r:fullinfo ()</tt></p>
 <p>This function returns a table containing information about the compiled pattern.
@@ -997,7 +997,7 @@ The keys are strings formed in the following way:
 <hr class="docutils" />
 </div>
 <div class="section" id="dfa-exec">
-<span id="dfa-exec-pcre"></span><h3><a class="toc-backref" href="#id31">dfa_exec</a></h3>
+<span id="dfa-exec-pcre"></span><h3><a class="toc-backref" href="#toc-entry-16">dfa_exec</a></h3>
 <p>[PCRE 6.0 and later. See <em>pcre_dfa_exec</em> in the PCRE docs.]</p>
 <p><tt class="funcdef docutils literal">r:dfa_exec (subj, [init], [ef], [ovecsize], [wscount])</tt></p>
 <p>The method matches a compiled regular expression <em>r</em> against a given subject
@@ -1074,7 +1074,7 @@ and 25 then the function returns the following: 10, { 25,20,15 }, 3.</dd>
 <hr class="docutils" />
 </div>
 <div class="section" id="maketables">
-<span id="maketables-pcre"></span><h3><a class="toc-backref" href="#id32">maketables</a></h3>
+<span id="maketables-pcre"></span><h3><a class="toc-backref" href="#toc-entry-17">maketables</a></h3>
 <p>[See <em>pcre_maketables</em> in the PCRE docs.]</p>
 <p><tt class="funcdef docutils literal">rex_pcre.maketables ()</tt></p>
 <p>Creates a set of character tables corresponding to the current locale and
@@ -1083,7 +1083,7 @@ function accepting the <em>locale</em> parameter.</p>
 </div>
 <hr class="docutils" />
 <div class="section" id="config">
-<h3><a class="toc-backref" href="#id33">config</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-18">config</a></h3>
 <p>[PCRE 4.0 and later. See <em>pcre_config</em> in the PCRE docs.]</p>
 <p><tt class="funcdef docutils literal">rex_pcre.config ([tb])</tt></p>
 <p>This function returns a table containing the values of the configuration
@@ -1092,8 +1092,8 @@ keyed by their names (strings). If the table argument <em>tb</em> is supplied th
 is used as the output table, else a new table is created.</p>
 <hr class="docutils" />
 </div>
-<div class="section" id="id3">
-<span id="version"></span><h3><a class="toc-backref" href="#id34">version</a></h3>
+<div class="section" id="version-1">
+<span id="version"></span><h3><a class="toc-backref" href="#toc-entry-19">version</a></h3>
 <p>[See <em>pcre_version</em> in the PCRE docs.]</p>
 <p><tt class="funcdef docutils literal">rex_pcre.version ()</tt></p>
 <p>This function returns a string containing the version of the used PCRE library
@@ -1102,9 +1102,9 @@ and its release date.</p>
 </div>
 <hr class="docutils" />
 <div class="section" id="pcre2-only-functions-and-methods">
-<h2><a class="toc-backref" href="#id35">PCRE2-only functions and methods</a></h2>
-<div class="section" id="id4">
-<h3><a class="toc-backref" href="#id36">new</a></h3>
+<h2><a class="toc-backref" href="#toc-entry-20">PCRE2-only functions and methods</a></h2>
+<div class="section" id="new-2">
+<h3><a class="toc-backref" href="#toc-entry-21">new</a></h3>
 <p><tt class="funcdef docutils literal">rex.new (patt, [cf], [lo])</tt></p>
 <p>The locale (<em>lo</em>) can be either a string (e.g., &quot;French_France.1252&quot;), or a
 userdata obtained from a call to <a class="reference internal" href="#maketables-pcre2">maketables</a>. The default value, used when
@@ -1113,7 +1113,7 @@ tables.</p>
 </div>
 <hr class="docutils" />
 <div class="section" id="patterninfo">
-<h3><a class="toc-backref" href="#id37">patterninfo</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-22">patterninfo</a></h3>
 <p>[See <em>pcre2_patterninfo</em> in the PCRE2 docs.]</p>
 <p><tt class="funcdef docutils literal">r:patterninfo ()</tt></p>
 <p>This function returns a table containing information about the compiled pattern.
@@ -1121,8 +1121,8 @@ The keys are strings formed in the following way:
 <tt class="docutils literal">PCRE2_INFO_CAPTURECOUNT</tt> -&gt; <tt class="docutils literal">&quot;CAPTURECOUNT&quot;</tt>. The values are numbers.</p>
 </div>
 <hr class="docutils" />
-<div class="section" id="id6">
-<h3><a class="toc-backref" href="#id38">dfa_exec</a></h3>
+<div class="section" id="dfa-exec-1">
+<h3><a class="toc-backref" href="#toc-entry-23">dfa_exec</a></h3>
 <p>[See <em>pcre2_dfa_exec</em> in the PCRE2 docs.]</p>
 <p><tt class="funcdef docutils literal">r:dfa_exec (subj, [init], [ef], [ovecsize], [wscount])</tt></p>
 <p>The method matches a compiled regular expression <em>r</em> against a given subject
@@ -1199,7 +1199,7 @@ and 25 then the function returns the following: 10, { 25,20,15 }, 3.</dd>
 </div>
 <hr class="docutils" />
 <div class="section" id="jit-compile">
-<h3><a class="toc-backref" href="#id39">jit_compile</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-24">jit_compile</a></h3>
 <p>[See <em>pcre2_jit_compile</em> in the PCRE2 docs.]</p>
 <p><tt class="funcdef docutils literal">r:jit_compile ([options])</tt></p>
 <p>Parameter <em>options</em> is a number (a bitwise OR of separate options;
@@ -1207,8 +1207,8 @@ it defaults to <tt class="docutils literal">PCRE2_JIT_COMPLETE</tt>).</p>
 <p>The method returns <tt class="docutils literal">true</tt> on success or <tt class="docutils literal">false</tt> + error message string on failure.</p>
 <hr class="docutils" />
 </div>
-<div class="section" id="id7">
-<span id="maketables-pcre2"></span><h3><a class="toc-backref" href="#id40">maketables</a></h3>
+<div class="section" id="maketables-1">
+<span id="maketables-pcre2"></span><h3><a class="toc-backref" href="#toc-entry-25">maketables</a></h3>
 <p>[See <em>pcre2_maketables</em> in the PCRE2 docs.]</p>
 <p><tt class="funcdef docutils literal">rex_pcre2.maketables ()</tt></p>
 <p>Creates a set of character tables corresponding to the current locale and
@@ -1216,8 +1216,8 @@ returns it as a userdata. The returned value can be passed to any Lrexlib
 function accepting the <em>locale</em> parameter.</p>
 </div>
 <hr class="docutils" />
-<div class="section" id="id8">
-<h3><a class="toc-backref" href="#id41">config</a></h3>
+<div class="section" id="config-1">
+<h3><a class="toc-backref" href="#toc-entry-26">config</a></h3>
 <p>[See <em>pcre2_config</em> in the PCRE2 docs.]</p>
 <p><tt class="funcdef docutils literal">rex_pcre2.config ([tb])</tt></p>
 <p>This function returns a table containing the values of the configuration
@@ -1226,8 +1226,8 @@ keyed by their names (strings). If the table argument <em>tb</em> is supplied th
 is used as the output table, else a new table is created.</p>
 </div>
 <hr class="docutils" />
-<div class="section" id="id9">
-<h3><a class="toc-backref" href="#id42">version</a></h3>
+<div class="section" id="version-2">
+<h3><a class="toc-backref" href="#toc-entry-27">version</a></h3>
 <p>[See <em>pcre2_config(PCRE2_CONFIG_VERSION)</em> in the PCRE2 docs.]</p>
 <p><tt class="funcdef docutils literal">rex_pcre2.version ()</tt></p>
 <p>This function returns a string containing the version of the used PCRE2 library
@@ -1236,9 +1236,9 @@ and its release date.</p>
 </div>
 <hr class="docutils" />
 <div class="section" id="gnu-only-functions-and-methods">
-<h2><a class="toc-backref" href="#id43">GNU-only functions and methods</a></h2>
-<div class="section" id="id10">
-<h3><a class="toc-backref" href="#id44">new</a></h3>
+<h2><a class="toc-backref" href="#toc-entry-28">GNU-only functions and methods</a></h2>
+<div class="section" id="new-3">
+<h3><a class="toc-backref" href="#toc-entry-29">new</a></h3>
 <p><tt class="funcdef docutils literal">rex.new (patt, [cf], [tr])</tt></p>
 <p>If the compilation flags (<em>cf</em>) are not supplied or <tt class="docutils literal">nil</tt>, the default syntax
 is <tt class="docutils literal">SYNTAX_POSIX_EXTENDED</tt>. Note that this is not the same as passing a value
@@ -1250,9 +1250,9 @@ translated when it is being matched.</p>
 </div>
 </div>
 <div class="section" id="oniguruma-only-functions-and-methods">
-<h2><a class="toc-backref" href="#id45">Oniguruma-only functions and methods</a></h2>
-<div class="section" id="id11">
-<h3><a class="toc-backref" href="#id46">new</a></h3>
+<h2><a class="toc-backref" href="#toc-entry-30">Oniguruma-only functions and methods</a></h2>
+<div class="section" id="new-4">
+<h3><a class="toc-backref" href="#toc-entry-31">new</a></h3>
 <p><tt class="funcdef docutils literal">rex.new (patt, [cf], [enc], [syn])</tt></p>
 <p>The <em>encoding</em> parameter (<em>enc</em>) must be one of the predefined strings that are
 formed from the ONIG_ENCODING_xxx identifiers defined in oniguruma.h, by means
@@ -1271,7 +1271,7 @@ last <a class="reference internal" href="#setdefaultsyntax">setdefaultsyntax</a>
 &quot;syntax&quot; string set, an error is raised.</p>
 </div>
 <div class="section" id="setdefaultsyntax">
-<h3><a class="toc-backref" href="#id47">setdefaultsyntax</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-32">setdefaultsyntax</a></h3>
 <p><tt class="funcdef docutils literal">rex_onig.setdefaultsyntax (syntax)</tt></p>
 <p>This function sets the default syntax for the Oniguruma library, according to the
 value of the string syntax. The specified syntax will be further used for
@@ -1287,8 +1287,8 @@ argument is passed to those functions explicitly.</p>
 </blockquote>
 </div>
 <hr class="docutils" />
-<div class="section" id="id12">
-<h3><a class="toc-backref" href="#id48">version</a></h3>
+<div class="section" id="version-3">
+<h3><a class="toc-backref" href="#toc-entry-33">version</a></h3>
 <p>[See <em>onig_version</em> in the Oniguruma docs.]</p>
 <p><tt class="funcdef docutils literal">rex_onig.version ()</tt></p>
 <p>This function returns a string containing the version of the used Oniguruma
@@ -1296,7 +1296,7 @@ library.</p>
 </div>
 <hr class="docutils" />
 <div class="section" id="capturecount">
-<h3><a class="toc-backref" href="#id49">capturecount</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-34">capturecount</a></h3>
 <p>[See <em>onig_number_of_captures</em> in the Oniguruma docs.]</p>
 <p><tt class="funcdef docutils literal">r:capturecount ()</tt></p>
 <p>Returns the number of captures in the pattern.</p>
@@ -1304,13 +1304,13 @@ library.</p>
 </div>
 <hr class="docutils" />
 <div class="section" id="tre-only-functions-and-methods">
-<h2><a class="toc-backref" href="#id50">TRE-only functions and methods</a></h2>
-<div class="section" id="id13">
-<h3><a class="toc-backref" href="#id51">new</a></h3>
+<h2><a class="toc-backref" href="#toc-entry-35">TRE-only functions and methods</a></h2>
+<div class="section" id="new-5">
+<h3><a class="toc-backref" href="#toc-entry-36">new</a></h3>
 <p><tt class="funcdef docutils literal">rex.new (patt, [cf])</tt></p>
 </div>
 <div class="section" id="atfind">
-<h3><a class="toc-backref" href="#id52">atfind</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-37">atfind</a></h3>
 <p><tt class="funcdef docutils literal">r:atfind (subj, params, [init], [ef])</tt></p>
 <p>The method searches for the first match of the compiled regexp <em>r</em> in the
 string <em>subj</em>, starting from offset <em>init</em>, subject to execution flags <em>ef</em>.</p>
@@ -1391,7 +1391,7 @@ in the following fields: <tt class="docutils literal">cost</tt>, <tt class="docu
 </div>
 <hr class="docutils" />
 <div class="section" id="aexec">
-<h3><a class="toc-backref" href="#id53">aexec</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-38">aexec</a></h3>
 <p><tt class="funcdef docutils literal">r:aexec (subj, params, [init], [ef])</tt></p>
 <p>The method searches for the first match of the compiled regexp <em>r</em> in the
 string <em>subj</em>, starting from offset <em>init</em>, subject to execution flags <em>ef</em>.</p>
@@ -1473,21 +1473,21 @@ the match, in the following fields: <tt class="docutils literal">cost</tt>, <tt 
 </div>
 <hr class="docutils" />
 <div class="section" id="have-approx">
-<h3><a class="toc-backref" href="#id54">have_approx</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-39">have_approx</a></h3>
 <p><tt class="funcdef docutils literal">r:have_approx ()</tt></p>
 <p>The method returns <tt class="docutils literal">true</tt> if the compiled pattern uses approximate matching,
 and <tt class="docutils literal">false</tt> if not.</p>
 </div>
 <hr class="docutils" />
 <div class="section" id="have-backrefs">
-<h3><a class="toc-backref" href="#id55">have_backrefs</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-40">have_backrefs</a></h3>
 <p><tt class="funcdef docutils literal">r:have_backrefs ()</tt></p>
 <p>The method returns <tt class="docutils literal">true</tt> if the compiled pattern has back references,
 and <tt class="docutils literal">false</tt> if not.</p>
 </div>
 <hr class="docutils" />
-<div class="section" id="id14">
-<h3><a class="toc-backref" href="#id56">config</a></h3>
+<div class="section" id="config-2">
+<h3><a class="toc-backref" href="#toc-entry-41">config</a></h3>
 <p>[See <em>tre_config</em> in the TRE docs.]</p>
 <p><tt class="funcdef docutils literal">rex_tre.config ([tb])</tt></p>
 <p>This function returns a table containing the values of the configuration
@@ -1497,7 +1497,7 @@ is used as the output table, else a new table is created.</p>
 </div>
 <hr class="docutils" />
 <div class="section" id="rex-tre-version">
-<h3><a class="toc-backref" href="#id57">rex_tre.version</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-42">rex_tre.version</a></h3>
 <p>[See <em>tre_version</em> in the TRE docs.]</p>
 <p><tt class="funcdef docutils literal">rex_tre.version ()</tt></p>
 <p>This function returns a string containing the version of the used TRE library.</p>
@@ -1505,7 +1505,7 @@ is used as the output table, else a new table is created.</p>
 </div>
 <hr class="docutils" />
 <div class="section" id="incompatibilities-with-previous-versions">
-<h2><a class="toc-backref" href="#id58">Incompatibilities with previous versions</a></h2>
+<h2><a class="toc-backref" href="#toc-entry-43">Incompatibilities with previous versions</a></h2>
 <p><strong>Incompatibilities between versions 2.8 and 2.7:</strong></p>
 <blockquote>
 <ol class="arabic simple">
@@ -1558,7 +1558,7 @@ subpatterns</em></li>
 </div>
 <div class="footer">
 <hr class="footer" />
-Generated on: 2020-08-07 08:55 UTC.
+Generated on: 2026-08-17 21:08 UTC.
 
 </div>
 </body>

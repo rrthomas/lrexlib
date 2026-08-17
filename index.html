@@ -1,54 +1,48 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.14: http://docutils.sourceforge.net/" />
-<title>Lrexlib</title>
-<link rel="stylesheet" href="lrexlib.css" type="text/css" />
-</head>
-<body>
-<div class="document" id="lrexlib">
-<h1 class="title">Lrexlib</h1>
-
-<div class="line-block">
-<div class="line">by Reuben Thomas (<a class="reference external" href="mailto:rrt&#64;sc3d.org">rrt&#64;sc3d.org</a>)</div>
-<div class="line">and Shmuel Zeigerman (<a class="reference external" href="mailto:shmuz&#64;013net.net">shmuz&#64;013net.net</a>)</div>
-</div>
+<h1>Lrexlib</h1>
+<p>by Reuben Thomas (<a href="mailto:rrt@sc3d.org">rrt@sc3d.org</a>)<br />
+and Shmuel Zeigerman (<a href="mailto:shmuz@013net.net">shmuz@013net.net</a>)</p>
 <p><strong>Lrexlib</strong> provides bindings of five regular expression library APIs
-(<a class="reference external" href="http://www.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap09.html">POSIX</a>, <a class="reference external" href="http://www.pcre.org/pcre.txt">PCRE</a>, <a class="reference external" href="http://www.pcre.org/pcre2.txt">PCRE2</a>, <a class="reference external" href="ftp://ftp.gnu.org/old-gnu/regex/">GNU</a>, <a class="reference external" href="http://laurikari.net/tre/documentation/">TRE</a> and <a class="reference external" href="https://github.com/kkos/oniguruma">Oniguruma</a>) to <a class="reference external" href="http://www.lua.org">Lua</a> &gt;= 5.1.
-The bindings for TRE and Oniguruma are not currently complete.</p>
-<p><strong>Lrexlib</strong> is copyright Reuben Thomas 2000-2020 and copyright Shmuel
-Zeigerman 2004-2020, and is released under the same license as Lua,
-the <a class="reference external" href="http://www.opensource.org/licenses/mit-license.php">MIT</a> license (otherwise known as the revised BSD license). There
-is no warranty.</p>
-<p>Please report bugs and make suggestions to the maintainer, or use the
-LuaForge trackers and mailing lists.</p>
-<p>Thanks to Thatcher Ulrich for bug and warning fixes, and to Nick
-Gammon for adding support for PCRE named subpatterns.</p>
-<hr class="docutils" />
-<div class="section" id="installation">
+(<a href="https://www.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap09.html">POSIX</a>,
+<a href="https://www.pcre.org/current/doc/html/">PCRE</a>,
+<a href="https://ftp.gnu.org/old-gnu/regex/">GNU</a>,
+<a href="https://laurikari.net/tre/documentation/">TRE</a> and
+<a href="https://github.com/kkos/oniguruma">Oniguruma</a>) to
+<a href="https://www.lua.org">Lua</a> &gt;= 5.1. The bindings for TRE and Oniguruma
+are not currently complete.</p>
+<p><strong>Lrexlib</strong> is copyright Reuben Thomas 2000-2026 and copyright Shmuel
+Zeigerman 2004-2024, and is released under the same license as Lua, the
+<a href="https://www.opensource.org/licenses/mit-license.php">MIT</a> license
+(otherwise known as the revised BSD license). There is no warranty.</p>
+<p>Please report bugs and make suggestions on
+<a href="https://github.com/rrthomas/lrexlib/issues">GitHub</a>.</p>
+<p>Thanks to Thatcher Ulrich for bug and warning fixes, and to Nick Gammon
+for adding support for PCRE named subpatterns.</p>
+<hr />
 <h2>Installation</h2>
-<p>Lrexlib is installed with <a class="reference external" href="http://www.luarocks.org">LuaRocks</a>, using the command:</p>
-<pre class="literal-block">
-luarocks install lrexlib-FLAVOUR
-</pre>
-<p>where <strong>FLAVOUR</strong> is one of PCRE, PCRE2, POSIX, oniguruma, TRE, GNU</p>
-</div>
-<div class="section" id="links">
-<h2>Links</h2>
-<ul class="simple">
-<li><a class="reference external" href="http://rrthomas.github.com/lrexlib/license.html">License</a></li>
-<li><a class="reference external" href="http://rrthomas.github.com/lrexlib/manual.html">Reference Manual</a></li>
-<li><a class="reference external" href="http://luaforge.net/projects/lrexlib/">LuaForge Project Page</a></li>
-<li><a class="reference external" href="https://github.com/rrthomas/lrexlib/downloads">Download</a></li>
-</ul>
-</div>
-</div>
-<div class="footer">
-<hr class="footer" />
-Generated on: 2020-08-07 08:55 UTC.
+<p>Lrexlib is installed with <a href="https://luarocks.org">LuaRocks</a>, using the
+command:</p>
+<pre><code>luarocks install lrexlib-FLAVOUR
+</code></pre>
+<p>where <strong>FLAVOUR</strong> is one of PCRE2, POSIX, oniguruma, TRE, GNU</p>
+<p>Note that the obsolete PCRE version 1 is also supported, as flavour
+PCRE.</p>
+<h2>Quickstart</h2>
+<p>You can use Lrexlib as follows:</p>
+<pre><code class="language-lua">local rex = require &quot;rex_pcre&quot;
+local subj = &quot;We go to school&quot;
+local patt = &quot;(\\w+)\\s+(\\w+)&quot;
+local repl = &quot;%2 %1&quot;
 
-</div>
-</body>
-</html>
+local from, to, cap1, cap2 = rex.find(subj, patt)
+print(from, to, cap1, cap2)
+
+local result = rex.gsub(subj, patt, repl)
+print(result)
+</code></pre>
+<h2>Links</h2>
+<ul>
+<li><a href="https://github.com/rrthomas/lrexlib">GitHub project page</a></li>
+<li><a href="https://rrthomas.github.io/lrexlib/license.html">License</a></li>
+<li><a href="https://rrthomas.github.io/lrexlib/manual.html">Reference Manual</a></li>
+<li><a href="https://github.com/rrthomas/lrexlib/releases">Releases</a></li>
+</ul>
