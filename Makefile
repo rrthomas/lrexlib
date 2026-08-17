@@ -33,7 +33,7 @@ rockspecs:
 	rm -f *.rockspec
 	$(LUA) mkrockspecs.lua $(PROJECT) $(VERSION)
 
-doc/index.txt: README.rst
+doc/index.txt: README.md
 	$(CP) $< $@
 
 check: build
