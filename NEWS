@@ -1,3 +1,11 @@
+2026-08-17  Release 2.9.4
+
+  * Note that lrexlib supports Lua 5.5! No changes needed.
+  * Fix compilation of ltre_w.c.
+  * Improve the documentation, adding a quick-start section.
+  * Fix an alignment bug on platforms that require 64-bit accesses to be
+    8-byte aligned.
+
 2026-05-19  Release 2.9.3
 
   * Mark an internal variable in the PCRE and PCRE2 backend as static.
