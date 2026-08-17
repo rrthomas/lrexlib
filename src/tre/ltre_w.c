@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
+#include <wctype.h>
 #include "lua.h"
 #include "lauxlib.h"
 #include "../common.h"
