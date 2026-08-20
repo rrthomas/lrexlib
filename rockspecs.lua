@@ -7,10 +7,11 @@
 
 local flavours = {"PCRE", "PCRE2", "POSIX", "oniguruma", "TRE", "GNU"}
 local version_dashed = version:gsub ("%.", "-")
--- FIXME: PCRE2 define should be only in PCRE2 rockspec
 local defines = {"VERSION=\""..version.."\"",
-                 "LUA_LIB=",
-                 "PCRE2_CODE_UNIT_WIDTH=8"}
+                 "LUA_LIB="}
+local defines_pcre2 = {"VERSION=\""..version.."\"",
+                       "LUA_LIB=",
+                       "PCRE2_CODE_UNIT_WIDTH=8"}
 
 -- FIXME: When Lua 5.1 support is dropped, use an env argument with
 -- loadfile instead of wrapping in a table
@@ -26,7 +27,7 @@ default = {
   description = {
     summary = "Regular expression library binding ("..flavour.." flavour).",
     detailed = [[
-Lrexlib is a regular expression library for Lua 5.1-5.4, which
+Lrexlib is a regular expression library for Lua 5.1-5.5, which
 provides bindings for several regular expression libraries.
 This rock provides the ]]..flavour..[[ bindings.]],
     homepage = "https://github.com/rrthomas/lrexlib",
@@ -69,7 +70,7 @@ PCRE2 = {
     type = "builtin",
     modules = {
       rex_pcre2 = {
-        defines = defines,
+        defines = defines_pcre2,
         sources = {"src/common.c", "src/pcre2/lpcre2.c", "src/pcre2/lpcre2_f.c"},
         libraries = {"pcre2-8"},
         incdirs = {"$(PCRE2_INCDIR)"},
